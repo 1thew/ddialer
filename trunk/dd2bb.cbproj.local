@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2010.08.30 11:05:39.959.cpp,C:\Users\Admin\Documents\RAD Studio\Projects\Unit1.cpp=C:\Users\Admin\Documents\RAD Studio\Projects\DD2b.cpp</Transaction>
+    <Transaction>2010.08.30 11:05:39.959.h,C:\Users\Admin\Documents\RAD Studio\Projects\Unit1.h=C:\Users\Admin\Documents\RAD Studio\Projects\DD2b.h</Transaction>
+    <Transaction>2010.08.30 11:05:39.959.dfm,C:\Users\Admin\Documents\RAD Studio\Projects\Unit1.dfm=C:\Users\Admin\Documents\RAD Studio\Projects\DD2b.dfm</Transaction>
+    <Transaction>2010.08.30 12:21:01.508.cbproj,C:\Users\Admin\Documents\RAD Studio\Projects\Project1.cbproj=C:\Users\Admin\Documents\RAD Studio\Projects\dd2bb.cbproj</Transaction>
+    <Transaction>2010.08.31 11:06:45.433.cpp,C:\Users\Admin\Documents\RAD Studio\Projects\Unit1.cpp=C:\Users\Admin\Documents\RAD Studio\Projects\readconfig.cpp</Transaction>
+    <Transaction>2010.08.31 11:06:45.441.h,C:\Users\Admin\Documents\RAD Studio\Projects\Unit1.h=C:\Users\Admin\Documents\RAD Studio\Projects\readconfig.h</Transaction>
+  </Transactions>
+</BorlandProject>
