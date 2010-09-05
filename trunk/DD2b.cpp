@@ -5,6 +5,7 @@
 #pragma hdrstop
 
 #include "DD2b.h"
+#include <Dialogs.hpp>
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -22,6 +23,7 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 void __fastcall TForm1::Button1Click(TObject *Sender)
 {
 	  CheckConfig();
+	  ShowMessage("Проверка");
 }
 //---------------------------------------------------------------------------
 

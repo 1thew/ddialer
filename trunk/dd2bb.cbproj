@@ -60,6 +60,17 @@
 			<ILINK_TranslatedLibraryPath>$(BDS)\lib\$(LANGDIR)\release;$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
 		</PropertyGroup>
 		<ItemGroup>
+			<ResFiles Include="dd2bb.res">
+				<BuildOrder>1</BuildOrder>
+			</ResFiles>
+			<CppCompile Include="ras.cpp">
+				<DependentOn>ras.h</DependentOn>
+				<BuildOrder>4</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="mainunit.cpp">
+				<DependentOn>mainunit.h</DependentOn>
+				<BuildOrder>5</BuildOrder>
+			</CppCompile>
 			<CppCompile Include="dd2bb.cpp">
 				<BuildOrder>0</BuildOrder>
 			</CppCompile>
@@ -71,18 +82,6 @@
 				<Form>Form1</Form>
 				<DependentOn>DD2b.h</DependentOn>
 				<BuildOrder>2</BuildOrder>
-			</CppCompile>
-			<ResFiles Include="dd2bb.res">
-				<ModuleName>dd2bb.res</ModuleName>
-				<BuildOrder>1</BuildOrder>
-			</ResFiles>
-			<CppCompile Include="ras.cpp">
-				<DependentOn>ras.h</DependentOn>
-				<BuildOrder>4</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="mainunit.cpp">
-				<DependentOn>mainunit.h</DependentOn>
-				<BuildOrder>5</BuildOrder>
 			</CppCompile>
 			<FormResources Include="DD2b.dfm"/>
 			<BuildConfiguration Include="Base">
