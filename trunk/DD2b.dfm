@@ -79,6 +79,7 @@ object Form1: TForm1
           Height = 17
           Caption = #1047#1072#1087#1086#1084#1085#1080#1090#1100' '#1087#1072#1088#1072#1084#1077#1090#1088#1099
           TabOrder = 0
+          OnClick = CheckBox1Click
         end
         object ComboBox1: TComboBox
           Left = 16
@@ -109,7 +110,7 @@ object Form1: TForm1
       end
       object GroupBox2: TGroupBox
         Left = 3
-        Top = 128
+        Top = 135
         Width = 414
         Height = 105
         Caption = #1040#1074#1090#1086#1084#1072#1090#1080#1079#1072#1094#1080#1103

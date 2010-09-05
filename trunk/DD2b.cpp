@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 
 #include <vcl.h>
-#include "readconfig.h"
+#include "config.h"
 #pragma hdrstop
 
 #include "DD2b.h"
@@ -27,7 +27,7 @@ void __fastcall TForm1::Button1Click(TObject *Sender)
 
 void __fastcall TForm1::Edit1Change(TObject *Sender)
 {
-	if ( (Edit1->Text.Length() == 0 ) || ((Edit1->Text.Length() < 4)))
+	if (Edit1->Text.Length() < 3)
 		Button1->Enabled = false;
 	else
 		Button1->Enabled = true;
@@ -36,10 +36,28 @@ void __fastcall TForm1::Edit1Change(TObject *Sender)
 
 void __fastcall TForm1::Edit2Change(TObject *Sender)
 {
-	if  ((Edit2->Text.Length() < 4))
+	if  ((Edit2->Text.Length() < 3))
 		Button1->Enabled = false;
 	else
 		Button1->Enabled = true;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::CheckBox1Click(TObject *Sender)
+{
+  if(CheckBox1->Checked)
+  {
+	Edit1->Enabled = false;
+	Edit2->Enabled = false;
+	ComboBox1->Enabled = false;
+  }
+  else
+  {
+	Edit1->Enabled = true;
+	Edit2->Enabled = true;
+	ComboBox1->Enabled = true;
+  }
+
 }
 //---------------------------------------------------------------------------
 

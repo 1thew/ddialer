@@ -63,8 +63,8 @@
 			<CppCompile Include="dd2bb.cpp">
 				<BuildOrder>0</BuildOrder>
 			</CppCompile>
-			<CppCompile Include="readconfig.cpp">
-				<DependentOn>readconfig.h</DependentOn>
+			<CppCompile Include="config.cpp">
+				<DependentOn>config.h</DependentOn>
 				<BuildOrder>3</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="DD2b.cpp">
@@ -76,6 +76,14 @@
 				<ModuleName>dd2bb.res</ModuleName>
 				<BuildOrder>1</BuildOrder>
 			</ResFiles>
+			<CppCompile Include="ras.cpp">
+				<DependentOn>ras.h</DependentOn>
+				<BuildOrder>4</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="mainunit.cpp">
+				<DependentOn>mainunit.h</DependentOn>
+				<BuildOrder>5</BuildOrder>
+			</CppCompile>
 			<FormResources Include="DD2b.dfm"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>

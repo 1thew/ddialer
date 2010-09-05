@@ -8,6 +8,7 @@
 #include <StdCtrls.hpp>
 #include <Forms.hpp>
 #include <ComCtrls.hpp>
+#include "mainunit.h"
 //---------------------------------------------------------------------------
 class TForm1 : public TForm
 {
@@ -31,6 +32,7 @@ __published:	// IDE-managed Components
 	void __fastcall Button1Click(TObject *Sender);
 	void __fastcall Edit1Change(TObject *Sender);
 	void __fastcall Edit2Change(TObject *Sender);
+	void __fastcall CheckBox1Click(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);
