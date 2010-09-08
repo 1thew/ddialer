@@ -5,16 +5,7 @@
 #include "DD2b.h"
 
 void CheckConfig();
-
-class ConfigData
-{
-
-	int *type;
-	bool *savedata;
-//**************************************************************************
-	bool *autoconnect;
-	bool *autoload;
-};
+void ReadConfig ();
 
 //---------------------------------------------------------------------------
 #endif
