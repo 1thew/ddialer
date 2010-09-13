@@ -63,3 +63,9 @@ void __fastcall TForm1::CheckBox1Click(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
+void __fastcall TForm1::Button2Click(TObject *Sender)
+{
+	  ReadConfig ();
+}
+//---------------------------------------------------------------------------
+

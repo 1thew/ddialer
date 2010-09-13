@@ -39,6 +39,7 @@ object Form1: TForm1
         Height = 49
         Caption = #1054#1090#1082#1083#1102#1095#1080#1090#1100#1089#1103
         TabOrder = 1
+        OnClick = Button2Click
       end
     end
     object TabSheet2: TTabSheet

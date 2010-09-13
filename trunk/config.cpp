@@ -3,6 +3,7 @@
 #pragma hdrstop
 
 #include "config.h"
+#include "DD2b.h"
 
 
 
@@ -10,6 +11,7 @@
 #include <iostream>
 #include <vcl.h>
 using namespace std;
+TForm1 *Form1;
 // ---------------------------------------------------------------------------
 
 #pragma package(smart_init)
@@ -58,6 +60,10 @@ void ReadConfig ()
 		ShowMessage("Проблема с файлом конфигурации. Переустановите программу");
 	}
 
+	TEdit *Edit1;
+	TEdit *Edit2;
+	TCheckBox *CheckBox1;
+
 	while(!f.eof())
 	{
 		char buf[255];
@@ -93,22 +99,21 @@ void ReadConfig ()
 		p_value.append(line,e+1,line.length()-e-1);
 
 		// после Артуровский код
-	TEdit *Edit1;
-	TEdit *Edit2;
-	TCheckBox *CheckBox1;
-	TForm1 *Form1;
 
+	AnsiString name = p_name.c_str();
+	AnsiString value = p_value.c_str();
 
-	if (p_name.c_str() == "login")
+	if (name == "login")
 	{
-		Edit1->Text = 123123;
-		ShowMessage("загружаем логин");
+	  ShowMessage(name);
+	  ShowMessage(value);
+	  Edit1->Text = value;
 	}
-
-	Edit1->Text = "123123";
-
-	if (p_name.c_str() == "pass")
+/*
+	if (name == "pass")
 	{
+		ShowMessage(name);
+		ShowMessage(value);
 		Edit2->Text = p_value.c_str();
 	}
 
@@ -116,11 +121,7 @@ void ReadConfig ()
 	{
 		CheckBox1->Checked;
 	}
-
-// конец кода
-
-
-	//	cout << "p_name = " << p_name.c_str() << ", p_value = " << p_value.c_str() << endl;
+*/
 	}
 };
 
