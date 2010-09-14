@@ -3,21 +3,19 @@
 #pragma hdrstop
 
 #include "config.h"
-#include "DD2b.h"
+//#include "DD2b.h"
 
 
 
-#include <fstream>
-#include <iostream>
-#include <vcl.h>
+
 using namespace std;
-TForm1 *Form1;
+//TForm1 *Form1;
 // ---------------------------------------------------------------------------
 
 #pragma package(smart_init)
 
 // функция проверяет доступность conf.ini и в случае необходимости его создаст
-void CheckConfig()
+void config::CheckConfig()
 {
   //ShowMessage("Создаём конфиги по дефолту");
   AnsiString st;
@@ -33,7 +31,7 @@ void CheckConfig()
 
 	int f;
 	// строка для формирования дефолтных опций в конфиге
-	st = "login=\npass=\nautoconnect=0\nautoload=0\nsavedata=0\n";
+	st = "login=\npass=\ntype=\nautoconnect=0\nautoload=0\nsavedata=0\n";
 
 	if ( FileExists("config.ini") )
 	{
@@ -51,7 +49,7 @@ void CheckConfig()
 	return;
 };
 
-void ReadConfig ()
+void config::ReadConfig ()
 {
 
 	ifstream f("config.ini", ios::in);
@@ -100,28 +98,38 @@ void ReadConfig ()
 
 		// после Артуровский код
 
-	AnsiString name = p_name.c_str();
-	AnsiString value = p_value.c_str();
+	  AnsiString name = p_name.c_str();
 
 	if (name == "login")
 	{
-	  ShowMessage(name);
-	  ShowMessage(value);
-	  Edit1->Text = value;
-	}
-/*
-	if (name == "pass")
-	{
-		ShowMessage(name);
-		ShowMessage(value);
-		Edit2->Text = p_value.c_str();
+	  c_login = p_value;
 	}
 
-	if ((p_name.c_str() == "savedata") &&   (p_value.c_str() == "1"))
+	if (name == "pass")
 	{
-		CheckBox1->Checked;
+		c_pass = p_value;
 	}
-*/
+
+	if (name == "type")
+	{
+		c_type = atoi(p_value.c_str());
+	}
+
+	if (name == "autoconnect")
+	{
+		c_autoconnect = atoi(p_value.c_str());
+	}
+
+	if (name == "autoload")
+	{
+		c_autoload = atoi(p_value.c_str());
+	}
+
+	if (name == "savedata")
+	{
+		c_savedata = atoi(p_value.c_str());
+	}
+
 	}
 };
 

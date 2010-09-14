@@ -22,8 +22,8 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Button1Click(TObject *Sender)
 {
-	  CheckConfig();
-	  ReadConfig ();
+	//CheckConfig();
+	// ReadConfig ();
 }
 //---------------------------------------------------------------------------
 
@@ -64,8 +64,9 @@ void __fastcall TForm1::CheckBox1Click(TObject *Sender)
 //---------------------------------------------------------------------------
 
 void __fastcall TForm1::Button2Click(TObject *Sender)
-{
-	  ReadConfig ();
+{     config* conf = new config();
+	  conf->ReadConfig ();
+	  Edit1->Text = conf->GetLogin().c_str();
 }
 //---------------------------------------------------------------------------
 
