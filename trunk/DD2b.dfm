@@ -23,10 +23,6 @@ object Form1: TForm1
     TabOrder = 0
     object TabSheet1: TTabSheet
       Caption = #1057#1086#1077#1076#1080#1085#1077#1085#1080#1077
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Button1: TButton
         Left = 224
         Top = 41
@@ -34,7 +30,6 @@ object Form1: TForm1
         Height = 49
         Caption = #1057#1086#1077#1076#1080#1085#1080#1090#1100#1089#1103
         TabOrder = 0
-        OnClick = Button1Click
       end
       object Button2: TButton
         Left = 224
@@ -43,7 +38,6 @@ object Form1: TForm1
         Height = 49
         Caption = #1054#1090#1082#1083#1102#1095#1080#1090#1100#1089#1103
         TabOrder = 1
-        OnClick = Button2Click
       end
     end
     object TabSheet2: TTabSheet

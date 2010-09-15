@@ -35,6 +35,28 @@ class config
 		{
 			return c_pass;
 		}
+
+		int GetType()
+		{
+			return c_type;
+		}
+
+		int GetAutoconnect()
+		{
+			return c_autoconnect;
+		}
+
+		int GetAutoload()
+		{
+			return c_autoload;
+		}
+		int GetSavedata()
+		{
+			return c_savedata;
+		}
+
+
+
 };
 
 

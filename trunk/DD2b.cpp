@@ -9,6 +9,8 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
+
+#include "mainunit.h"
 TForm1 *Form1;
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner)
@@ -18,12 +20,12 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 	ComboBox1->Items->Add("VPN (default)");
 	ComboBox1->Items->Add("VPN (ñåòü ÀëòÃÒÓ)");
 	ComboBox1->Items->Add("PPPoE");
-}
-//---------------------------------------------------------------------------
-void __fastcall TForm1::Button1Click(TObject *Sender)
-{
-	//CheckConfig();
-	// ReadConfig ();
+
+	//	config* conf = new config();
+	//	conf->ReadConfig ();
+	//	Edit1->Text = conf->GetLogin().c_str();
+
+	SendConfigToForm ();
 }
 //---------------------------------------------------------------------------
 
@@ -63,10 +65,6 @@ void __fastcall TForm1::CheckBox1Click(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::Button2Click(TObject *Sender)
-{     config* conf = new config();
-	  conf->ReadConfig ();
-	  Edit1->Text = conf->GetLogin().c_str();
-}
-//---------------------------------------------------------------------------
+
+
 

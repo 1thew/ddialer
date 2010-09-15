@@ -27,35 +27,35 @@ void config::CheckConfig()
 	   если файла нет, то он будет создан */
 
 
-	/* открыть для записи или создать файл meteo.txt */
+	/* открыть для записи или создать файл config.ini */
 
 	int f;
 	// строка для формирования дефолтных опций в конфиге
-	st = "login=\npass=\ntype=\nautoconnect=0\nautoload=0\nsavedata=0\n";
+	st = "login=\npass=\ntype=1\nautoconnect=0\nautoload=0\nsavedata=0\n";
 
 	if ( FileExists("config.ini") )
 	{
-		f = FileOpen("config.ini",fmOpenWrite);
-		FileClose(f);
+		return;
 	}
 	else
 	{
 	   f = FileCreate("config.ini");
-	   FileClose(f);
 	   f = FileOpen("config.ini",fmOpenWrite);
 		FileWrite(f,st.c_str(),st.Length());
 		FileClose(f);
 	}
-	return;
 };
 
 void config::ReadConfig ()
 {
 
 	ifstream f("config.ini", ios::in);
+
+	CheckConfig();
 	if(!f)
 	{
-		ShowMessage("Проблема с файлом конфигурации. Переустановите программу");
+		ShowMessage("Проблема с файлом конфигурации. Если сообщение повторяется, переустановите программу");
+		return;
 	}
 
 	TEdit *Edit1;
