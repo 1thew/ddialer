@@ -16,6 +16,7 @@ type
   TForm1 = class(TForm)
     Button1: TButton;
     Button2: TButton;
+    Button3: TButton;
     DopParam: TCheckBox;
     ReConnect: TCheckBox;
     GroupBox1: TGroupBox;
@@ -44,14 +45,12 @@ type
     procedure ConnSelChange(Sender: TObject);
     procedure RemPassChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure TabSheet1ContextPopup(Sender: TObject; MousePos: TPoint;
-      var Handled: Boolean);
-    procedure Timer1Timer(Sender: TObject);
     procedure TimerReConnectTimer(Sender: TObject);
   private
     { private declarations }
     procedure LoadConfig;
     procedure SaveConfig;
+    procedure SaveConfig1;
     procedure DoConnect;
     function connect():DWORD;
     function disconnect():Boolean;
@@ -183,22 +182,17 @@ begin
   Form1.IDCompText.Caption:=IDComp
 end;
 
-procedure TForm1.TabSheet1ContextPopup(Sender: TObject; MousePos: TPoint;
-  var Handled: Boolean);
-begin
-
-end;
-
-procedure TForm1.Timer1Timer(Sender: TObject);
-begin
-  CreateError(DIANETSTR,'Бла-бла-бла',bfInfo,False);
-end;
 
 procedure TForm1.TimerReConnectTimer(Sender: TObject);
 begin
-  CreateError(DIANETSTR,'Начало реконнекта',bfInfo,False);
-  DoConnect();
-  Form1.TimerReConnect.Enabled:=false
+  if Connected=true or Connecting=true then Exit
+  else
+   begin
+      if Form1.ReConnect.Checked=true then
+        begin
+          Form1.DoConnect();
+        end;
+   end;
 end;
 
 
@@ -222,6 +216,7 @@ end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
+  Form1.TimerReConnect.Enabled:=true;
   DoConnect;
 end;
 
@@ -237,7 +232,7 @@ end;
 
 procedure TForm1.Button3Click(Sender: TObject);
 begin
-
+  SaveConfig1;
 end;
 
 procedure TForm1.Button4Click(Sender: TObject);
@@ -454,13 +449,11 @@ begin
 
   Form1.Tray.Hint:=DIASTR+'Не подключен';
   if FShow then CreateError(DIANETSTR,'Отключен',bfInfo,False);
-  if not Connecting then  CreateError(DIANETSTR,'Соединение прервано',bfInfo,False);
+  if not Connecting then
+    CreateError(DIANETSTR,'Соединение прервано',bfInfo,False);
     begin
       Form1.Button1.Enabled:=true;
       Form1.Button2.Enabled:=false;
-      Form1.TimerReConnect.Enabled:=true;
-      CreateError(DIANETSTR,'Соединение прервано',bfInfo,False);
-      //Form1.DoConnect();
     end;
   Connected:=False;
   Connecting:=False;
@@ -479,7 +472,20 @@ begin
 end;
 
 
+procedure TForm1.SaveConfig1;
+var
+  reg:TRegistry;
+begin
 
+reg:=TRegistry.Create();
+reg.RootKey:=HKEY_CURRENT_USER;
+if reg.OpenKey('Software\Microsoft\Windows\CurrentVersion\Run',False) then
+begin
+reg.WriteString('dianetdialer',ExtractFilePath(Application.ExeName)+dianet.exe);
+reg.CloseKey;
+reg.Destroy;
+end;
+end;
 
 end.
 

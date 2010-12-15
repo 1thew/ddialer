@@ -1,13 +1,13 @@
 object Form1: TForm1
-  Left = 324
-  Height = 281
-  Top = 139
-  Width = 372
+  Left = 253
+  Height = 315
+  Top = 129
+  Width = 380
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Dianet Dialer v2'
-  ClientHeight = 281
-  ClientWidth = 372
+  ClientHeight = 315
+  ClientWidth = 380
   OnShow = FormShow
   LCLVersion = '0.9.29'
   object PageControl1: TPageControl
@@ -22,7 +22,6 @@ object Form1: TForm1
       Caption = 'Соединение'
       ClientHeight = 201
       ClientWidth = 314
-      OnContextPopup = TabSheet1ContextPopup
       object Button1: TButton
         Left = 156
         Height = 56
@@ -41,6 +40,15 @@ object Form1: TForm1
         Enabled = False
         OnClick = Button2Click
         TabOrder = 1
+      end
+      object Button3: TButton
+        Left = 16
+        Height = 57
+        Top = 17
+        Width = 106
+        Caption = 'Button3'
+        OnClick = Button3Click
+        TabOrder = 2
       end
     end
     object TabSheet2: TTabSheet
