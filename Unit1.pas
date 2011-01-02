@@ -32,29 +32,27 @@ type
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
+    UpdateTimer: TTimer;
     TimerReConnect: TTimer;
     Tray: TTrayIcon;
-    procedure AutoConnectChange(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
-    procedure Button4Click(Sender: TObject);
-    procedure ReConnectChange(Sender: TObject);
     procedure DopParamChange(Sender: TObject);
-    procedure ComboBox1Change(Sender: TObject);
     procedure ConnSelChange(Sender: TObject);
+    procedure LoginChange(Sender: TObject);
     procedure RemPassChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure TimerReConnectTimer(Sender: TObject);
+    procedure UpdateTimerTimer(Sender: TObject);
   private
     { private declarations }
     procedure LoadConfig;
     procedure SaveConfig;
-    procedure SaveConfig1;
     procedure DoConnect;
     function connect():DWORD;
     function disconnect():Boolean;
-
+    procedure CheckUpdate;
     procedure DoDisconnect;
   public
     { public declarations }
@@ -88,6 +86,11 @@ var
 implementation
 
 {$R *.lfm}
+
+procedure TForm1.CheckUpdate();
+begin
+
+end;
 
 procedure CreateID();
 begin
@@ -168,6 +171,11 @@ begin
   end;
 end;
 
+procedure TForm1.LoginChange(Sender: TObject);
+begin
+
+end;
+
 
 
 procedure TForm1.FormShow(Sender: TObject);
@@ -182,7 +190,6 @@ begin
   Form1.IDCompText.Caption:=IDComp
 end;
 
-
 procedure TForm1.TimerReConnectTimer(Sender: TObject);
 begin
   if Connected=true or Connecting=true then Exit
@@ -193,6 +200,12 @@ begin
           Form1.DoConnect();
         end;
    end;
+end;
+
+procedure TForm1.UpdateTimerTimer(Sender: TObject);
+begin
+  CheckUpdate();
+  Form1.UpdateTimer.Enabled:=false;
 end;
 
 
@@ -209,6 +222,8 @@ begin
 end;
 
 
+
+
 procedure TForm1.RemPassChange(Sender: TObject);
 begin
 
@@ -217,13 +232,11 @@ end;
 procedure TForm1.Button1Click(Sender: TObject);
 begin
   Form1.TimerReConnect.Enabled:=true;
+  Form1.UpdateTimer.Enabled:=true;
   DoConnect;
 end;
 
-procedure TForm1.AutoConnectChange(Sender: TObject);
-begin
 
-end;
 
 procedure TForm1.Button2Click(Sender: TObject);
 begin
@@ -232,18 +245,12 @@ end;
 
 procedure TForm1.Button3Click(Sender: TObject);
 begin
-  SaveConfig1;
-end;
-
-procedure TForm1.Button4Click(Sender: TObject);
-begin
-  SaveConfig();
-end;
-
-procedure TForm1.ReConnectChange(Sender: TObject);
-begin
 
 end;
+
+
+
+
 
 procedure TForm1.DopParamChange(Sender: TObject);
 begin
@@ -259,10 +266,6 @@ begin
       end;
 end;
 
-procedure TForm1.ComboBox1Change(Sender: TObject);
-begin
-
-end;
 
 procedure TForm1.SaveConfig;
 var
@@ -283,7 +286,7 @@ if reg.OpenKey('\Software\DIANET',True) then
    end;
 reg.CloseKey;
 if reg.OpenKey('Software\Microsoft\Windows\CurrentVersion\Run',False) then
-   if AutoRun.Checked then reg.WriteString('dianetdialer',Application.ExeName)
+   if AutoRun.Checked then reg.WriteString('dianetdialer',ExtractFilePath(Application.ExeName)+'dianetdialer.exe')
    else if reg.ValueExists('dianetdialer') then reg.DeleteValue('dianetdialer');
 reg.CloseKey;
 reg.Destroy;
@@ -472,20 +475,5 @@ begin
 end;
 
 
-procedure TForm1.SaveConfig1;
-var
-  reg:TRegistry;
-begin
-
-reg:=TRegistry.Create();
-reg.RootKey:=HKEY_CURRENT_USER;
-if reg.OpenKey('Software\Microsoft\Windows\CurrentVersion\Run',False) then
-begin
-reg.WriteString('dianetdialer',ExtractFilePath(Application.ExeName)+'dianet.exe');
-reg.CloseKey;
-reg.Destroy;
-end;
-end;
 
 end.
-
