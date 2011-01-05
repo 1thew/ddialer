@@ -47,14 +47,14 @@ procedure TUpdate.Button1Click(Sender: TObject);
 var
     FS: TFileStream;
 begin
-    ShowMessage(Dir+'dianetdialer11.txt');
-  try
-     FS := TFileStream.Create('e:/ddialer/updater/dianetdialer11.exe', fmOpenRead);
-  except
-    ShowMessage('Файл не найден');
-  end;
-  //ShowMessage(IntToStr(FS.Size));
+  if not FileExists('e:/ddialer/updater/dianetdialer.exe') then     ShowMessage('Файл не найден')
+  else begin
+     FS := TFileStream.Create('e:/ddialer/updater/dianetdialer.exe', fmOpenRead);
+
+  ShowMessage(IntToStr(FS.Size));
       FS.Free;
+
+  end;
 end;
 
 function TUpdate.CheckFile(File_work,File_update : string): Integer;
@@ -101,18 +101,20 @@ function TUpdate.GetFileSize(FileName: String): Integer;
 var
   FS: TFileStream;
 begin
-  try
-    FS := TFileStream.Create(Filename, fmOpenRead);
-  except
-    Result := -1;
-  end;
-  if Result <> -1 then Result := FS.Size;
-  FS.Free;
+    if not FileExists(Filename) then
+       begin
+           result := -1;
+           ShowMessage('Файл не найден');
+       end
+    else begin
+         FS := TFileStream.Create(Filename, fmOpenRead);
+         ShowMessage(IntToStr(FS.Size));
+         result := FS.Size;
+         end;
+    FS.Free;
+
 
 end;
-
-
-
 
 
 {$R *.lfm}
