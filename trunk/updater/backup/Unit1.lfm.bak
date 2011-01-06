@@ -13,7 +13,6 @@ object Update: TUpdate
     Top = 52
     Width = 106
     Caption = 'Узнать размер'
-    OnClick = Button1Click
     TabOrder = 0
   end
   object Button2: TButton
