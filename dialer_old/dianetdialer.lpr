@@ -1,0 +1,36 @@
+program dianetdialer;
+
+{$mode objfpc}{$H+}
+
+uses
+  {$IFDEF UNIX}{$IFDEF UseCThreads}
+  cthreads,
+  {$ENDIF}{$ENDIF}
+  Interfaces, // this includes the LCL widgetset
+  Forms, MainUnit, Windows, dialogs;
+
+{$IFDEF WINDOWS}{$R dianetdialer.rc}{$R manifest.res}{$ENDIF}
+
+var
+  Mutex:THandle;
+
+
+
+
+
+begin
+  Mutex := CreateMutex(nil, False, 'DianetDialerMutex');
+  if Mutex = 0 then
+      MessageBoxW(0,PWideChar(UTF8Decode('Невозможно создать мьютекс')), PWideChar(UTF8Decode('Ошибка')), MB_OK or MB_ICONSTOP)
+  else if GetLastError = ERROR_ALREADY_EXISTS then
+      MessageBoxW(0,PWideChar(UTF8Decode('Программа уже запущена')), PWideChar(UTF8Decode('Ошибка')), MB_OK or MB_ICONSTOP)
+  else
+    begin
+     Application.Title:='Dianet Dialer';
+     Application.Initialize;
+     Application.CreateForm(TConfigForm, ConfigForm);
+     Application.Run;
+     CloseHandle(Mutex);
+    end;
+end.
+
