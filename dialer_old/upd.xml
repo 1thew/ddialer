@@ -8,7 +8,7 @@
 <table border=0>
 <tr><td colspan=2>
 <center>
-<a href="http://update.dianet.info/dialer/downloads/install1286.exe"><img src="res/img/dianetdialer_button.jpg" border="0" title="Программа для создания PPTP/PPPoE соединения (Версия: 1.2.8.6)" alt="Программа для создания PPTP/PPPoE соединения (Версия: 1.2.8.6)"></a>&nbsp;&nbsp;
+<a href="http://update.dianet.info/dialer/downloads/install1290.exe"><img src="res/img/dianetdialer_button.jpg" border="0" title="Программа для создания PPTP/PPPoE соединения (Версия: 1.2.9.0)" alt="Программа для создания PPTP/PPPoE соединения (Версия: 1.2.9.0)"></a>&nbsp;&nbsp;
 <img src="res/img/windows_100px.jpg" border="0" title="Совместимость: Windows XP(sp1 и выше), Windows Vista, Windows 7" alt="Совместимость: Windows XP(sp1 и выше), Windows Vista, Windows 7">
 </center><br>
 <b>Основные возможности:</b>
@@ -28,7 +28,7 @@
 <b>Последние изменения программы:</b>
 </td></tr>
 <tr><td>Версия</td><td>Описание</td></tr>
-<tr><td><a href="http://update.dianet.info/dialer/downloads/install1286.exe">1.2.8.6</a></td><td>Добавлены дополнительные маршруты для новых клиентов г.Заринска</rd></tr><tr><td><a href="http://update.dianet.info/dialer/downloads/install1285.exe">1.2.8.5</a></td><td>Добавлены маршруты для новой алейской подсети</rd></tr><tr><td><a href="http://update.dianet.info/dialer/downloads/install1284.exe">1.2.8.4</a></td><td>Исправлены ошибки при обновлении и установке программы.</rd></tr><tr><td><a href="http://update.dianet.info/dialer/downloads/install1283.exe">1.2.8.3</a></td><td>Исправление функций автообновления</rd></tr></table>
+<tr><td><a href="http://update.dianet.info/dialer/downloads/install1290.exe">1.2.9.0</a></td><td>Изменения в системе переподключений. Добавление маршрутизации для новой подсети в Белокурихе. Исправление ошибки доступа для Windows XP</rd></tr><tr><td><a href="http://update.dianet.info/dialer/downloads/install1286.exe">1.2.8.6</a></td><td>Добавлены дополнительные маршруты для новых клиентов г.Заринска</rd></tr><tr><td><a href="http://update.dianet.info/dialer/downloads/install1285.exe">1.2.8.5</a></td><td>Добавлены маршруты для новой алейской подсети</rd></tr><tr><td><a href="http://update.dianet.info/dialer/downloads/install1284.exe">1.2.8.4</a></td><td>Исправлены ошибки при обновлении и установке программы.</rd></tr><tr><td><a href="http://update.dianet.info/dialer/downloads/install1283.exe">1.2.8.3</a></td><td>Исправление функций автообновления</rd></tr></table>
 
 </body>
 </html>
