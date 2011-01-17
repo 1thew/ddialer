@@ -42,7 +42,6 @@ procedure CheckUpdate;
 procedure CheckRetracker;
 Procedure CheckIp;
 function CheckConnectType : integer;
-//procedure CheckConnetcType(ip:string);
 
 type
 
@@ -103,6 +102,7 @@ type
     property Status:Boolean read FStatus;
   end;
 
+
 var
   UpdateLink:string;
   UpdateInfo:WideString;
@@ -110,7 +110,6 @@ var
   UpdateStream:TFileStream;
   updater:TUpdateThread;
   OutputFile: file;
-//  Is_VPN_Connect : boolean= false;
 
   Binding:Boolean=False;
 
@@ -698,10 +697,15 @@ begin
       s:=IpAddrString.IpAddress.S;
       ip.a := StrToInt(Copy(s, 1, Pos('.', s) - 1)); Delete(s, 1, Pos('.', s));
       ip.b := StrToInt(Copy(s, 1, Pos('.', s) - 1)); Delete(s, 1, Pos('.', s));
+      ip.c := StrToInt(Copy(s, 1, Pos('.', s) - 1)); Delete(s, 1, Pos('.', s));
       if (ip.a=172) and (ip.b=16) then
         begin
           result :=1;
           exit;
+        end;
+      if (ip.a=10) and (ip.b=0) and (ip.c=110) then
+        begin
+          result :=2;
         end;
       pnext := IpAddrString.Next;
     End;
@@ -709,6 +713,7 @@ begin
   end;
   result := 0;
 end;
+
 
 end.
 

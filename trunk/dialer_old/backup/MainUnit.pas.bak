@@ -8,7 +8,7 @@ interface
 uses
   Classes, SysUtils, LResources, Forms, Controls, Graphics, ExtCtrls, StdCtrls,
   Menus, Buttons, RASUnit, Windows, Registry, GraphType, FPimage, IntfGraphics,
-  Dialogs, Utils;
+  Dialogs, Utils, WinInet;
 
 type
 
@@ -331,7 +331,7 @@ begin
   begin
     if reg.ValueExists('conntype') then
       ConnType := reg.ReadInteger('conntype');
-    if (ConnType > MAX_CONN_TYPE) or (ConnType < MIN_CONN_TYPE) or (CheckConnectType <> 1) then
+    if (ConnType > MAX_CONN_TYPE) or (ConnType < MIN_CONN_TYPE) or (CheckConnectType = 1) then
       ConnType := VPN;
     case ConnType of
       VPN: ConnSel.Text := 'VPN (default)';
@@ -468,6 +468,8 @@ end;
 
 procedure TConfigForm.FormCreate(Sender: TObject);
 begin
+  ShowMessage('активных соединений '+IntToStr(DropConnect));
+
   Tray.Hint := DIASTR + 'Не подключен';
   Pass.EchoMode := emPassword;
 
@@ -1078,16 +1080,10 @@ end;
 
 procedure TConfigForm.ConnSelChange(Sender: TObject);
 begin
-  if ConnSel.Text = 'PPPoE' then
-  begin
-    if CheckConnectType <> 1 then
-    ConnType := PPPoE
-    else ConnType := VPN;
-  end
-  else if ConnSel.Text = 'VPN (Политех)' then
-    ConnType := VPN_POLI
-  else
-    ConnType := VPN;
+
+  if CheckConnectType = 1 then ConnType := VPN
+  else if CheckConnectType = 2 then ConnType := VPN_POLI
+  else ConnType := PPPoE;
 
   case ConnType of
     VPN: ConnSelImg.Picture.LoadFromLazarusResource('vpn');
@@ -1241,6 +1237,7 @@ begin
   Bitmap.Free;
   //  inherited Paint;
 end;
+
 
 initialization
   {$I MainUnit.lrs}

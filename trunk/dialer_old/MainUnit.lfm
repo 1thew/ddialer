@@ -1,7 +1,7 @@
 object ConfigForm: TConfigForm
-  Left = 263
+  Left = 505
   Height = 372
-  Top = 130
+  Top = 264
   Width = 430
   BorderIcons = []
   BorderStyle = bsNone
@@ -2138,7 +2138,7 @@ object ConfigForm: TConfigForm
   OnPaint = FormPaint
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '0.9.29'
+  LCLVersion = '0.9.31'
   Visible = True
   object ConnSelImg: TImage
     Left = 214
