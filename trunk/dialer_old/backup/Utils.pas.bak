@@ -42,9 +42,7 @@ procedure CheckUpdate;
 procedure CheckRetracker;
 Procedure CheckIp;
 function CheckConnectType : integer;
-procedure FillEntries(s: TStrings);
-procedure FillConnections(items: TListItems);
-procedure HangUpAndWait(conn: integer);
+procedure DianetPPPDisconnect;
 
 type
 
@@ -717,113 +715,13 @@ begin
   result := 0;
 end;
 
-
-
-// Заполнение s всеми соединениями:
-procedure FillEntries(s: TStrings);
+procedure DianetPPPDisconnect;
 var
-  EntryCount, bufsize: longint;
-  entries: LPRasEntryName;
-  i: integer;
+params:String;
 begin
-  s.Clear;
-  s.BeginUpdate;
-  bufsize := 0;
-  // Определение количества соединений:
-  RasEnumEntries(nil, nil, nil, bufsize, EntryCount);
-  if EntryCount > 0 then begin
-    // Выделение памяти под информацию о соединениях:
-    GetMem(entries, bufsize);
-    FillChar(entries^, bufsize, 0);
-    entries^.dwSize := sizeof(TRasEntryName);
-    // Получение информации о соединениях:
-    RasEnumEntries(nil, nil, entries, bufsize, EntryCount);
-    // Заполнение s названиями соединений:
-    for i := 0 to EntryCount - 1 do begin
-      s.Add(entries^.szEntryName);
-      inc(entries);
-    end;
-    // Освобождение памяти:
-    dec(entries, EntryCount);
-    FreeMem(entries);
-  end;
-  s.EndUpdate;
+  params:='/disconnect';
+  ShellExecute(0,'open','rasdial',PChar(params),nil,SW_HIDE);
 end;
-
-// Заполнение items всеми активными соединениями:
-procedure FillConnections(items: TListItems);
-var
-  conns: LPRasConn;
-  ConnCount, bufsize: longint;
-  li: TListItem;
-  i: integer;
-  status: TRASCONNSTATUS;
-begin
-  items.BeginUpdate;
-  items.Clear;
-  bufsize := 0;
-  // Определение количества активных соединений:
-  RasEnumConnections(nil, bufsize, ConnCount);
-  if ConnCount > 0 then begin
-    // Выделение памяти:
-    GetMem(conns, bufsize);
-    conns^.dwSize := sizeof(TRasConn);
-    // Заполнение conns информацией об активных соединениях:
-    RasEnumConnections(conns, bufsize, ConnCount);
-    status.dwSize := sizeof(TRasConnStatus);
-    // Заполнение items названиями соединений:
-    for i := 0 to ConnCount - 1 do begin
-      li := items.Add;
-      li.Data := pointer(conns^.hrasconn);
-      li.Caption := conns^.szEntryName;
-      li.SubItems.Add(conns^.szDeviceType);
-      li.SubItems.Add(conns^.szDeviceName);
-      RasGetConnectStatus(conns^.hrasconn, status);
-      li.SubItems.Add(StateStr(status.rasconnstate, status.dwError));
-      inc(conns);
-    end;
-    // Освобождение памяти:
-    dec(conns, ConnCount);
-    FreeMem(conns);
-  end;
-  items.EndUpdate;
-end;
-
-{ Процедура разрывает соединение и
-  дожидается завершения операции: }
-procedure HangUpAndWait(conn: integer);
-var
-  status: TRasConnStatus;
-begin
-  RasHangUp(conn); // Разрыв соединения
-  status.dwSize := sizeof(TRasConnStatus);
-  // Ожидание уничтожения соединения:
-  repeat
-    Application.ProcessMessages;
-    sleep(0);
-  until RasGetConnectStatus(conn, status) = ERROR_INVALID_HANDLE;
-end;
-
-{ Эта процедура будет вызываться при любых изменениях в
-  соединении: }
-procedure RasNotifier(msg: integer; state: TRasConnState;
-  error: Cardinal); stdcall;
-begin
-  CurrentState := StateStr(state, error);
-  Form1.ListBox2.Items.Add(CurrentState);
-  // Обновление информации об актывных соединениях:
-  FillConnections(Form1.ListView1.Items);
-  if error <> 0 then begin
-    Form1.Timer1.Enabled := false;
-    Form1.Caption := CurrentState;
-  end else begin
-    Form1.Timer1.Enabled := false;
-    Form1.Timer1.Enabled := true;
-    Form1.Timer1.Tag := 0;
-  end;
-end;
-
-
 
 end.
 
