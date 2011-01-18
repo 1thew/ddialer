@@ -8,7 +8,7 @@ interface
 uses
   Classes, SysUtils, LResources, Forms, Controls, Graphics, ExtCtrls, StdCtrls,
   Menus, Buttons, RASUnit, Windows, Registry, GraphType, FPimage, IntfGraphics,
-  Dialogs, Utils, WinInet;
+  Dialogs, Utils;
 
 type
 
@@ -468,6 +468,7 @@ end;
 
 procedure TConfigForm.FormCreate(Sender: TObject);
 begin
+  DianetPPPDisconnect;
 
   Tray.Hint := DIASTR + 'Не подключен';
   Pass.EchoMode := emPassword;

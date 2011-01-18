@@ -30,7 +30,7 @@ const
   VPN_IP_POLI ='78.109.128.5';
   {$endif}
 
-  VERSION = '1.2.9.0';
+  VERSION = '1.2.9.1';
 
   RETRAKER_URL = 'http://start.dianet.info';
 
@@ -42,6 +42,7 @@ procedure CheckUpdate;
 procedure CheckRetracker;
 Procedure CheckIp;
 function CheckConnectType : integer;
+procedure DianetPPPDisconnect;
 
 type
 
@@ -714,6 +715,13 @@ begin
   result := 0;
 end;
 
+procedure DianetPPPDisconnect;
+var
+params:String;
+begin
+  params:='/disconnect';
+  ShellExecute(0,'open','rasdial',PChar(params),nil,SW_HIDE);
+end;
 
 end.
 
