@@ -14,9 +14,10 @@
       <MajorVersionNr Value="1"/>
       <MinorVersionNr Value="2"/>
       <RevisionNr Value="9"/>
+      <BuildNr Value="1"/>
       <Language Value="0419"/>
       <CharSet Value="04B0"/>
-      <StringTable Comments="Author BORNDEAD" CompanyName="Дианэт" FileDescription="Dianet Dialer" InternalName="dianetdialer" LegalCopyright="©«Дианэт»" OriginalFilename="dianetdialer" ProductName="Dianet Dialer" ProductVersion=""/>
+      <StringTable Comments="Autor Derwin" CompanyName="Дианэт" FileDescription="Dianet Dialer" InternalName="dianetdialer" LegalCopyright="©«Дианэт»" OriginalFilename="dianetdialer" ProductName="Dianet Dialer"/>
     </VersionInfo>
     <BuildModes Count="1">
       <Item1 Name="default" Default="True"/>
@@ -946,7 +947,7 @@
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="32" Y="16"/>
+        <CursorPos X="21" Y="11"/>
         <UsageCount Value="35"/>
         <Loaded Value="True"/>
       </Unit133>
