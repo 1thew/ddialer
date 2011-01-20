@@ -56,11 +56,10 @@
         <Filename Value="dianetdialer.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="dianetdialer"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
         <TopLine Value="5"/>
-        <CursorPos X="1" Y="19"/>
+        <CursorPos X="44" Y="23"/>
         <UsageCount Value="205"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -71,6 +70,7 @@
         <ComponentName Value="ConfigForm"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="MainUnit"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
@@ -93,7 +93,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="26" Y="1"/>
-        <UsageCount Value="61"/>
+        <UsageCount Value="62"/>
         <Loaded Value="True"/>
       </Unit3>
       <Unit4>
@@ -939,7 +939,7 @@
         <UnitName Value="Utils"/>
         <TopLine Value="1"/>
         <CursorPos X="11" Y="1"/>
-        <UsageCount Value="68"/>
+        <UsageCount Value="69"/>
       </Unit132>
       <Unit133>
         <Filename Value="Utils.pas"/>
@@ -948,7 +948,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="21" Y="11"/>
-        <UsageCount Value="35"/>
+        <UsageCount Value="36"/>
         <Loaded Value="True"/>
       </Unit133>
       <Unit134>
