@@ -247,8 +247,6 @@ begin
         ConfigForm.ConnImg.Picture.LoadFromLazarusResource('button_disconnect');
         ConfigForm.Visible := False;
         CheckUpdate;
-        if ConnType = VPN_POLI then
-          CheckRetracker;
         tx := 0;
         rx := 0;
         ConfigForm.CabinetBtn.Enabled := True;
@@ -831,9 +829,8 @@ procedure TConfigForm.CheckUpdateTimer(Sender: TObject);
 begin
   if Connected and UpdateFound then
   begin
-    CheckUpdate.Enabled := False;
     if MessageBoxW(Handle, PWideChar(UpdateInfo), PWideChar(
-      UTF8Decode('Доступно обновление. Скачать обновление?')),
+      UTF8Decode('Доступно обновление. Пожалуйста, скачайте и установите')),
       MB_ICONINFORMATION + MB_YESNO) = idYes then
       ShellExecute(ConfigForm.Handle, 'open', PChar(UpdateLink), nil,
         nil, SW_SHOWMAXIMIZED);
@@ -1081,9 +1078,16 @@ end;
 procedure TConfigForm.ConnSelChange(Sender: TObject);
 begin
 
-  if CheckConnectType = 1 then ConnType := VPN
-  else if CheckConnectType = 2 then ConnType := VPN_POLI
-  else ConnType := PPPoE;
+  if (CheckConnectType = 1) then ConnType := VPN;
+  if (CheckConnectType = 2) then ConnType := VPN_POLI;
+  if (CheckConnectType = 4) then ConnType := PPPoE
+  else
+     begin
+       if ConnSel.Text = 'PPPoE' then  ConnType := PPPoE;
+       if ConnSel.Text = 'VPN (default)' then  ConnType := VPN;
+       if ConnSel.Text = 'VPN (Политех)' then  ConnType := VPN_POLI
+       else ConnType := VPN;
+     end;
 
   case ConnType of
     VPN: ConnSelImg.Picture.LoadFromLazarusResource('vpn');

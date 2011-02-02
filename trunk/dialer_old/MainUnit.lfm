@@ -5380,7 +5380,7 @@ object ConfigForm: TConfigForm
     top = 19
   end
   object CheckUpdate: TTimer
-    Interval = 100
+    Interval = 1800000
     OnTimer = CheckUpdateTimer
     left = 64
     top = 19

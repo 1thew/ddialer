@@ -51,6 +51,7 @@ type
     { private declarations }
     function Resolv (inet_host:ansistring) : integer;
     function VPN_Ping (vpn_host:Pchar) : integer;
+    function GetGateway(LocalIP:string): String ;
     function GetLocalIP : String ;
     function Ping (add:string) : integer;
     function PingGateway(add:string) : integer;
@@ -63,7 +64,6 @@ type
     procedure SetIPAuto();
   public
     { public declarations }
-    function GetGateway(LocalIP:string): String ;
     Gateway : String;
     LocalIP : String;
 
@@ -833,7 +833,7 @@ begin
 
    If (CheckPingGateway=0) then
      begin
-       result:= 'Шлюз не пингуется! Проблемы с линией ДО шлюза.'+' Шлюз: '+ GetGateway();
+       result:= 'Шлюз не пингуется! Проблемы с линией ДО шлюза.'+' Шлюз: '+ Gateway;
      end;
    If (CheckPingDNS=0) then begin
      result:= 'Сервер DNS-2 не пингуется! Проверьте настройки локальной сети';
