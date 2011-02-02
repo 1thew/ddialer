@@ -3,6 +3,7 @@ object Form1: TForm1
   Height = 378
   Top = 132
   Width = 405
+  BorderStyle = bsSingle
   Caption = 'Dianet Diagnos'
   ClientHeight = 378
   ClientWidth = 405
@@ -25,7 +26,7 @@ object Form1: TForm1
         Height = 43
         Top = 18
         Width = 222
-        Caption = 'Запуск диагнозтики'
+        Caption = 'Запуск диагноcтики'
         OnClick = Button1Click
         TabOrder = 0
       end
@@ -34,7 +35,7 @@ object Form1: TForm1
         Height = 53
         Top = 80
         Width = 173
-        Caption = 'Программа диагнозтики поможет'#13#10' нашим специалистам определить'#13#10' проблемы вашего подключения'#13#10' в локальную сеть Dianet'
+        Caption = 'Программа диагноcтики поможет'#13#10' нашим специалистам определить'#13#10' проблемы вашего подключения'#13#10' в локальную сеть Dianet'
         ParentColor = False
       end
       object Image1: TImage
@@ -186,6 +187,7 @@ object Form1: TForm1
           Height = 86
           Top = 10
           Width = 314
+          ScrollBars = ssAutoVertical
           TabOrder = 0
         end
       end
@@ -222,10 +224,10 @@ object Form1: TForm1
           TabOrder = 1
         end
         object Button6: TButton
-          Left = 15
+          Left = 13
           Height = 38
           Top = 62
-          Width = 137
+          Width = 139
           Caption = 'Трасерт до сервера'
           OnClick = Button6Click
           TabOrder = 2

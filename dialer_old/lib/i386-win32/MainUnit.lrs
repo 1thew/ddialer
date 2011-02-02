@@ -6992,8 +6992,8 @@ LazarusResources.Add('TConfigForm','FORMDATA',[
   +'ent'#7#12'itaOnIdleEnd'#7'Enabled'#8#8'Interval'#2'd'#7'OnTimer'#7#16'Updat'
   +'eTimerTimer'#4'left'#2' '#3'top'#2'd'#0#0#6'TTimer'#10'TraffTimer'#8'Interv'
   +'al'#2'd'#7'OnTimer'#7#15'TraffTimerTimer'#4'left'#2#17#3'top'#2#19#0#0#6'TT'
-  +'imer'#11'CheckUpdate'#8'Interval'#2'd'#7'OnTimer'#7#16'CheckUpdateTimer'#4
-  +'left'#2'@'#3'top'#2#19#0#0#6'TTimer'#14'TimerReConnect'#7'Enabled'#8#8'Inte'
-  +'rval'#3#152':'#7'OnTimer'#7#19'TimerReConnectTimer'#4'left'#3#242#0#3'top'#2
-  +'5'#0#0#0
+  +'imer'#11'CheckUpdate'#8'Interval'#4'@w'#27#0#7'OnTimer'#7#16'CheckUpdateTim'
+  +'er'#4'left'#2'@'#3'top'#2#19#0#0#6'TTimer'#14'TimerReConnect'#7'Enabled'#8#8
+  +'Interval'#3#152':'#7'OnTimer'#7#19'TimerReConnectTimer'#4'left'#3#242#0#3't'
+  +'op'#2'5'#0#0#0
 ]);
