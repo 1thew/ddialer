@@ -15,6 +15,7 @@
     </i18n>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
+      <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
       <BuildNr Value="15"/>
       <StringTable CompanyName="for Dianet" FileDescription="Dianet Networks" InternalName="Dianet Diagnos" OriginalFilename="Daignos" ProductName="Dianet Diagnos" ProductVersion="1.0.0.0"/>
@@ -52,7 +53,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="32" Y="4"/>
-        <UsageCount Value="120"/>
+        <UsageCount Value="132"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
@@ -64,9 +65,9 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="843"/>
-        <CursorPos X="47" Y="844"/>
-        <UsageCount Value="120"/>
+        <TopLine Value="810"/>
+        <CursorPos X="20" Y="819"/>
+        <UsageCount Value="132"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -76,7 +77,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="2272"/>
         <CursorPos X="1" Y="2288"/>
-        <UsageCount Value="61"/>
+        <UsageCount Value="67"/>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
@@ -85,7 +86,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="359"/>
         <CursorPos X="32" Y="390"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="2"/>
       </Unit3>
       <Unit4>
         <Filename Value="C:\lazarus\lcl\extctrls.pp"/>
@@ -93,14 +94,14 @@
         <WindowIndex Value="0"/>
         <TopLine Value="712"/>
         <CursorPos X="3" Y="695"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="2"/>
       </Unit4>
       <Unit5>
         <Filename Value="C:\lazarus\fpc\2.5.1\source\rtl\inc\objpash.inc"/>
         <WindowIndex Value="0"/>
         <TopLine Value="219"/>
         <CursorPos X="32" Y="188"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="2"/>
       </Unit5>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
@@ -227,7 +228,7 @@
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
-    <Version Value="9"/>
+    <Version Value="10"/>
     <PathDelim Value="\"/>
     <Target>
       <Filename Value="diagnos"/>

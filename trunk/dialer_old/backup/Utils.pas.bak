@@ -37,7 +37,6 @@ procedure DelRoute(route:string);
 procedure AddRoute(ip,mask,router:string);
 function checkVPN(ip:String):boolean;
 procedure CheckUpdate;
-procedure CheckRetracker;
 Procedure CheckIp;
 function CheckConnectType : integer;
 procedure DianetPPPDisconnect;
@@ -258,48 +257,6 @@ begin
   updater:=TUpdateThread.Create(True);
   updater.FreeOnTerminate:=True;
   updater.Resume;
-end;
-
-procedure CheckRetracker;
-const
-  namestr='retracker.local';
-  poli_ipstr='172.16.21.253';
-  poli_hoststr=poli_ipstr+Char($09)+namestr;
-  hostsname='\system32\drivers\etc\hosts';
-var
-  ip:string;
-  found:Boolean=False;
-  tmpstr,hosts:string;
-  strlist:TStringList;
-  i:integer;
-begin
-  strlist:=TStringList.Create;
-  hosts:=sysutils.GetEnvironmentVariable('SystemRoot')+hostsname;
-  strlist.LoadFromFile(hosts);
-
-  for i:=0 to strlist.Count-1 do
-    begin
-      tmpstr:=strlist.Strings[i];
-      if tmpstr='' then Continue;
-      if tmpstr[1]=Char('#') then Continue;
-      if Pos(namestr,strlist.Strings[i])>0 then
-        begin
-          found:=True;
-          tmpstr:=strlist.Strings[i];
-          Delete(tmpstr,Pos(namestr,tmpstr),Length(namestr));
-          while Pos(Char($09),tmpstr)>0 do Delete(tmpstr,Pos(Char($09),tmpstr),1);
-          while Pos(Char($0D),tmpstr)>0 do Delete(tmpstr,Pos(Char($0D),tmpstr),1);
-          while Pos(Char($0A),tmpstr)>0 do Delete(tmpstr,Pos(Char($0A),tmpstr),1);
-          while Pos(Char($20),tmpstr)>0 do Delete(tmpstr,Pos(Char($20),tmpstr),1);
-          ip:=tmpstr;
-          //if ip<>poli_ipstr then strlist.Strings[i]:=poli_hoststr;
-          strlist.Strings[i]:='';
-        end;
-    end;
-  //if not found then strlist.Add(poli_hoststr);
-
-  strlist.SaveToFile(hosts);
-  strlist.Free;
 end;
 
 procedure AddRoute(ip,mask,router:string);

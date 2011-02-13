@@ -815,7 +815,7 @@ begin
       and (CheckPingVPN=1) and (CheckDNSResolv=1)
       and (LocalIPAdress =1) and (FindGateway=1)then
         begin
-          result:='Поздравляю! Всё впоряде!';
+          result:='Поздравляю! Всё впорядке!';
           exit;
         end;
 
