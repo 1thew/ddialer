@@ -156,6 +156,7 @@ type
     property ShowDiscon: boolean read FShow write FShow;
   end;
 
+
 var
   ConfigForm: TConfigForm;
   CanExit: boolean = False;
@@ -251,9 +252,11 @@ begin
         rx := 0;
         ConfigForm.CabinetBtn.Enabled := True;
       end;
-      RASCS_Authenticate: CreateError(DIANETSTR, 'Авторизация...', bfInfo, False);
+      RASCS_Authenticate: CreateError(DIANETSTR, 'Авторизация...',
+          bfInfo, False);
       RASCS_Authenticated: CreateError(
-          DIANETSTR, 'Авторизация прошла успешно', bfInfo, False);
+          DIANETSTR, 'Авторизация прошла успешно',
+          bfInfo, False);
     end;
   except
     ConfigForm.disconnect();
@@ -278,6 +281,7 @@ begin
   if not Connecting then
     CreateError(DIANETSTR, 'Соединение прервано', bfInfo, False);
   ConfigForm.ConnectBtn.Enabled := True;
+  ConfigForm.DisconBtn.Enabled := False;
   ConfigForm.Tray.Icon.LoadFromLazarusResource('icon_tray_disconnect');
 
   Connected := False;
@@ -329,13 +333,21 @@ begin
   begin
     if reg.ValueExists('conntype') then
       ConnType := reg.ReadInteger('conntype');
-    if (ConnType > MAX_CONN_TYPE) or (ConnType < MIN_CONN_TYPE) or (CheckConnectType = 1) then
+    if (ConnType > MAX_CONN_TYPE) or (ConnType < MIN_CONN_TYPE) or
+      (CheckConnectType = 1) then
       ConnType := VPN;
     case ConnType of
       VPN: ConnSel.Text := 'VPN (default)';
       PPPoE: ConnSel.Text := 'PPPoE';
       VPN_POLI: ConnSel.Text := 'VPN (Политех)';
     end;
+
+    if (CheckConnectType = 1) then
+      ConnType := VPN;
+    if (CheckConnectType = 2) then
+      ConnType := VPN_POLI;
+    if (CheckConnectType = 4) then
+      ConnType := PPPoE;
 
     case ConnType of
       VPN: ConnSelImg.Picture.LoadFromLazarusResource('vpn');
@@ -704,11 +716,12 @@ end;
 
 procedure TConfigForm.TimerReConnectTimer(Sender: TObject);
 begin
-  if Connected=true or Connecting=true then Exit
+  if Connected = True or Connecting = True then
+    Exit
   else
-   begin
-        ConfigForm.DoConnect();
-   end;
+  begin
+    ConfigForm.DoConnect();
+  end;
 end;
 
 procedure TConfigForm.TraffTimerTimer(Sender: TObject);
@@ -730,18 +743,21 @@ begin
          rxhint:='Мегабайт принято: '+IntToStr(round(rx/(1024*1024)))+PERENOS
       else}
     if tx >= 1024 then
-      rxhint := 'Килобайт принято: ' + IntToStr(round(rx / 1024)) + PERENOS
+      rxhint := 'Килобайт принято: ' +
+        IntToStr(round(rx / 1024)) + PERENOS
     else
       rxhint := 'Байт принято: ' + IntToStr(rx) + PERENOS;
 
     if tx >= 1048576 then
-      txhint := 'Мегабайт передано: ' + IntToStr(round(tx / (1024 * 1024)))
+      txhint := 'Мегабайт передано: ' +
+        IntToStr(round(tx / (1024 * 1024)))
     else if tx >= 1024 then
       txhint := 'Килобайт передано: ' + IntToStr(round(tx / 1024))
     else
       txhint := 'Байт передано: ' + IntToStr(tx);
 
-    Tray.Hint := 'ДИАНЭТ' + PERENOS + 'Подключен' + PERENOS + rxhint + txhint;
+    Tray.Hint := 'ДИАНЭТ' + PERENOS + 'Подключен' +
+      PERENOS + rxhint + txhint;
   end;
 end;
 
@@ -797,8 +813,9 @@ procedure TConfigForm.AboutBtnClick(Sender: TObject);
 begin
   MessageBoxW(Handle, PWideChar(
     UTF8Decode('    Dianet Dialer, Версия ' + VERSION + PERENOS +
-    'Автор программы ' + AUTHOR + PERENOS + '                           ©' +
-    DIANETSTR + ',2010')), PWideChar(UTF8Decode('О программе Dianet Dialer')),
+    'Автор программы ' + AUTHOR + PERENOS +
+    '                           ©' + DIANETSTR + ',2010')),
+    PWideChar(UTF8Decode('О программе Dianet Dialer')),
     MB_ICONQUESTION);
 end;
 
@@ -826,15 +843,18 @@ begin
 end;
 
 procedure TConfigForm.CheckUpdateTimer(Sender: TObject);
+var
+  time: integer;
 begin
   if Connected and UpdateFound then
   begin
     if MessageBoxW(Handle, PWideChar(UpdateInfo), PWideChar(
-      UTF8Decode('Доступно обновление. Пожалуйста, скачайте и установите')),
-      MB_ICONINFORMATION + MB_YESNO) = idYes then
+      UTF8Decode('Доступно обновление. Пожалуйста, скачайте и установите')), MB_ICONINFORMATION + MB_YESNO) = idYes then
       ShellExecute(ConfigForm.Handle, 'open', PChar(UpdateLink), nil,
         nil, SW_SHOWMAXIMIZED);
   end;
+  randomize;
+  CheckUpdate.Interval := 1200000 + Random(2400000);
 end;
 
 procedure TConfigForm.CloseImgClick(Sender: TObject);
@@ -927,6 +947,14 @@ begin
     ConnectBtn.Enabled := True;
     Exit;
   end;
+  if Length(Pass.Caption) < 3 then
+  begin
+    CreateError('Ошибка', 'Пароль менее 3х символов',
+      bfInfo, False);
+    ConnectBtn.Enabled := True;
+    Exit;
+  end;
+
   if ConnType = VPN then
     if not checkVPN(VPN_IP) then
     begin
@@ -976,7 +1004,7 @@ begin
     ConnImg.Picture.LoadFromLazarusResource('button_connect');
     if e = 691 then
     begin
-         ConfigForm.TimerReConnect.Enabled := false;
+      ConfigForm.TimerReConnect.Enabled := False;
     end;
   end;
 end;
@@ -987,7 +1015,8 @@ begin
 end;
 
 procedure TConfigForm.ConnImgClick(Sender: TObject);
-var time : integer;
+var
+  time: integer;
 begin
   if Binding then
     exit;
@@ -995,15 +1024,15 @@ begin
   begin
     if Connected then
     begin
-      DoDisconnect
+      DoDisconnect;
     end
     else
     begin
       DoConnect;
       Randomize;
-      time := 30000+Random(180000);
-      ConfigForm.TimerReConnect.Interval:=time;
-      ConfigForm.TimerReConnect.Enabled:=true;
+      time := 40000 + Random(180000);
+      ConfigForm.TimerReConnect.Interval := time;
+      ConfigForm.TimerReConnect.Enabled := True;
     end;
   end;
 end;
@@ -1078,16 +1107,21 @@ end;
 procedure TConfigForm.ConnSelChange(Sender: TObject);
 begin
 
-  if (CheckConnectType = 1) then ConnType := VPN;
-  if (CheckConnectType = 2) then ConnType := VPN_POLI;
-  if (CheckConnectType = 4) then ConnType := PPPoE
+  if (CheckConnectType = 1) then
+    ConnType := VPN;
+  if (CheckConnectType = 2) then
+    ConnType := VPN_POLI;
+  if (CheckConnectType = 4) then
+    ConnType := PPPoE
   else
-     begin
-       if ConnSel.Text = 'PPPoE' then  ConnType := PPPoE;
-       if ConnSel.Text = 'VPN (default)' then  ConnType := VPN;
-       if ConnSel.Text = 'VPN (Политех)' then  ConnType := VPN_POLI
-       else ConnType := VPN;
-     end;
+  begin
+    if ConnSel.Text = 'PPPoE' then
+      ConnType := PPPoE;
+    if ConnSel.Text = 'VPN (default)' then
+      ConnType := VPN;
+    if ConnSel.Text = 'VPN (Политех)' then
+      ConnType := VPN_POLI;
+  end;
 
   case ConnType of
     VPN: ConnSelImg.Picture.LoadFromLazarusResource('vpn');
@@ -1108,7 +1142,7 @@ end;
 
 procedure TConfigForm.DoDisconnect;
 begin
-  ConfigForm.TimerReConnect.Enabled:=false;
+  ConfigForm.TimerReConnect.Enabled := False;
   Connecting := True;
   Tray.Hint := DIASTR + 'Отключение...';
   Tray.BalloonHint := 'Отключение...';
@@ -1191,9 +1225,22 @@ begin
     if PassChanged then
     begin
       tmpstr := '';
-      if Length(Text) > 0 then
+      if GetKeyboardLayout(GetWindowThreadProcessId(GetForegroundWindow, nil)) <>  67699721 then
+            begin
+                Configform.Tray.Hint := 'Ошибка';
+                Configform.Tray.BalloonHint := 'Раскладка клавиатуры переключена на английскую';
+                Configform.Tray.BalloonTitle := 'Ошибка';
+                Configform.Tray.BalloonFlags := bfInfo;
+                Configform.Tray.ShowBalloonHint;
+
+                LoadKeyboardLayout('00000409',KLF_ACTIVATE);
+            end
+      else
+      begin
+        if Length(Text) > 0 then
         for i := 1 to Length(Text) do
           tmpstr := tmpstr + '*';
+      end
     end
     else
     begin
@@ -1248,4 +1295,3 @@ initialization
   {$I iface.lrs}
 
 end.
-

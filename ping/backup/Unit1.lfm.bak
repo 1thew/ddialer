@@ -1,12 +1,12 @@
 object Form1: TForm1
   Left = 240
-  Height = 378
+  Height = 377
   Top = 132
-  Width = 405
+  Width = 403
   BorderStyle = bsSingle
   Caption = 'Dianet Diagnos'
-  ClientHeight = 378
-  ClientWidth = 405
+  ClientHeight = 377
+  ClientWidth = 403
   LCLVersion = '0.9.31'
   object PageControl1: TPageControl
     Left = 8
@@ -183,7 +183,7 @@ object Form1: TForm1
         ClientWidth = 336
         TabOrder = 2
         object Memo2: TMemo
-          Left = 8
+          Left = 6
           Height = 86
           Top = 10
           Width = 314

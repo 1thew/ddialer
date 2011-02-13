@@ -1,7 +1,7 @@
 object ConfigForm: TConfigForm
-  Left = 234
+  Left = 233
   Height = 372
-  Top = 139
+  Top = 134
   Width = 430
   BorderIcons = []
   BorderStyle = bsNone
@@ -5380,7 +5380,7 @@ object ConfigForm: TConfigForm
     top = 19
   end
   object CheckUpdate: TTimer
-    Interval = 1800000
+    Interval = 20000
     OnTimer = CheckUpdateTimer
     left = 64
     top = 19
