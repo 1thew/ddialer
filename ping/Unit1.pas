@@ -400,6 +400,7 @@ begin
          memo1.Lines.Add('Обнаружен шлюз 192.168.254.254');
          exit;
      end;
+
   // барнаул
     if (ip.a=10) and (ip.b=110) then
      begin
@@ -827,7 +828,11 @@ begin
 
    if (FindGateway=0) then
      begin
-       result := 'Не удалось определить шлюз для вашего подключения.'+' Ваш IP: '+LocalIP;
+       if LocalIP = '127.0.01' then begin
+               result := 'Не удалось найти активное подключение по локальной сети';
+               exit;
+       end
+       else result := 'Не удалось определить шлюз для вашего подключения.'+' Ваш IP: '+LocalIP;
        exit;
      end;
 

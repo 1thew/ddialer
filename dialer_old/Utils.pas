@@ -6,8 +6,8 @@ unit Utils;
 interface
 
 uses
-  Classes, SysUtils, Windows, lnet, lhttp, lHTTPUtil, lnetSSL, XMLRead, DOM, Forms,
-  RASUnit, jwaiptypes, JwaIpHlpApi;
+  Classes, SysUtils, Windows, lnet, XMLRead, DOM, Forms,
+  RASUnit, jwaiptypes, JwaIpHlpApi,IdHTTP;
 
 const
   PERENOS = Char($0D)+Char($0A);
@@ -28,7 +28,7 @@ const
   VPN_IP_POLI ='vpn.dianet.info';
 
 
-  VERSION = '1.2.9.3';
+  VERSION = '1.2.9.5';
 
   RETRAKER_URL = 'http://start.dianet.info';
 
@@ -47,22 +47,10 @@ type
     a,b,c,d:Byte;
   end;
 
-  { THTTPHandler }
-  THTTPHandler = class
-  Private
-    FDone:Boolean;
-  public
-    procedure ClientDisconnect(ASocket: TLSocket);
-    procedure ClientDoneInput(ASocket: TLHTTPClientSocket);
-    procedure ClientError(const Msg: string; aSocket: TLSocket);
-    function ClientInput(ASocket: TLHTTPClientSocket; ABuffer: pchar; ASize: Integer): Integer;
-    procedure ClientProcessHeaders(ASocket: TLHTTPClientSocket);
-    property Done:Boolean read FDone default False;
-  end;
-
   { TUpdateThread }
   TUpdateThread = class(TThread)
   protected
+    IdHTTP1: TIdHTTP;
     procedure Execute; override;
   end;
 
@@ -107,25 +95,24 @@ var
   UpdateFound:Boolean=False;
   UpdateStream:TFileStream;
   updater:TUpdateThread;
-  OutputFile: file;
-
+  OutputFile: textfile;
   Binding:Boolean=False;
+  Filial:WideString;
 
 implementation
 
-{ THTTPHandler }
-procedure THTTPHandler.ClientDisconnect(ASocket: TLSocket);
-begin
-  FDone := true;
-end;
-
-procedure THTTPHandler.ClientDoneInput(ASocket: TLHTTPClientSocket);
-var
-   PassNode: TDOMNode;
+{ TUpdateThread }
+procedure TUpdateThread.Execute;
+var s: string;
+     PassNode: TDOMNode;
    Doc:      TXMLDocument;
 begin
-  close(OutputFile);
-  ASocket.Disconnect;
+  AssignFile(OutputFile, 'upd.xml');
+  ReWrite(OutputFile);
+  IdHTTP1 := TIdHTTP.Create(nil);
+  s:= idHTTP1.Get('http://update.dianet.info/dialer/index.php?action=version');
+  Write(OutputFile, s);
+  CloseFile(OutputFile);
 
   ReadXMLFile(Doc,'upd.xml');
 
@@ -138,63 +125,7 @@ begin
       UpdateLink:=PassNode.TextContent;
       UpdateFound:=True;
     end;
-end;
 
-procedure THTTPHandler.ClientError(const Msg: string; aSocket: TLSocket);
-begin
-
-end;
-
-function THTTPHandler.ClientInput(ASocket: TLHTTPClientSocket;
-  ABuffer: pchar; ASize: Integer): Integer;
-begin
-  blockwrite(outputfile, ABuffer^, ASize, Result);
-//  UpdateStream.WriteBuffer(ABuffer,ASize);
-end;
-
-procedure THTTPHandler.ClientProcessHeaders(ASocket: TLHTTPClientSocket);
-begin
-
-end;
-
-{ TUpdateThread }
-procedure TUpdateThread.Execute;
-var
-  HttpClient: TLHTTPClient;
-  UpdateHandler:THTTPHandler;
-  SSLSession: TLSSLSession;
-  aHost, aURI: string;
-  aPort: Word;
-begin
-  assign(OutputFile, 'upd.xml');
-  rewrite(OutputFile, 1);
-
-  UpdateHandler:=THTTPHandler.Create;
-  HttpClient:=TLHTTPClient.Create(nil);
-  SSLSession := TLSSLSession.Create(HttpClient);
-  SSLSession.SSLActive := DecomposeURL('http://update.dianet.info/dialer/?action=version', aHost, aURI, aPort);
-
-  HttpClient.Session:=SSLSession;
-  HttpClient.Method:=hmGet;
-  HttpClient.Host:=aHost;
-  HttpClient.Port:=aPort;
-  HttpClient.URI:=aURI;
-  HttpClient.Timeout:=-1;
-
-  HttpClient.OnDisconnect := @UpdateHandler.ClientDisconnect;
-  HttpClient.OnDoneInput := @UpdateHandler.ClientDoneInput;
-  HttpClient.OnError := @UpdateHandler.ClientError;
-  HttpClient.OnInput := @UpdateHandler.ClientInput;
-  HttpClient.OnProcessHeaders := @UpdateHandler.ClientProcessHeaders;
-
-  HttpClient.Connect;
-  HttpClient.SendRequest;
-
-  while not UpdateHandler.Done do
-   HttpClient.CallAction;
-
-  UpdateHandler.Free;
-  HttpClient.Free;
 end;
 
 { TLVPNTest }
@@ -277,7 +208,7 @@ end;
 
 procedure CheckIpInList(var ip:TIpAddr);
 begin
-  //Belokuriha, Rubcovsk, Aleysk, Zarinsk to retracker
+  //Belokuriha, Rubcovsk, Aleysk, Zarinsk, Byisk to retracker
   if (ip.a=172) and (ip.b=16) then
     case ip.c of
       28:AddRoute('172.16.20.58','255.255.255.255','172.16.28.1');
@@ -303,10 +234,15 @@ begin
 
       42:AddRoute('172.16.20.58','255.255.255.255','172.16.42.1');
       43:AddRoute('172.16.20.58','255.255.255.255','172.16.42.1');
+
+      44:AddRoute('172.16.20.58','255.255.255.255','172.16.44.1');
+      45:AddRoute('172.16.20.58','255.255.255.255','172.16.44.1');
+
     end;
   //Aleysk to Dianet_local
   if (ip.a=172) and (ip.b=16) then
-    case ip.c of
+   begin
+     case ip.c of
       28:
               begin
               AddRoute('10.110.0.0','255.255.252.0','172.16.28.1');
@@ -317,6 +253,7 @@ begin
               AddRoute('172.16.38.0','255.255.254.0','172.16.28.1');
               AddRoute('172.16.40.0','255.255.254.0','172.16.28.1');
               AddRoute('172.16.42.0','255.255.254.0','172.16.28.1');
+              AddRoute('172.16.44.0','255.255.254.0','172.16.28.1');
               end;
       29:
               begin
@@ -328,6 +265,7 @@ begin
               AddRoute('172.16.38.0','255.255.254.0','172.16.28.1');
               AddRoute('172.16.40.0','255.255.254.0','172.16.28.1');
               AddRoute('172.16.42.0','255.255.254.0','172.16.28.1');
+              AddRoute('172.16.44.0','255.255.254.0','172.16.28.1');
               end;
       40:
               begin
@@ -339,6 +277,7 @@ begin
               AddRoute('172.16.36.0','255.255.254.0','172.16.40.1');
               AddRoute('172.16.38.0','255.255.254.0','172.16.40.1');
               AddRoute('172.16.42.0','255.255.254.0','172.16.40.1');
+              AddRoute('172.16.44.0','255.255.254.0','172.16.40.1');
               end;
       41:
               begin
@@ -350,10 +289,15 @@ begin
               AddRoute('172.16.36.0','255.255.254.0','172.16.40.1');
               AddRoute('172.16.38.0','255.255.254.0','172.16.40.1');
               AddRoute('172.16.42.0','255.255.254.0','172.16.40.1');
+              AddRoute('172.16.44.0','255.255.254.0','172.16.40.1');
               end;
+     end;
+    Filial:='aleysk';
     end;
   //Zarinsk to Dianet_local
   if (ip.a=172) and (ip.b=16) then
+   begin
+     Filial:='zarinsk';
     case ip.c of
       30:
               begin
@@ -365,6 +309,7 @@ begin
               AddRoute('172.16.38.0','255.255.254.0','172.16.30.1');
               AddRoute('172.16.40.0','255.255.254.0','172.16.30.1');
               AddRoute('172.16.42.0','255.255.254.0','172.16.30.1');
+              AddRoute('172.16.44.0','255.255.254.0','172.16.30.1');
               end;
       31:
               begin
@@ -376,6 +321,7 @@ begin
               AddRoute('172.16.38.0','255.255.254.0','172.16.30.1');
               AddRoute('172.16.40.0','255.255.254.0','172.16.30.1');
               AddRoute('172.16.42.0','255.255.254.0','172.16.30.1');
+              AddRoute('172.16.44.0','255.255.254.0','172.16.30.1');
               end;
       34:
               begin
@@ -387,6 +333,7 @@ begin
               AddRoute('172.16.38.0','255.255.254.0','172.16.34.1');
               AddRoute('172.16.40.0','255.255.254.0','172.16.34.1');
               AddRoute('172.16.42.0','255.255.254.0','172.16.34.1');
+              AddRoute('172.16.44.0','255.255.254.0','172.16.34.1');
               end;
       35:
               begin
@@ -398,6 +345,7 @@ begin
               AddRoute('172.16.38.0','255.255.254.0','172.16.34.1');
               AddRoute('172.16.40.0','255.255.254.0','172.16.34.1');
               AddRoute('172.16.42.0','255.255.254.0','172.16.34.1');
+              AddRoute('172.16.44.0','255.255.254.0','172.16.34.1');
               end;
       36:
               begin
@@ -409,6 +357,7 @@ begin
               AddRoute('172.16.38.0','255.255.254.0','172.16.36.1');
               AddRoute('172.16.40.0','255.255.254.0','172.16.36.1');
               AddRoute('172.16.42.0','255.255.254.0','172.16.36.1');
+              AddRoute('172.16.44.0','255.255.254.0','172.16.36.1');
               end;
        37:
               begin
@@ -420,6 +369,7 @@ begin
               AddRoute('172.16.38.0','255.255.254.0','172.16.36.1');
               AddRoute('172.16.40.0','255.255.254.0','172.16.36.1');
               AddRoute('172.16.42.0','255.255.254.0','172.16.36.1');
+              AddRoute('172.16.44.0','255.255.254.0','172.16.36.1');
               end;
        38:
               begin
@@ -431,6 +381,7 @@ begin
               AddRoute('172.16.36.0','255.255.254.0','172.16.38.1');
               AddRoute('172.16.40.0','255.255.254.0','172.16.38.1');
               AddRoute('172.16.42.0','255.255.254.0','172.16.38.1');
+              AddRoute('172.16.44.0','255.255.254.0','172.16.38.1');
               end;
         39:
               begin
@@ -442,11 +393,15 @@ begin
               AddRoute('172.16.36.0','255.255.254.0','172.16.38.1');
               AddRoute('172.16.40.0','255.255.254.0','172.16.38.1');
               AddRoute('172.16.42.0','255.255.254.0','172.16.38.1');
+              AddRoute('172.16.44.0','255.255.254.0','172.16.38.1');
               end;
+       end;
     end;
 
   //Belokuriha to Dianet_local
   if (ip.a=172) and (ip.b=16) then
+   begin
+    Filial:='belokuriha';
     case ip.c of
       32:
               begin
@@ -458,6 +413,7 @@ begin
               AddRoute('172.16.38.0','255.255.254.0','172.16.32.1');
               AddRoute('172.16.40.0','255.255.254.0','172.16.32.1');
               AddRoute('172.16.42.0','255.255.254.0','172.16.32.1');
+              AddRoute('172.16.44.0','255.255.254.0','172.16.32.1');
               end;
 	  33:
               begin
@@ -469,6 +425,7 @@ begin
               AddRoute('172.16.38.0','255.255.254.0','172.16.32.1');
               AddRoute('172.16.40.0','255.255.254.0','172.16.32.1');
               AddRoute('172.16.42.0','255.255.254.0','172.16.32.1');
+              AddRoute('172.16.44.0','255.255.254.0','172.16.32.1');
               end;
           42:
               begin
@@ -480,6 +437,7 @@ begin
               AddRoute('172.16.36.0','255.255.254.0','172.16.42.1');
               AddRoute('172.16.38.0','255.255.254.0','172.16.42.1');
               AddRoute('172.16.40.0','255.255.254.0','172.16.42.1');
+              AddRoute('172.16.44.0','255.255.254.0','172.16.42.1');
               end;
           43:
               begin
@@ -491,8 +449,43 @@ begin
               AddRoute('172.16.36.0','255.255.254.0','172.16.42.1');
               AddRoute('172.16.38.0','255.255.254.0','172.16.42.1');
               AddRoute('172.16.40.0','255.255.254.0','172.16.42.1');
+              AddRoute('172.16.44.0','255.255.254.0','172.16.42.1');
               end;
+          end;
     end;
+
+   //Biysk(vlan 99) to Dianet_local
+  if (ip.a=172) and (ip.b=16) then
+   begin
+    Filial:='biysk';
+    case ip.c of
+      44:
+        begin
+              AddRoute('10.110.0.0','255.255.252.0','172.16.44.1');
+              AddRoute('172.16.28.0','255.255.254.0','172.16.44.1');
+              AddRoute('172.16.30.0','255.255.254.0','172.16.44.1');
+              AddRoute('172.16.32.0','255.255.254.0','172.16.44.1');
+              AddRoute('172.16.34.0','255.255.254.0','172.16.44.1');
+              AddRoute('172.16.36.0','255.255.254.0','172.16.44.1');
+              AddRoute('172.16.38.0','255.255.254.0','172.16.44.1');
+              AddRoute('172.16.40.0','255.255.254.0','172.16.44.1');
+              AddRoute('172.16.42.0','255.255.254.0','172.16.44.1');
+        end;
+      45:
+        begin
+              AddRoute('10.110.0.0','255.255.252.0','172.16.44.1');
+              AddRoute('172.16.28.0','255.255.254.0','172.16.44.1');
+              AddRoute('172.16.30.0','255.255.254.0','172.16.44.1');
+              AddRoute('172.16.32.0','255.255.254.0','172.16.44.1');
+              AddRoute('172.16.34.0','255.255.254.0','172.16.44.1');
+              AddRoute('172.16.36.0','255.255.254.0','172.16.44.1');
+              AddRoute('172.16.38.0','255.255.254.0','172.16.44.1');
+              AddRoute('172.16.40.0','255.255.254.0','172.16.44.1');
+              AddRoute('172.16.42.0','255.255.254.0','172.16.44.1');
+        end;
+    end;
+
+   end;
 
   //Novoaltaysk to retracker
   if (ip.a=10) and (ip.b=33) then
@@ -508,6 +501,7 @@ begin
     end;
   //Novoaltaysk to local
   if (ip.a=10) and (ip.b=33) then
+   begin
     case ip.c of
       26:AddRoute('10.33.0.0','255.255.0.0','10.33.26.1');
       27:AddRoute('10.33.0.0','255.255.0.0','10.33.26.1');
@@ -518,6 +512,8 @@ begin
       30:AddRoute('10.33.0.0','255.255.0.0','10.33.30.1');
       31:AddRoute('10.33.0.0','255.255.0.0','10.33.30.1');
     end;
+    Filial:='novoalt';
+   end;
 
   //Politeh to retracker
   if (ip.a=10) and (ip.b=0) then
@@ -527,10 +523,26 @@ begin
     end;
   //Politeh to Barnaul
   if (ip.a=10) and (ip.b=0) then
+   begin
     case ip.c of
       110:AddRoute('10.110.0.0','255.255.252.0','10.0.110.6');
       111:AddRoute('10.110.0.0','255.255.252.0','10.0.110.6');
     end;
+    Filial:='barnaul';
+   end;
+
+  // find "filial" for other location
+  if  (ip.a=10) and (ip.b=110) then Filial:='barnaul';
+  if  (ip.a=172) and (ip.b=16) then
+   begin
+     case ip.c of
+       24:Filial:='biysk';
+       25:Filial:='biysk';
+       26:Filial:='rubtsovsk';
+       27:Filial:='rubtsovsk';
+     end;
+   end
+  else Filial:='other';
 end;
 
 { TConnectionType }
