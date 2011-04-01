@@ -16,7 +16,6 @@ var
 
 
 
-
 {$R *.res}
 
 begin
