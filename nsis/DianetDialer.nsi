@@ -16,7 +16,7 @@ XPStyle on
 
   ;Name and file
   Name "Dianet Dialer Installer"
-  OutFile "install1295.exe"
+  OutFile "install1296.exe"
 
   ;Default installation folder
   InstallDir "$PROGRAMFILES\DIANET"
@@ -32,6 +32,8 @@ XPStyle on
 
   !define MUI_ABORTWARNING
   !define nsProcess::KillProcess `!insertmacro nsProcess::KillProcess`
+  
+  
 
 
 ;--------------------------------
@@ -48,6 +50,12 @@ XPStyle on
 	Pop ${_ERR}
 !macroend
   
+ !define MUI_FINISHPAGE_RUN
+!define MUI_FINISHPAGE_RUN_TEXT "Запуск программы"
+!define MUI_FINISHPAGE_RUN_FUNCTION "start"
+!insertmacro MUI_PAGE_FINISH
+ 
+  
 ;--------------------------------
 ;Languages
  
@@ -55,6 +63,8 @@ XPStyle on
 
 ;--------------------------------
 ;Installer Sections
+
+
 
 Function .onInit
        ${nsProcess::KillProcess} "dianetdialer.exe" $R0
@@ -65,6 +75,9 @@ Function .onInit
 		SetRegView 32
         ${EndIf}
 FunctionEnd
+
+
+
 
 Section Install
 
@@ -100,7 +113,7 @@ Section Install
 				 
   ;Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall.exe"
-
+  
 SectionEnd
 
 ;--------------------------------
@@ -129,3 +142,8 @@ Section Uninstall
   DeleteRegValue HKLM "Software\Microsoft\Windows\CurrentVersion\Run" "dianetdialer"
 
 SectionEnd
+
+Function start
+  ExecShell "" "$INSTDIR\dianetdialer.exe"
+FunctionEnd
+
