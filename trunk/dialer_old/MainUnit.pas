@@ -164,6 +164,8 @@ var
   ConfigForm: TConfigForm;
   CanExit: boolean = False;
   FirstStart: boolean = True;
+
+  LastError: integer = 0;
   ConnectNumber: integer = 0;
 
   Connecting: boolean = False;
@@ -192,6 +194,7 @@ var
   PassChanged: boolean = False;
 
   tx, rx: QWord;
+
 
 implementation
 
@@ -225,8 +228,9 @@ begin
   try
     if (error > 600) or (dwExtendedError > 600) then
     begin
+      LastError:=error;                  // запоминаем номер последней ошибки
       if Assigned(Discon) then
-        Discon.ShowDiscon := False;
+      Discon.ShowDiscon := False;
       ConfigForm.disconnect();
 
       if dwExtendedError > 600 then
@@ -256,6 +260,7 @@ begin
         rx := 0;
         ConfigForm.CabinetBtn.Enabled := True;
         ConnectNumber:=  ConnectNumber+1;
+        LastError:=0;
       end;
       RASCS_Authenticate: CreateError(DIANETSTR, 'Авторизация...',
           bfInfo, False);
@@ -266,6 +271,7 @@ begin
   except
     ConfigForm.disconnect();
   end;
+  Connecting:=false;
 end;
 
 { TDisconThread }
@@ -736,6 +742,11 @@ end;
 
 procedure TConfigForm.TimerReConnectTimer(Sender: TObject);
 begin
+  if (LastError = 691) then
+  begin
+    TimerReConnect.Enabled:=false;
+    Exit;
+  end;
   if Connected = True or Connecting = True then
     Exit
   else
@@ -1010,42 +1021,19 @@ begin
   Connecting := True;
   ConnectBtn.Enabled := False;
   DisconBtn.Enabled := True;
-  Application.ProcessMessages;
   e := connect();
-  Connecting := false;
-  if e <> 0 then
-  begin
-    ErrTitle := 'Ошибка подключения: ' + IntToStr(e);
-    RasGetErrorStringW(e, s, SizeOf(s));
-    WErrHint := s;
-    ErrHint := UTF8Encode(WErrHint);
-    CreateError(ErrTitle, ErrHint, bfError, True);
-    disconnect();
-    ConnectBtn.Enabled := True;
-    DisconBtn.Enabled := False;
+  Application.ProcessMessages;
+  Connecting := true;
 
-    Connecting := False;
-    Connected := False;
-    CabinetBtn.Enabled := False;
 
-    ConnImg.Picture.LoadFromLazarusResource('button_connect');
-    if e = 691 then
-    begin
-      ShowMessage ('691');
-      //ConfigForm.TimerReConnect.Enabled := False;
-    end;
-  end
-  // продолжаем, "ошибок" при подключении нет
-  Else begin
-     // включаем реконнекты
-      Randomize;
-      time := 40000 + Random(180000);
-      ConfigForm.TimerReConnect.Interval := time;
-      ConfigForm.TimerReConnect.Enabled := True;
-      // включаем новости
-      if ConnectNumber >= 3 then ConfigForm.ShowNews.Enabled := false
-      else  ConfigForm.ShowNews.Enabled := true;
-  end;
+  //включаем таймеры
+  Randomize;
+  time := 40000 + Random(180000);
+  ConfigForm.TimerReConnect.Interval := time;
+  ConfigForm.TimerReConnect.Enabled := True;
+  // +новости
+  if ConnectNumber >= 3 then ConfigForm.ShowNews.Enabled := false
+  else  ConfigForm.ShowNews.Enabled := true;
 end;
 
 procedure TConfigForm.ConnectBtnClick(Sender: TObject);

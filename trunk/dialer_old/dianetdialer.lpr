@@ -15,7 +15,6 @@ var
   Mutex:THandle;
 
 
-
 begin
   Mutex := CreateMutex(nil, False, 'DianetDialerMutex');
   if Mutex = 0 then

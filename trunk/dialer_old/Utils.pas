@@ -28,7 +28,7 @@ const
   VPN_IP_POLI ='vpn.dianet.info';
 
 
-  VERSION = '1.2.9.5';
+  VERSION = '1.2.9.6';
 
   RETRAKER_URL = 'http://start.dianet.info';
 
@@ -107,24 +107,29 @@ var s: string;
      PassNode: TDOMNode;
    Doc:      TXMLDocument;
 begin
-  AssignFile(OutputFile, 'upd.xml');
-  ReWrite(OutputFile);
-  IdHTTP1 := TIdHTTP.Create(nil);
-  s:= idHTTP1.Get('http://update.dianet.info/dialer/index.php?action=version');
-  Write(OutputFile, s);
-  CloseFile(OutputFile);
 
-  ReadXMLFile(Doc,'upd.xml');
+  try
+     AssignFile(OutputFile, 'upd.xml');
+     ReWrite(OutputFile);
+     IdHTTP1 := TIdHTTP.Create(nil);
+     s:= idHTTP1.Get('http://update.dianet.info/dialer/index.php?action=version');
+     Write(OutputFile, s);
+     CloseFile(OutputFile);
 
-  PassNode := Doc.DocumentElement.FindNode('version');
-  if PassNode.TextContent<>VERSION then
-    begin
-      PassNode := Doc.DocumentElement.FindNode('note');
-      UpdateInfo:=PassNode.TextContent;
-      PassNode := Doc.DocumentElement.FindNode('url');
-      UpdateLink:=PassNode.TextContent;
-      UpdateFound:=True;
-    end;
+     ReadXMLFile(Doc,'upd.xml');
+
+     PassNode := Doc.DocumentElement.FindNode('version');
+     if PassNode.TextContent<>VERSION then
+     begin
+        PassNode := Doc.DocumentElement.FindNode('note');
+        UpdateInfo:=PassNode.TextContent;
+        PassNode := Doc.DocumentElement.FindNode('url');
+        UpdateLink:=PassNode.TextContent;
+        UpdateFound:=True;
+     end;
+
+  finally idHTTP1.Free;
+  end;
 
 end;
 
