@@ -8,7 +8,7 @@ interface
 uses
   Classes, SysUtils, LResources, Forms, Controls, Graphics, ExtCtrls, StdCtrls,
   Menus, Buttons, RASUnit, Windows, Registry, GraphType, FPimage, IntfGraphics,
-  Dialogs, Utils;
+  Dialogs, Utils, news;
 
 type
 
@@ -39,6 +39,7 @@ type
     AboutBtn: TMenuItem;
     ReTrakerBtn: TMenuItem;
     CheckUpdate: TTimer;
+    ShowNews: TTimer;
     TimerReConnect: TTimer;
     TraffTimer: TTimer;
     RemPassImg: TImage;
@@ -62,6 +63,7 @@ type
     procedure BgImageMouseMove(Sender: TObject; Shift: TShiftState; X, Y: integer);
     procedure BgImageMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
+    procedure Button1Click(Sender: TObject);
     procedure CabinetBtnClick(Sender: TObject);
     procedure CheckUpdateTimer(Sender: TObject);
     procedure CloseBtnClick(Sender: TObject);
@@ -118,6 +120,7 @@ type
     procedure PopupPopup(Sender: TObject);
     procedure RemPassChange(Sender: TObject);
     procedure ReTrakerBtnClick(Sender: TObject);
+    procedure ShowNewsTimer(Sender: TObject);
     procedure SiteImgMouseLeave(Sender: TObject);
     procedure SiteLinkClick(Sender: TObject);
     procedure SiteLinkMouseEnter(Sender: TObject);
@@ -161,6 +164,7 @@ var
   ConfigForm: TConfigForm;
   CanExit: boolean = False;
   FirstStart: boolean = True;
+  ConnectNumber: integer = 0;
 
   Connecting: boolean = False;
   Connected: boolean = False;
@@ -251,6 +255,7 @@ begin
         tx := 0;
         rx := 0;
         ConfigForm.CabinetBtn.Enabled := True;
+        ConnectNumber:=  ConnectNumber+1;
       end;
       RASCS_Authenticate: CreateError(DIANETSTR, 'Авторизация...',
           bfInfo, False);
@@ -673,6 +678,21 @@ begin
   ShellExecute(Handle, 'open', RETRAKER_URL, nil, nil, SW_SHOWMAXIMIZED);
 end;
 
+procedure TConfigForm.ShowNewsTimer(Sender: TObject);
+begin
+  If (Connected = false) or (Connecting = true) then
+  begin
+    Exit;
+  end;
+  if not Assigned(NewsForm) then Application.CreateForm(TNewsForm, NewsForm);
+  newsForm.GetNews;
+  if NewsFound = true then
+  begin
+    NewsForm.Show;
+    ShowNews.Enabled:=false;
+  end;
+end;
+
 procedure TConfigForm.SiteImgMouseLeave(Sender: TObject);
 begin
   if confvisible then
@@ -831,6 +851,11 @@ begin
   LButtonUp(x, y);
 end;
 
+procedure TConfigForm.Button1Click(Sender: TObject);
+begin
+
+end;
+
 procedure TConfigForm.CabinetBtnClick(Sender: TObject);
 var
   caburl: string;
@@ -848,13 +873,12 @@ var
 begin
   if Connected and UpdateFound then
   begin
+    randomize;
+    CheckUpdate.Interval := 1800000 + Random(2600000);
     if MessageBoxW(Handle, PWideChar(UpdateInfo), PWideChar(
-      UTF8Decode('Доступно обновление. Пожалуйста, скачайте и установите')), MB_ICONINFORMATION + MB_YESNO) = idYes then
-      ShellExecute(ConfigForm.Handle, 'open', PChar(UpdateLink), nil,
-        nil, SW_SHOWMAXIMIZED);
+      UTF8Decode('Dianet Dialer. Доступно обновление. Скачать?')), MB_ICONINFORMATION + MB_YESNO) = idYes then
+          ShellExecute(ConfigForm.Handle, 'open', PChar(UpdateLink), nil, nil, SW_SHOWMAXIMIZED);
   end;
-  randomize;
-  CheckUpdate.Interval := 1200000 + Random(2400000);
 end;
 
 procedure TConfigForm.CloseImgClick(Sender: TObject);
@@ -933,6 +957,7 @@ var
   ErrTitle, ErrHint: string;
   WErrHint: WideString;
   s: array [0..512] of widechar;
+  time: integer;
 begin
   ConnectBtn.Enabled := False;
   if Login.Caption = '' then
@@ -985,6 +1010,7 @@ begin
   Connecting := True;
   ConnectBtn.Enabled := False;
   DisconBtn.Enabled := True;
+  Application.ProcessMessages;
   e := connect();
   if e <> 0 then
   begin
@@ -1006,7 +1032,19 @@ begin
     begin
       ConfigForm.TimerReConnect.Enabled := False;
     end;
+  end
+  // продолжаем, "ошибок" при подключении нет
+  Else begin
+     // включаем реконнекты
+      Randomize;
+      time := 40000 + Random(180000);
+      ConfigForm.TimerReConnect.Interval := time;
+      ConfigForm.TimerReConnect.Enabled := True;
+      // включаем новости
+      if ConnectNumber >= 3 then ConfigForm.ShowNews.Enabled := false
+      else  ConfigForm.ShowNews.Enabled := true;
   end;
+  Connecting := false;
 end;
 
 procedure TConfigForm.ConnectBtnClick(Sender: TObject);
@@ -1015,8 +1053,6 @@ begin
 end;
 
 procedure TConfigForm.ConnImgClick(Sender: TObject);
-var
-  time: integer;
 begin
   if Binding then
     exit;
@@ -1029,10 +1065,6 @@ begin
     else
     begin
       DoConnect;
-      Randomize;
-      time := 40000 + Random(180000);
-      ConfigForm.TimerReConnect.Interval := time;
-      ConfigForm.TimerReConnect.Enabled := True;
     end;
   end;
 end;
@@ -1153,6 +1185,7 @@ begin
   ConnectBtn.Enabled := False;
   DisconBtn.Enabled := False;
   disconnect();
+
 end;
 
 procedure TConfigForm.DisconBtnClick(Sender: TObject);
@@ -1190,7 +1223,6 @@ begin
   ConfigForm.Left := ConfigForm.Left - (MouseDownSpot.X - x);
   //MouseDownSpot:=Point(x,y);
 end;
-
 
 { TMyEdit }
 
@@ -1234,7 +1266,6 @@ begin
                 Configform.Tray.ShowBalloonHint;
 
                 LoadKeyboardLayout('00000409',KLF_ACTIVATE);
-               // Exit;
             end
       else
       begin

@@ -7,13 +7,12 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, MainUnit, Windows, dialogs;
+  Forms, MainUnit, Windows, dialogs, news;
 
 {$IFDEF WINDOWS}{$R dianetdialer.rc}{$R manifest.res}{$ENDIF}
 
 var
   Mutex:THandle;
-
 
 
 
