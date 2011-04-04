@@ -452,6 +452,8 @@ begin
   RD.szUserName := ConfigForm.Login.Text;
   RD.szPassword := ConfigForm.Pass.Text;
 
+  Application.ProcessMessages;
+
   Result := RasDialW(nil, nil, RD, 1, @Callback, hConn);
   Conn.Destroy;
   if Result <> 0 then
