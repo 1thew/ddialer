@@ -408,6 +408,7 @@ var
   RE: RASENTRY;
   RD: RASDIALPARAMSW;
   Conn: TConnectionType;
+  C : Array[0..100] of Char;
 begin
   ConnectError := False;
   Conn := TConnectionType.Create(ConnType);
@@ -456,8 +457,12 @@ begin
 
   Result := RasDialW(nil, nil, RD, 1, @Callback, hConn);
   Conn.Destroy;
-  if Result <> 0 then
+  Result :=1;
+  if Result <> 0 then begin
+    RasGetErrorString(Result, C, 100);
+    MessageBox(0, C, 'Dianet Dialer ERROR', MB_OK);
     Exit;
+  end;
 
   dEvent := CreateEvent(nil, True, False, nil);
   RasConnectionNotification(hConn, dEvent, RASCN_Disconnection);
