@@ -37,6 +37,7 @@ type
     AutoConnectImg: TImage;
     CabinetBtn: TMenuItem;
     AboutBtn: TMenuItem;
+    Image1: TImage;
     ReTrakerBtn: TMenuItem;
     CheckUpdate: TTimer;
     ShowNews: TTimer;
@@ -159,13 +160,16 @@ type
     property ShowDiscon: boolean read FShow write FShow;
   end;
 
+// *** процедуры ***
+
+procedure DoEvent(number:integer);
+
 
 var
   ConfigForm: TConfigForm;
   CanExit: boolean = False;
   FirstStart: boolean = True;
 
-  LastError: integer = 0;
   ConnectNumber: integer = 0;
 
   Connecting: boolean = False;
@@ -228,7 +232,7 @@ begin
   try
     if (error > 600) or (dwExtendedError > 600) then
     begin
-      LastError:=error;                  // запоминаем номер последней ошибки
+      if error=691 then  DoEvent(691);                  // передаём в эвент номер ошибки
       if Assigned(Discon) then
       Discon.ShowDiscon := False;
       ConfigForm.disconnect();
@@ -260,7 +264,7 @@ begin
         rx := 0;
         ConfigForm.CabinetBtn.Enabled := True;
         ConnectNumber:=  ConnectNumber+1;
-        LastError:=0;
+        DoEvent(0);
       end;
       RASCS_Authenticate: CreateError(DIANETSTR, 'Авторизация...',
           bfInfo, False);
@@ -289,8 +293,10 @@ begin
   ConfigForm.Tray.Hint := DIASTR + 'Не подключен';
   if FShow then
     CreateError(DIANETSTR, 'Отключен', bfInfo, False);
-  if not Connecting then
+  if not Connecting then begin
     CreateError(DIANETSTR, 'Соединение прервано', bfInfo, False);
+    DoEvent(100);
+  end;
   ConfigForm.ConnectBtn.Enabled := True;
   ConfigForm.DisconBtn.Enabled := False;
   ConfigForm.Tray.Icon.LoadFromLazarusResource('icon_tray_disconnect');
@@ -457,7 +463,6 @@ begin
 
   Result := RasDialW(nil, nil, RD, 1, @Callback, hConn);
   Conn.Destroy;
-  Result :=1;
   if Result <> 0 then begin
     RasGetErrorString(Result, C, 100);
     MessageBox(0, C, 'Dianet Dialer ERROR', MB_OK);
@@ -482,7 +487,6 @@ begin
     CabinetBtn.Enabled := False;
 
     ConnImg.Picture.LoadFromLazarusResource('button_connect');
-
   end;
 end;
 
@@ -749,11 +753,7 @@ end;
 
 procedure TConfigForm.TimerReConnectTimer(Sender: TObject);
 begin
-  if (LastError = 691) then
-  begin
-    TimerReConnect.Enabled:=false;
-    Exit;
-  end;
+  ConfigForm.Image1.Picture.LoadFromLazarusResource('button_connect');
   if Connected = True or Connecting = True then
     Exit
   else
@@ -975,7 +975,6 @@ var
   ErrTitle, ErrHint: string;
   WErrHint: WideString;
   s: array [0..512] of widechar;
-  time: integer;
 begin
   ConnectBtn.Enabled := False;
   if Login.Caption = '' then
@@ -1029,18 +1028,8 @@ begin
   ConnectBtn.Enabled := False;
   DisconBtn.Enabled := True;
   e := connect();
-  Application.ProcessMessages;
   Connecting := true;
 
-
-  //включаем таймеры
-  Randomize;
-  time := 40000 + Random(180000);
-  ConfigForm.TimerReConnect.Interval := time;
-  ConfigForm.TimerReConnect.Enabled := True;
-  // +новости
-  if ConnectNumber >= 3 then ConfigForm.ShowNews.Enabled := false
-  else  ConfigForm.ShowNews.Enabled := true;
 end;
 
 procedure TConfigForm.ConnectBtnClick(Sender: TObject);
@@ -1181,7 +1170,6 @@ begin
   ConnectBtn.Enabled := False;
   DisconBtn.Enabled := False;
   disconnect();
-
 end;
 
 procedure TConfigForm.DisconBtnClick(Sender: TObject);
@@ -1315,6 +1303,41 @@ begin
 
   Bitmap.Free;
   //  inherited Paint;
+end;
+
+
+procedure DoEvent(number: integer);
+var time: integer;
+begin
+  case number of
+    691 :
+        begin
+             ConfigForm.TimerReconnect.Enabled:= false;
+             ConfigForm.CheckUpdate.Enabled:=false;
+        end;
+    0   :                                     // нуль это успешное соединение
+        begin
+             // проверяем включены ли
+             if ConfigForm.CheckUpdate.Enabled=false then ConfigForm.CheckUpdate.Enabled:=true;
+             //включаем таймеры
+             Randomize;
+             time := 40000 + Random(180000);
+             ConfigForm.TimerReConnect.Interval := time;
+             ConfigForm.TimerReConnect.Enabled := True;
+
+             if ConfigForm.TimerReConnect.Enabled = false then ConfigForm.Image1.Picture.LoadFromLazarusResource('button_connect');;
+             // +новости
+             if ConnectNumber >= 3 then ConfigForm.ShowNews.Enabled := false
+             else if ConnectNumber < 3 then ConfigForm.ShowNews.Enabled := true;
+        end;
+    100 :                                      // "соединение потеряно", он же возможно дисконнект
+        begin
+             if ConnType <> VPN then
+             begin
+                  ConfigForm.CheckUpdate.Enabled:=false;
+             end;
+        end;
+  end;
 end;
 
 
