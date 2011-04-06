@@ -107,7 +107,7 @@ var s: string;
      PassNode: TDOMNode;
    Doc:      TXMLDocument;
 begin
-
+try
   try
      AssignFile(OutputFile, 'upd.xml');
      ReWrite(OutputFile);
@@ -128,10 +128,14 @@ begin
         UpdateFound:=True;
      end;
 
-  finally idHTTP1.Free;
+  except exit;
   end;
 
+finally idHTTP1.Free;
 end;
+end;
+
+
 
 { TLVPNTest }
 
