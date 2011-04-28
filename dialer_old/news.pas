@@ -6,36 +6,47 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, ExtCtrls, IdHTTP, utils, ShellAPI,windows;
+  StdCtrls, ExtCtrls, IdHTTP, utils, windows;
+
 
 type
+  { TNewsThread }
+  TNewsThread = class(TThread)
+        TempStr:Widestring;
+   private
+    function Tokenize(Str: WideString; Delimiter: string): TStringList;
+  protected
+    procedure UpdateLabel();
+    procedure Execute; override;
+  public
+    procedure GetNews1;
+  end;
+
 
   { TNewsForm }
 
   TNewsForm = class(TForm)
-    Button1: TButton;
     ButtonClose: TButton;
-    IdHTTP2: TIdHTTP;
-    Image1: TImage;
     Label1: TLabel;
+    Image1: TImage;
     StaticText1: TStaticText;
-    procedure Button1Click(Sender: TObject);
     procedure ButtonCloseClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Label1Click(Sender: TObject);
   private
     { private declarations }
-    NewsStr: WideString;
-    NewsStrList: TStringlist;
-    function Tokenize(Str: WideString; Delimiter: string): TStringList;
   public
     { public declarations }
-    procedure GetNews;
   end; 
 
 var
   NewsForm: TNewsForm;
+  NewsThread: TNewsthread;
   NewsFound:Boolean=False;
+  NewsStrList: TStringlist;
+  NewsStr:WideString;
+  MessageForNews:String = '';
+  NewsCounter:integer=0;
 
 const
   URL_News = 'http://update.dianet.info/dialer/news/getnews.php?filial=';
@@ -44,57 +55,73 @@ implementation
 
 { TNewsForm }
 
-procedure TNewsForm.ButtonCloseClick(Sender: TObject);
+
+procedure TNewsThread.Execute;
 begin
-  Close();
+
+   NewsThread.GetNews1;
+   // создаём окошки если нашли
+
 end;
 
-procedure TNewsForm.Button1Click(Sender: TObject);
+procedure TNewsThread.UpdateLabel;
 begin
-  Close;
+   NewsForm.Label1.Caption:=TempSTR;
 end;
 
-procedure TNewsForm.FormCreate(Sender: TObject);
+procedure TNewsThread.GetNews1;
+var IdHTTP4:TIdHTTP;
 begin
-   GetNews();
-end;
-
-procedure TNewsForm.Label1Click(Sender: TObject);
-begin
-  ShellExecute(Handle, 'open', PChar('dianet.info'), nil, nil, SW_SHOWMAXIMIZED);
-end;
-
-procedure TNewsForm.GetNews;
-begin
-  IdHTTP2 := TIdHTTP.Create(nil);
-  NewsFound:=true;
   try
      try
-          NewsStr:= IdHTTP2.Get(URL_News+Filial);
-     except on e : EIDHttpProtocolException do NewsFound:=false;
-     on e:Exception do  NewsFound:=false;
+          IdHTTP4 := TIdHTTP.Create(nil);
+          NewsStr:= IdHTTP4.Get(URL_News+Filial);
+     except on e : EIDHttpProtocolException do begin
+                                               NewsFound:=false;
+                                               if Length(MessageForNews)<3 then NewsCounter:=1000+NewsCounter;
+                                               end;
+     on e:Exception do  begin
+                        NewsFound:=false;
+                        if Length(MessageForNews)<3 then NewsCounter:=1000+NewsCounter;
+                        end;
      end;
   finally
-    IdHTTP2.Free;
+    IdHTTP4.Free;
   end;
-  if  NewsFound=false then exit;
 
-  if (Length(NewsStr) <> 0) and (NewsStr<>'Error') then
+  if (Length(MessageForNews)>2) then
+  begin
+      TempSTR:=MessageForNews;
+      Synchronize(@UpdateLabel);
+      Exit;
+  end;
+
+
+  if (Length(NewsStr) = 0) or (Pos('error',NewsStr)<>0) then
+  begin
+     NewsFound:= false;
+  end
+
+  else if (Length(NewsStr) <> 0) and (Pos('error',NewsStr)=0) then
   begin
      NewsFound:=true;
      NewsStrList:= TStringlist.Create;
      NewsStrList:= Tokenize(NewsStr, '@@@');
-     if NewsStrList.Count < 2 then  Label1.Caption:=NewsStrList[0]
-     else Label1.Caption:=NewsStrList[0]+ #13+NewsStrList[1];
+     if NewsStrList.Count < 2 then
+     begin
+        TempSTR:=NewsStrList[0];
+        Synchronize(@UpdateLabel);
+     end
+     else begin
+       TempSTR:=NewsStrList[0]+ #13+NewsStrList[1];
+       Synchronize(@UpdateLabel);
+     end;
      NewsStrList.Free;
   end;
-  if (Length(NewsStr) = 0) or (NewsStr='Error') then
-  begin
-     NewsFound:= false;
-  end;
+  NewsCounter:= NewsCounter+1;
 end;
 
-function TNewsForm.Tokenize(Str: WideString; Delimiter: string): TStringList;
+function TNewsThread.Tokenize(Str: WideString; Delimiter: string): TStringList;
 var
   tmpStrList: TStringList;
   tmpString, tmpVal:WideString;
@@ -113,6 +140,23 @@ begin
   end;
   Tokenize := tmpStrList;
 end;
+
+
+procedure TNewsForm.ButtonCloseClick(Sender: TObject);
+begin
+  Close();
+end;
+
+procedure TNewsForm.FormCreate(Sender: TObject);
+begin
+
+end;
+
+procedure TNewsForm.Label1Click(Sender: TObject);
+begin
+  ShellExecute(Handle, 'open', PChar('dianet.info'), nil, nil, SW_SHOWMAXIMIZED);
+end;
+
 
 initialization
   {$I news.lrs}

@@ -7,7 +7,7 @@ interface
 
 uses
   Classes, SysUtils, Windows, lnet, XMLRead, DOM, Forms,
-  RASUnit, jwaiptypes, JwaIpHlpApi,IdHTTP;
+  RASUnit, jwaiptypes, JwaIpHlpApi, IdHTTP;
 
 const
   PERENOS = Char($0D)+Char($0A);
@@ -28,7 +28,7 @@ const
   VPN_IP_POLI ='vpn.dianet.info';
 
 
-  VERSION = '1.2.9.6';
+  VERSION = '1.2.9.7';
 
   RETRAKER_URL = 'http://start.dianet.info';
 
@@ -254,6 +254,7 @@ begin
      case ip.c of
       28:
               begin
+			  Filial:='aleysk';
               AddRoute('10.110.0.0','255.255.252.0','172.16.28.1');
               AddRoute('172.16.30.0','255.255.254.0','172.16.28.1');
               AddRoute('172.16.32.0','255.255.254.0','172.16.28.1');
@@ -266,6 +267,7 @@ begin
               end;
       29:
               begin
+			  Filial:='aleysk';
               AddRoute('10.110.0.0','255.255.252.0','172.16.28.1');
               AddRoute('172.16.30.0','255.255.254.0','172.16.28.1');
               AddRoute('172.16.32.0','255.255.254.0','172.16.28.1');
@@ -278,6 +280,7 @@ begin
               end;
       40:
               begin
+			  Filial:='aleysk';
               AddRoute('10.110.0.0','255.255.252.0','172.16.40.1');
               AddRoute('172.16.28.0','255.255.254.0','172.16.40.1');
               AddRoute('172.16.30.0','255.255.254.0','172.16.40.1');
@@ -290,6 +293,7 @@ begin
               end;
       41:
               begin
+			  Filial:='aleysk';
               AddRoute('10.110.0.0','255.255.252.0','172.16.40.1');
               AddRoute('172.16.28.0','255.255.254.0','172.16.40.1');
               AddRoute('172.16.30.0','255.255.254.0','172.16.40.1');
@@ -301,15 +305,14 @@ begin
               AddRoute('172.16.44.0','255.255.254.0','172.16.40.1');
               end;
      end;
-    Filial:='aleysk';
     end;
   //Zarinsk to Dianet_local
   if (ip.a=172) and (ip.b=16) then
    begin
-     Filial:='zarinsk';
     case ip.c of
       30:
               begin
+			  Filial:='zarinsk';
               AddRoute('10.110.0.0','255.255.252.0','172.16.30.1');
               AddRoute('172.16.28.0','255.255.254.0','172.16.30.1');
               AddRoute('172.16.32.0','255.255.254.0','172.16.30.1');
@@ -322,6 +325,7 @@ begin
               end;
       31:
               begin
+			  Filial:='zarinsk';
               AddRoute('10.110.0.0','255.255.252.0','172.16.30.1');
               AddRoute('172.16.28.0','255.255.254.0','172.16.30.1');
               AddRoute('172.16.32.0','255.255.254.0','172.16.30.1');
@@ -334,6 +338,7 @@ begin
               end;
       34:
               begin
+			  Filial:='zarinsk';
               AddRoute('10.110.0.0','255.255.252.0','172.16.34.1');
               AddRoute('172.16.28.0','255.255.254.0','172.16.34.1');
               AddRoute('172.16.30.0','255.255.254.0','172.16.34.1');
@@ -346,6 +351,7 @@ begin
               end;
       35:
               begin
+			  Filial:='zarinsk';
               AddRoute('10.110.0.0','255.255.252.0','172.16.34.1');
               AddRoute('172.16.28.0','255.255.254.0','172.16.34.1');
               AddRoute('172.16.30.0','255.255.254.0','172.16.34.1');
@@ -358,6 +364,7 @@ begin
               end;
       36:
               begin
+			    Filial:='zarinsk';
               AddRoute('10.110.0.0','255.255.252.0','172.16.36.1');
               AddRoute('172.16.28.0','255.255.254.0','172.16.36.1');
               AddRoute('172.16.30.0','255.255.254.0','172.16.36.1');
@@ -370,6 +377,7 @@ begin
               end;
        37:
               begin
+			    Filial:='zarinsk';
               AddRoute('10.110.0.0','255.255.252.0','172.16.36.1');
               AddRoute('172.16.28.0','255.255.254.0','172.16.36.1');
               AddRoute('172.16.30.0','255.255.254.0','172.16.36.1');
@@ -382,6 +390,7 @@ begin
               end;
        38:
               begin
+			    Filial:='zarinsk';
               AddRoute('10.110.0.0','255.255.252.0','172.16.38.1');
               AddRoute('172.16.28.0','255.255.254.0','172.16.38.1');
               AddRoute('172.16.30.0','255.255.254.0','172.16.38.1');
@@ -394,6 +403,7 @@ begin
               end;
         39:
               begin
+			    Filial:='zarinsk';
               AddRoute('10.110.0.0','255.255.252.0','172.16.38.1');
               AddRoute('172.16.28.0','255.255.254.0','172.16.38.1');
               AddRoute('172.16.30.0','255.255.254.0','172.16.38.1');
@@ -410,10 +420,10 @@ begin
   //Belokuriha to Dianet_local
   if (ip.a=172) and (ip.b=16) then
    begin
-    Filial:='belokuriha';
     case ip.c of
       32:
               begin
+			   Filial:='belokuriha';
               AddRoute('10.110.0.0','255.255.252.0','172.16.32.1');
               AddRoute('172.16.28.0','255.255.254.0','172.16.32.1');
               AddRoute('172.16.30.0','255.255.254.0','172.16.32.1');
@@ -426,6 +436,7 @@ begin
               end;
 	  33:
               begin
+			   Filial:='belokuriha';
               AddRoute('10.110.0.0','255.255.252.0','172.16.32.1');
               AddRoute('172.16.28.0','255.255.254.0','172.16.32.1');
               AddRoute('172.16.30.0','255.255.254.0','172.16.32.1');
@@ -438,6 +449,7 @@ begin
               end;
           42:
               begin
+			   Filial:='belokuriha';
               AddRoute('10.110.0.0','255.255.252.0','172.16.42.1');
               AddRoute('172.16.28.0','255.255.254.0','172.16.42.1');
               AddRoute('172.16.30.0','255.255.254.0','172.16.42.1');
@@ -450,6 +462,7 @@ begin
               end;
           43:
               begin
+			   Filial:='belokuriha';
               AddRoute('10.110.0.0','255.255.252.0','172.16.42.1');
               AddRoute('172.16.28.0','255.255.254.0','172.16.42.1');
               AddRoute('172.16.30.0','255.255.254.0','172.16.42.1');
@@ -466,10 +479,10 @@ begin
    //Biysk(vlan 99) to Dianet_local
   if (ip.a=172) and (ip.b=16) then
    begin
-    Filial:='biysk';
     case ip.c of
       44:
         begin
+		    Filial:='biysk';
               AddRoute('10.110.0.0','255.255.252.0','172.16.44.1');
               AddRoute('172.16.28.0','255.255.254.0','172.16.44.1');
               AddRoute('172.16.30.0','255.255.254.0','172.16.44.1');
@@ -482,6 +495,7 @@ begin
         end;
       45:
         begin
+		    Filial:='biysk';
               AddRoute('10.110.0.0','255.255.252.0','172.16.44.1');
               AddRoute('172.16.28.0','255.255.254.0','172.16.44.1');
               AddRoute('172.16.30.0','255.255.254.0','172.16.44.1');
@@ -497,7 +511,8 @@ begin
    end;
 
   //Novoaltaysk to retracker
-  if (ip.a=10) and (ip.b=33) then
+  if (ip.a=10) and (ip.b=33) then begin
+  Filial:='novoalt';
     case ip.c of
       26:AddRoute('172.16.20.58','255.255.255.255','10.33.26.1');
       27:AddRoute('172.16.20.58','255.255.255.255','10.33.26.1');
@@ -508,6 +523,8 @@ begin
       30:AddRoute('172.16.20.58','255.255.255.255','10.33.30.1');
       31:AddRoute('172.16.20.58','255.255.255.255','10.33.30.1');
     end;
+  end;
+
   //Novoaltaysk to local
   if (ip.a=10) and (ip.b=33) then
    begin
@@ -519,9 +536,9 @@ begin
       29:AddRoute('10.33.0.0','255.255.0.0','10.33.28.1');
 
       30:AddRoute('10.33.0.0','255.255.0.0','10.33.30.1');
-      31:AddRoute('10.33.0.0','255.255.0.0','10.33.30.1');
+      31:AddRoute('10.33.0.0','255.255.0.0','10.33.30.1');	  
     end;
-    Filial:='novoalt';
+	    Filial:='novoalt';
    end;
 
   //Politeh to retracker

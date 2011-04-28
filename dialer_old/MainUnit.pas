@@ -12,6 +12,16 @@ uses
 
 type
 
+
+
+  TSetRCT = class(TThread)
+  private
+  procedure SetTime;
+  protected
+    procedure Execute; override;
+  public
+  end;
+
   { TMyEdit }
 
   TMyEdit = class(TEdit)
@@ -126,6 +136,7 @@ type
     procedure SiteLinkClick(Sender: TObject);
     procedure SiteLinkMouseEnter(Sender: TObject);
     procedure SiteLinkMouseLeave(Sender: TObject);
+    procedure StartSN(Sender: TObject);
     procedure TimerReConnectTimer(Sender: TObject);
     procedure TraffTimerTimer(Sender: TObject);
     procedure TrayClick(Sender: TObject);
@@ -171,6 +182,7 @@ var
   FirstStart: boolean = True;
 
   ConnectNumber: integer = 0;
+  CompleteConnect : integer = 0;
 
   Connecting: boolean = False;
   Connected: boolean = False;
@@ -263,7 +275,7 @@ begin
         tx := 0;
         rx := 0;
         ConfigForm.CabinetBtn.Enabled := True;
-        ConnectNumber:=  ConnectNumber+1;
+        CompleteConnect :=  CompleteConnect +1;
         DoEvent(0);
       end;
       RASCS_Authenticate: CreateError(DIANETSTR, 'Авторизация...',
@@ -466,6 +478,12 @@ begin
   if Result <> 0 then begin
     RasGetErrorString(Result, C, 100);
     MessageBox(0, C, 'Dianet Dialer ERROR', MB_OK);
+    // возвращаем кнопки в исходное положение
+      Discon.ShowDiscon := False;
+      ConfigForm.disconnect();
+      Connecting:=false;
+      Connected:=false;
+    // вернули кнопки
     Exit;
   end;
 
@@ -697,17 +715,13 @@ end;
 
 procedure TConfigForm.ShowNewsTimer(Sender: TObject);
 begin
-  If (Connected = false) or (Connecting = true) then
+  If (NewsFound=true) or (Length(MessageForNews)>2) then
   begin
-    Exit;
-  end;
-  if not Assigned(NewsForm) then Application.CreateForm(TNewsForm, NewsForm);
-  newsForm.GetNews;
-  if NewsFound = true then
-  begin
-    NewsForm.Show;
-    ShowNews.Enabled:=false;
-  end;
+       NewsForm.Show;
+       ShowNews.Enabled:=false;
+  end
+  Else if  NewsCounter > 20 then ShowNews.Enabled:=false
+  Else if  NewsCounter > 1000 then ShowNews.Enabled:=false;
 end;
 
 procedure TConfigForm.SiteImgMouseLeave(Sender: TObject);
@@ -751,10 +765,23 @@ begin
   SiteLink.Picture.LoadFromLazarusResource('copyright');
 end;
 
+procedure TConfigForm.StartSN(Sender: TObject);
+begin
+  NewsThread:=TNewsThread.Create(false);
+  NewsThread.FreeOnTerminate:=True;
+  NewsThread.Resume;
+end;
+
 procedure TConfigForm.TimerReConnectTimer(Sender: TObject);
 begin
-  ConfigForm.Image1.Picture.LoadFromLazarusResource('button_connect');
-  if Connected = True or Connecting = True then
+
+  // если число номер попытки коннекта больше 40 то отключаем реконнекты
+  If  ConnectNumber > 40 then
+  begin
+     ConfigForm.TimerReConnect.Enabled:=false;
+     exit;
+  end
+  else if Connected = True or Connecting = True then
     Exit
   else
   begin
@@ -777,10 +804,9 @@ begin
     tx := tx + stat.dwBytesXmited;
     RasClearConnectionStatistics(hConn);
 
-      {if rx>=1048576 then
-         rxhint:='Мегабайт принято: '+IntToStr(round(rx/(1024*1024)))+PERENOS
-      else}
-    if tx >= 1024 then
+    if rx>=1048576 then
+         rxhint:='Мегабайт принято: '+IntToStr(round(rx/(1024*1024)))  + PERENOS
+    else if tx >= 1024 then
       rxhint := 'Килобайт принято: ' +
         IntToStr(round(rx / 1024)) + PERENOS
     else
@@ -796,6 +822,9 @@ begin
 
     Tray.Hint := 'ДИАНЭТ' + PERENOS + 'Подключен' +
       PERENOS + rxhint + txhint;
+  end
+  else if Connected = false then begin
+      Tray.Hint := 'ДИАНЭТ' + PERENOS + 'Не подключен';
   end;
 end;
 
@@ -1029,12 +1058,13 @@ begin
   DisconBtn.Enabled := True;
   e := connect();
   Connecting := true;
-
+  ConnectNumber:=  ConnectNumber+1;
 end;
 
 procedure TConfigForm.ConnectBtnClick(Sender: TObject);
 begin
   DoConnect;
+  ConnectNumber:=0;
 end;
 
 procedure TConfigForm.ConnImgClick(Sender: TObject);
@@ -1049,6 +1079,7 @@ begin
     end
     else
     begin
+      ConnectNumber:=0;
       DoConnect;
     end;
   end;
@@ -1307,7 +1338,7 @@ end;
 
 
 procedure DoEvent(number: integer);
-var time: integer;
+
 begin
   case number of
     691 :
@@ -1317,18 +1348,7 @@ begin
         end;
     0   :                                     // нуль это успешное соединение
         begin
-             // проверяем включены ли
-             if ConfigForm.CheckUpdate.Enabled=false then ConfigForm.CheckUpdate.Enabled:=true;
-             //включаем таймеры
-             Randomize;
-             time := 40000 + Random(180000);
-             ConfigForm.TimerReConnect.Interval := time;
-             ConfigForm.TimerReConnect.Enabled := True;
-
-             if ConfigForm.TimerReConnect.Enabled = false then ConfigForm.Image1.Picture.LoadFromLazarusResource('button_connect');;
-             // +новости
-             if ConnectNumber >= 3 then ConfigForm.ShowNews.Enabled := false
-             else if ConnectNumber < 3 then ConfigForm.ShowNews.Enabled := true;
+             TSetRCT.Create(false);
         end;
     100 :                                      // "соединение потеряно", он же возможно дисконнект
         begin
@@ -1339,6 +1359,36 @@ begin
         end;
   end;
 end;
+
+
+procedure TSetRCT.Execute;
+begin
+  Synchronize(@SetTime);
+end;
+
+
+procedure TSetRCT.SetTime;
+var time,j,r: Integer;
+begin
+  // r - коэффициент на что умножаем время рандомного генератора при длительных перебоях
+  r:=1;
+       // проверяем включены ли
+       if ConfigForm.CheckUpdate.Enabled=false then ConfigForm.CheckUpdate.Enabled:=true;
+       // если число попыток больше 10 (~30 минут) то увеличиваем время в 3 раза
+       if Connectnumber > 10 then r:=3;
+       // включаем таймеры
+       Randomize;
+       j:= Random(180000);
+       time := r*(40000 + j) ;
+             ConfigForm.TimerReConnect.Interval := time;
+             ConfigForm.TimerReConnect.Enabled := True;
+
+             if ConfigForm.TimerReConnect.Enabled = false then ConfigForm.Image1.Picture.LoadFromLazarusResource('button_connect');;
+             // +новости
+             if CompleteConnect >= 3 then ConfigForm.ShowNews.Enabled := false
+             else if CompleteConnect < 3 then ConfigForm.ShowNews.Enabled := true;
+end;
+
 
 
 initialization
