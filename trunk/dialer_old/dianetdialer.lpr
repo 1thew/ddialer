@@ -15,6 +15,8 @@ var
   Mutex:THandle;
 
 
+
+
 begin
   Mutex := CreateMutex(nil, False, 'DianetDialerMutex');
   if Mutex = 0 then
@@ -26,6 +28,7 @@ begin
      Application.Title:='Dianet Dialer';
      Application.Initialize;
      Application.CreateForm(TConfigForm, ConfigForm);
+     Application.CreateForm(TNewsForm, NewsForm);
      Application.Run;
      CloseHandle(Mutex);
     end;

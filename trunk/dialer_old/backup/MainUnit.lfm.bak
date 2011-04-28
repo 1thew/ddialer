@@ -5372,7 +5372,6 @@ object ConfigForm: TConfigForm
     top = 100
   end
   object TraffTimer: TTimer
-    Interval = 100
     OnTimer = TraffTimerTimer
     left = 17
     top = 19
@@ -5392,8 +5391,9 @@ object ConfigForm: TConfigForm
   end
   object ShowNews: TTimer
     Enabled = False
-    Interval = 5000
+    Interval = 10000
     OnTimer = ShowNewsTimer
+    OnStartTimer = StartSN
     left = 378
     top = 77
   end

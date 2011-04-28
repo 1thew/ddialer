@@ -16,7 +16,7 @@ XPStyle on
 
   ;Name and file
   Name "Dianet Dialer Installer"
-  OutFile "install1296.exe"
+  OutFile "install1297.exe"
 
   ;Default installation folder
   InstallDir "$PROGRAMFILES\DIANET"
@@ -68,7 +68,6 @@ XPStyle on
 
 Function .onInit
        ${nsProcess::KillProcess} "dianetdialer.exe" $R0
-	   MessageBox MB_OK "Для установки обновления программа Dianet Dialer будет закрыта";    Errorlevel: [$R0]"
 		
 		${If} ${RunningX64}
         ${EnableX64FSRedirection}
