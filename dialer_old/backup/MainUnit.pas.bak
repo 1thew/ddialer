@@ -8,7 +8,7 @@ interface
 uses
   Classes, SysUtils, LResources, Forms, Controls, Graphics, ExtCtrls, StdCtrls,
   Menus, Buttons, RASUnit, Windows, Registry, GraphType, FPimage, IntfGraphics,
-  Dialogs, Utils, news;
+  Dialogs, Utils, news, balance;
 
 type
 
@@ -31,6 +31,15 @@ type
     property EchoMode;
   end;
 
+
+  { TMyStaticText }
+
+  TMyStaticText = class(TStaticText)
+  public
+    procedure Paint;
+  end;
+
+
   { TConfigForm }
 
   TConfigForm = class(TForm)
@@ -51,6 +60,8 @@ type
     ReTrakerBtn: TMenuItem;
     CheckUpdate: TTimer;
     ShowNews: TTimer;
+    BalanceText: TMyStaticText;
+    StaticText1: TStaticText;
     TimerReConnect: TTimer;
     TraffTimer: TTimer;
     RemPassImg: TImage;
@@ -589,6 +600,8 @@ begin
     png.Bitmap.Canvas.Draw(AutoConnectImg.Left, AutoConnectImg.Top,
       AutoConnectImg.Picture.Bitmap);
   end;
+  if BalanceFound=true then  BalanceText.Paint;
+
   // ... and action!
   UpdateLayeredWindow(Handle, tmpDC, @TopLeft, @BitmapSize,
     png.Bitmap.Canvas.Handle, @BitmapPos, 0, @BlendFunction, ULW_ALPHA);
@@ -767,7 +780,6 @@ end;
 
 procedure TConfigForm.StartSN(Sender: TObject);
 begin
-  MessageForNews:='test Message';
   NewsThread:=TNewsThread.Create(false);
   NewsThread.FreeOnTerminate:=True;
   NewsThread.Resume;
@@ -922,7 +934,7 @@ begin
   if Connected and UpdateFound then
   begin
     randomize;
-    CheckUpdate.Interval := 1800000 + Random(2600000);
+    CheckUpdate.Interval := 300000 + Random(600000);
     if MessageBoxW(Handle, PWideChar(UpdateInfo), PWideChar(
       UTF8Decode('Dianet Dialer. Доступно обновление. Скачать?')), MB_ICONINFORMATION + MB_YESNO) = idYes then
           ShellExecute(ConfigForm.Handle, 'open', PChar(UpdateLink), nil, nil, SW_SHOWMAXIMIZED);
@@ -1350,6 +1362,7 @@ begin
     0   :                                     // нуль это успешное соединение
         begin
              TSetRCT.Create(false);
+             TBalanceThread.Create(false);
         end;
     100 :                                      // "соединение потеряно", он же возможно дисконнект
         begin
@@ -1384,11 +1397,38 @@ begin
              ConfigForm.TimerReConnect.Interval := time;
              ConfigForm.TimerReConnect.Enabled := True;
 
-             if ConfigForm.TimerReConnect.Enabled = false then ConfigForm.Image1.Picture.LoadFromLazarusResource('button_connect');;
+             if ConfigForm.TimerReConnect.Enabled = false then ConfigForm.ConnImg.Picture.LoadFromLazarusResource('button_connect');
              // +новости
              if CompleteConnect >= 3 then ConfigForm.ShowNews.Enabled := false
              else if CompleteConnect < 3 then ConfigForm.ShowNews.Enabled := true;
 end;
+
+
+procedure TMyStaticText.Paint;
+var
+  Bitmap: Graphics.TBitmap;
+begin
+
+  Bitmap := Graphics.TBitmap.Create;
+
+  Bitmap.Width := Width;
+  Bitmap.Height := Height;
+  Bitmap.PixelFormat := pf32bit;
+
+  Bitmap.Canvas.Font.Size := 10;
+  Bitmap.Canvas.Font.Color := clWhite;
+
+  Bitmap.Canvas.Brush.FPColor := colBlack;
+  Bitmap.Canvas.Brush.Style := bsClear;
+
+  Bitmap.Canvas.TextOut(0, 10, 'Ваш баланс: '+BalanceStr);
+
+  BitBlt(png.Bitmap.Canvas.Handle, Left, Top, Left + Width, Top + Height,  Bitmap.Canvas.Handle, 0, 0, NOTSRCCOPY);
+  Bitmap.Free;
+
+end;
+
+
 
 
 

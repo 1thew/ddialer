@@ -16,7 +16,7 @@ XPStyle on
 
   ;Name and file
   Name "Dianet Dialer Installer"
-  OutFile "install1297.exe"
+  OutFile "install1298.exe"
 
   ;Default installation folder
   InstallDir "$PROGRAMFILES\DIANET"

@@ -1,7 +1,7 @@
 object ConfigForm: TConfigForm
-  Left = 265
+  Left = 505
   Height = 372
-  Top = 98
+  Top = 264
   Width = 430
   BorderIcons = []
   BorderStyle = bsNone
@@ -2138,7 +2138,7 @@ object ConfigForm: TConfigForm
   OnPaint = FormPaint
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '0.9.31'
+  LCLVersion = '0.9.30'
   Visible = True
   object ConnSelImg: TImage
     Left = 214
@@ -2907,6 +2907,22 @@ object ConfigForm: TConfigForm
     TabOrder = 6
     Text = 'CustomEdit'
     Visible = False
+  end
+  object BalanceText: TStaticText
+    Left = 240
+    Height = 33
+    Top = 80
+    Width = 144
+    Caption = 'BalanceText'
+    TabOrder = 7
+  end
+  object StaticText1: TStaticText
+    Left = 42
+    Height = 17
+    Top = 168
+    Width = 65
+    Caption = 'StaticText1'
+    TabOrder = 8
   end
   object Tray: TTrayIcon
     PopUpMenu = Popup
@@ -5386,8 +5402,8 @@ object ConfigForm: TConfigForm
     Enabled = False
     Interval = 15000
     OnTimer = TimerReConnectTimer
-    left = 240
-    top = 53
+    left = 184
+    top = 16
   end
   object ShowNews: TTimer
     Enabled = False
@@ -5395,6 +5411,6 @@ object ConfigForm: TConfigForm
     OnTimer = ShowNewsTimer
     OnStartTimer = StartSN
     left = 378
-    top = 77
+    top = 48
   end
 end

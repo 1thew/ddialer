@@ -28,7 +28,7 @@ const
   VPN_IP_POLI ='vpn.dianet.info';
 
 
-  VERSION = '1.2.9.7';
+  VERSION = '1.2.9.8';
 
   RETRAKER_URL = 'http://start.dianet.info';
 
@@ -538,7 +538,7 @@ begin
       30:AddRoute('10.33.0.0','255.255.0.0','10.33.30.1');
       31:AddRoute('10.33.0.0','255.255.0.0','10.33.30.1');	  
     end;
-	    Filial:='novoalt';
+    Filial:='novoalt';
    end;
 
   //Politeh to retracker
@@ -568,7 +568,10 @@ begin
        27:Filial:='rubtsovsk';
      end;
    end
-  else Filial:='other';
+  else begin
+    if Length(Filial)<3 then
+      Filial:='other';
+  end;
 end;
 
 { TConnectionType }
