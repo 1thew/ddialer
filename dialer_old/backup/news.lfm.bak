@@ -1,15 +1,15 @@
 object NewsForm: TNewsForm
-  Left = 261
+  Left = 276
   Height = 270
-  Top = 285
+  Top = 214
   Width = 433
+  BorderStyle = bsDialog
   Caption = 'Новости'
   ClientHeight = 270
   ClientWidth = 433
   Color = clWhite
   FormStyle = fsStayOnTop
-  OnCreate = FormCreate
-  LCLVersion = '0.9.31'
+  LCLVersion = '0.9.30'
   object StaticText1: TStaticText
     Left = 32
     Height = 48
@@ -453,5 +453,20 @@ object NewsForm: TNewsForm
     Caption = 'Закрыть'
     OnClick = ButtonCloseClick
     TabOrder = 1
+  end
+  object IdHTTP1: TIdHTTP
+    AllowCookies = True
+    ProxyParams.BasicAuthentication = False
+    ProxyParams.ProxyPort = 0
+    Request.ContentLength = -1
+    Request.Date = 0
+    Request.Expires = 0
+    Request.LastModified = 0
+    Request.Accept = 'text/html, */*'
+    Request.BasicAuthentication = False
+    Request.UserAgent = 'Mozilla/3.0 (compatible; Indy Library)'
+    HTTPOptions = [hoForceEncodeParams]
+    left = 356
+    top = 52
   end
 end
