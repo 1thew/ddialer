@@ -13,7 +13,6 @@ type
     IdHTTP1: TIdHTTP;
     IdSSLIOHandlerSocketOpenSSL1: TIdSSLIOHandlerSocketOpenSSL;
   private
-    BalanceMinus:boolean;
     procedure GetBalance();
   protected
     procedure Execute; override;
@@ -21,8 +20,11 @@ type
   end;
 
 var
+  BalanceThread: TBalanceThread;
   BalanceStr:string;
   BalanceFound:boolean;
+  BalanceIntg:integer;
+  BalanceMinus:boolean;
 
 implementation
 uses MainUnit;
@@ -36,16 +38,14 @@ end;
 procedure TBalanceThread.GetBalance();
 var
   dataStr:TStringList;
-  i,i2: AnsiString;
-  p1,p2,p3:integer;
+  i,i2,i3: AnsiString;
+  p1,p2,p3,p4:integer;
 begin
-  BalanceFound:=false;
+  BalanceFound:=false;              // обнулим, потому что могут быть старые данные.
   dataStr:=TStringList.Create();
   dataStr.Values['login'] := ConfigForm.Login.Caption;
   dataStr.Values['pass'] := ConfigForm.Pass.Caption;
   try
-
-
      IdHTTP1 := TIdHTTP.Create(nil);
      IdSSLIOHandlerSocketOpenSSL1:=TIdSSLIOHandlerSocketOpenSSL.Create(nil);
      IdHTTP1.IOHandler := IdSSLIOHandlerSocketOpenSSL1;
@@ -53,7 +53,6 @@ begin
      IdHTTP1.Request.ContentType := 'application/x-www-form-urlencoded';
      IdHTTP1.Request.AcceptCharSet:='windows-1251';
      IdHTTP1.Post('https://billing.dianet.info:40000/cgi-bin/login.cgi?handler=/cgi-bin/main.cgi', DataStr);
-
 
 
      if IdHTTP1.ResponseCode=200 then
@@ -78,6 +77,11 @@ begin
           BalanceStr:='-'+i2;
           BalanceMinus:=true;
           BalanceFound:=true;
+                 // конвертируем в int
+                 // p4 - позиция точки в i2
+                 p4:=Pos('.',i2);
+                 i3:=copy(i2,1,p4-1);
+                 BalanceIntg:=StrToInt(i3);
        end;
   end
   else
@@ -91,6 +95,11 @@ begin
                  BalanceMinus:=false;
                  BalanceStr:= i2;
                  BalanceFound:=true;
+                 // конвертируем в int
+                 // p4 - позиция точки в i2
+                 p4:=Pos('.',i2);
+                 i3:=copy(i2,1,p4-1);
+                 BalanceIntg:=StrToInt(i3);
             end;
   end;
 

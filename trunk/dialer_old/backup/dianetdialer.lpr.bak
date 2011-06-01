@@ -15,8 +15,6 @@ var
   Mutex:THandle;
 
 
-
-
 {$R *.res}
 
 begin

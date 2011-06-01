@@ -16,7 +16,7 @@ XPStyle on
 
   ;Name and file
   Name "Dianet Dialer Installer"
-  OutFile "install1298.exe"
+  OutFile "install12101.exe"
 
   ;Default installation folder
   InstallDir "$PROGRAMFILES\DIANET"
@@ -92,6 +92,7 @@ Section Install
   File "msvcr90.dll"
   File "WS2_32.dll"
   File "diagnos.exe"
+  File "updater.exe"
 
   CreateDirectory "$SMPROGRAMS\DIANET"
   CreateShortCut "$SMPROGRAMS\DIANET\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
@@ -122,6 +123,8 @@ Section Uninstall
 
   ;ADD YOUR OWN FILES HERE...
   Delete "$INSTDIR\dianetdialer.exe"
+  Delete "$INSTDIR\updater.exe"
+  Delete "$INSTDIR\diagnos.exe"
   Delete "$INSTDIR\dianetdialer.exe.manifest"
   Delete "$INSTDIR\libeay32.dll"
   Delete "$INSTDIR\libssl32.dll"

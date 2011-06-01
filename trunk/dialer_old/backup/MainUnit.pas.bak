@@ -22,6 +22,14 @@ type
   public
   end;
 
+  TSetNewsTimer = class(TThread)
+  private
+  procedure SetTimer;
+  protected
+    procedure Execute; override;
+  public
+  end;
+
   { TMyEdit }
 
   TMyEdit = class(TEdit)
@@ -57,8 +65,9 @@ type
     CabinetBtn: TMenuItem;
     AboutBtn: TMenuItem;
     Image1: TImage;
+    MenuItem1: TMenuItem;
+    MenuItem2: TMenuItem;
     ReTrakerBtn: TMenuItem;
-    CheckUpdate: TTimer;
     ShowNews: TTimer;
     BalanceText: TMyStaticText;
     StaticText1: TStaticText;
@@ -87,7 +96,6 @@ type
       Shift: TShiftState; X, Y: integer);
     procedure Button1Click(Sender: TObject);
     procedure CabinetBtnClick(Sender: TObject);
-    procedure CheckUpdateTimer(Sender: TObject);
     procedure CloseBtnClick(Sender: TObject);
     procedure CloseImgClick(Sender: TObject);
     procedure CloseImgMouseDown(Sender: TObject; Button: TMouseButton;
@@ -128,6 +136,8 @@ type
     procedure FormPaint(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure GoSiteClick(Sender: TObject);
+    procedure MenuItem1Click(Sender: TObject);
+    procedure MenuItem2Click(Sender: TObject);
     procedure okImgClick(Sender: TObject);
     procedure okImgMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
@@ -147,7 +157,7 @@ type
     procedure SiteLinkClick(Sender: TObject);
     procedure SiteLinkMouseEnter(Sender: TObject);
     procedure SiteLinkMouseLeave(Sender: TObject);
-    procedure StartSN(Sender: TObject);
+    procedure StartNewsThread(Sender: TObject);
     procedure TimerReConnectTimer(Sender: TObject);
     procedure TraffTimerTimer(Sender: TObject);
     procedure TrayClick(Sender: TObject);
@@ -191,6 +201,13 @@ var
   ConfigForm: TConfigForm;
   CanExit: boolean = False;
   FirstStart: boolean = True;
+  VPNAvaible:boolean=false;
+  LastError:integer=0;
+
+  SetNewsTimer:TSetNewsTimer;
+  SetRCT:TSetRCT;
+
+  MessageForNews:WideString = '';
 
   ConnectNumber: integer = 0;
   CompleteConnect : integer = 0;
@@ -221,7 +238,6 @@ var
   PassChanged: boolean = False;
 
   tx, rx: QWord;
-
 
 implementation
 
@@ -255,6 +271,7 @@ begin
   try
     if (error > 600) or (dwExtendedError > 600) then
     begin
+      LastError:=error;
       if error=691 then  DoEvent(691);                  // передаём в эвент номер ошибки
       if Assigned(Discon) then
       Discon.ShowDiscon := False;
@@ -287,6 +304,7 @@ begin
         rx := 0;
         ConfigForm.CabinetBtn.Enabled := True;
         CompleteConnect :=  CompleteConnect +1;
+        LastError:=0;
         DoEvent(0);
       end;
       RASCS_Authenticate: CreateError(DIANETSTR, 'Авторизация...',
@@ -530,6 +548,7 @@ end;
 procedure TConfigForm.FormCreate(Sender: TObject);
 begin
   DianetPPPDisconnect;
+  Filial:='a';
 
   Tray.Hint := DIASTR + 'Не подключен';
   Pass.EchoMode := emPassword;
@@ -650,6 +669,19 @@ begin
   ShellExecute(Handle, 'open', DIANET_SITE, nil, nil, SW_SHOWMAXIMIZED);
 end;
 
+procedure TConfigForm.MenuItem1Click(Sender: TObject);
+begin
+  ShellExecute(0,'open','updater.exe',nil,nil,SW_normal);
+end;
+
+procedure TConfigForm.MenuItem2Click(Sender: TObject);
+var url:string;
+begin
+  url := 'https://billing.dianet.info:40000/cgi-bin/login.cgi?login=' +
+    Login.Caption + '&pass=' + Pass.Caption + '&handler=/cgi-bin/main.cgi';
+  ShellExecute(Handle, 'open', PChar(url), nil, nil, SW_SHOWMAXIMIZED);
+end;
+
 procedure TConfigForm.okImgClick(Sender: TObject);
 begin
   SaveConfig;
@@ -732,9 +764,8 @@ begin
   begin
        NewsForm.Show;
        ShowNews.Enabled:=false;
-  end
-  Else if  NewsCounter > 20 then ShowNews.Enabled:=false
-  Else if  NewsCounter > 1000 then ShowNews.Enabled:=false;
+  end;
+  if  NewsCounter > 20 then ShowNews.Enabled:=false;
 end;
 
 procedure TConfigForm.SiteImgMouseLeave(Sender: TObject);
@@ -778,11 +809,11 @@ begin
   SiteLink.Picture.LoadFromLazarusResource('copyright');
 end;
 
-procedure TConfigForm.StartSN(Sender: TObject);
+procedure TConfigForm.StartNewsThread(Sender: TObject);
 begin
-  NewsThread:=TNewsThread.Create(false);
-  NewsThread.FreeOnTerminate:=True;
-  NewsThread.Resume;
+             Newsthread:=TNewsThread.Create(false);
+             Newsthread.FreeOnTerminate:=True;
+             Newsthread.Resume;
 end;
 
 procedure TConfigForm.TimerReConnectTimer(Sender: TObject);
@@ -894,7 +925,7 @@ begin
   MessageBoxW(Handle, PWideChar(
     UTF8Decode('    Dianet Dialer, Версия ' + VERSION + PERENOS +
     'Автор программы ' + AUTHOR + PERENOS +
-    '                           ©' + DIANETSTR + ',2010')),
+    '                           ©' + DIANETSTR + ',2011')),
     PWideChar(UTF8Decode('О программе Dianet Dialer')),
     MB_ICONQUESTION);
 end;
@@ -925,20 +956,6 @@ begin
   caburl := 'https://billing.dianet.info:40000/cgi-bin/login.cgi?login=' +
     Login.Caption + '&pass=' + Pass.Caption + '&handler=/cgi-bin/main.cgi';
   ShellExecute(Handle, 'open', PChar(caburl), nil, nil, SW_SHOWMAXIMIZED);
-end;
-
-procedure TConfigForm.CheckUpdateTimer(Sender: TObject);
-var
-  time: integer;
-begin
-  if Connected and UpdateFound then
-  begin
-    randomize;
-    CheckUpdate.Interval := 300000 + Random(600000);
-    if MessageBoxW(Handle, PWideChar(UpdateInfo), PWideChar(
-      UTF8Decode('Dianet Dialer. Доступно обновление. Скачать?')), MB_ICONINFORMATION + MB_YESNO) = idYes then
-          ShellExecute(ConfigForm.Handle, 'open', PChar(UpdateLink), nil, nil, SW_SHOWMAXIMIZED);
-  end;
 end;
 
 procedure TConfigForm.CloseImgClick(Sender: TObject);
@@ -1045,6 +1062,7 @@ begin
       CreateError('Ошибка', 'Сервер не доступен', bfInfo, False);
       UnBinding := True;
       ConnectBtn.Enabled := True;
+      VPNAvaible:=false;
       Exit;
     end;
   if ConnType = VPN_POLI then
@@ -1053,8 +1071,10 @@ begin
       CreateError('Ошибка', 'Сервер не доступен', bfInfo, False);
       ConnectBtn.Enabled := True;
       UnBinding := True;
+      VPNAvaible:=false;
       Exit;
     end;
+  VPNAvaible:=true;
   ConnectBtn.Enabled := True;
   ConnImg.Picture.LoadFromLazarusResource('button_connecting');
   png.LoadFromLazarusResource('white');
@@ -1357,19 +1377,40 @@ begin
     691 :
         begin
              ConfigForm.TimerReconnect.Enabled:= false;
-             ConfigForm.CheckUpdate.Enabled:=false;
+             CompleteConnect:=0;
+             if ((Conntype = VPN) or (Conntype = VPN_POLI)) and (VPNAvaible=true) then
+             begin
+                BalanceThread:=TBalanceThread.Create(false);
+                BalanceThread.FreeOnTerminate:=True;
+                BalanceThread.Resume;
+                BalanceThread.WaitFor;
+                if BalanceMinus=true then
+                   begin
+                       SetNewsTimer:=TSetNewsTimer.Create(false);
+                       SetNewsTimer.FreeOnTerminate:=True;
+                       SetNewsTimer.Resume;
+                   end;
+             end;
         end;
     0   :                                     // нуль это успешное соединение
         begin
-             TSetRCT.Create(false);
-             TBalanceThread.Create(false);
+             BalanceThread:=TBalanceThread.Create(false);
+             BalanceThread.FreeOnTerminate:=True;
+             BalanceThread.Resume;
+             BalanceThread.WaitFor;
+
+
+             // запускаем новости
+             SetNewsTimer:=TSetNewsTimer.Create(false);
+             SetNewsTimer.FreeOnTerminate:=True;
+             SetNewsTimer.Resume;
+
         end;
     100 :                                      // "соединение потеряно", он же возможно дисконнект
         begin
-             if ConnType <> VPN then
-             begin
-                  ConfigForm.CheckUpdate.Enabled:=false;
-             end;
+             SetRCT:=TSetRCT.Create(false);
+             SetRCT.FreeOnTerminate:=True;
+             SetRCT.Resume;
         end;
   end;
 end;
@@ -1386,8 +1427,6 @@ var time,j,r: Integer;
 begin
   // r - коэффициент на что умножаем время рандомного генератора при длительных перебоях
   r:=1;
-       // проверяем включены ли
-       if ConfigForm.CheckUpdate.Enabled=false then ConfigForm.CheckUpdate.Enabled:=true;
        // если число попыток больше 10 (~30 минут) то увеличиваем время в 3 раза
        if Connectnumber > 10 then r:=3;
        // включаем таймеры
@@ -1428,9 +1467,16 @@ begin
 
 end;
 
+procedure TSetNewsTimer.Execute;
+begin
+  Synchronize(@SetTimer);
+end;
 
-
-
+procedure TSetNewsTimer.SetTimer;
+begin
+   if CompleteConnect >= 3 then ConfigForm.ShowNews.Enabled := false
+   else ConfigForm.ShowNews.Enabled := true;
+end;
 
 initialization
   {$I MainUnit.lrs}
