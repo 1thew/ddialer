@@ -1,0 +1,373 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="9"/>
+    <PathDelim Value="\"/>
+    <General>
+      <MainUnit Value="0"/>
+      <Title Value="Dianet Dialer"/>
+      <Icon Value="0"/>
+      <ActiveWindowIndexAtStart Value="0"/>
+    </General>
+    <VersionInfo>
+      <UseVersionInfo Value="True"/>
+      <MajorVersionNr Value="1"/>
+      <MinorVersionNr Value="3"/>
+      <RevisionNr Value="1"/>
+      <BuildNr Value="1"/>
+      <Language Value="0419"/>
+      <CharSet Value="04B0"/>
+      <StringTable Comments="Autor Derwin" CompanyName="Дианэт" FileDescription="Dianet Dialer" InternalName="dianetdialer" LegalCopyright="©«Дианэт»" OriginalFilename="dianetdialer" ProductName="Dianet Dialer" ProductVersion="1.3.0.0"/>
+    </VersionInfo>
+    <BuildModes Count="1">
+      <Item1 Name="default" Default="True"/>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IgnoreBinaries Value="False"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|ppw|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+        <LaunchingApplication PathPlusParams="/usr/X11R6/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
+      </local>
+    </RunParams>
+    <RequiredPackages Count="5">
+      <Item1>
+        <PackageName Value="indylaz"/>
+        <MinVersion Major="10" Minor="2" Build="3" Valid="True"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="lnetbase"/>
+        <MinVersion Minor="6" Release="3" Valid="True"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="RunTimeTypeInfoControls"/>
+        <MinVersion Minor="1" Valid="True"/>
+      </Item3>
+      <Item4>
+        <PackageName Value="SynEdit"/>
+        <MinVersion Major="1" Valid="True"/>
+      </Item4>
+      <Item5>
+        <PackageName Value="LCL"/>
+      </Item5>
+    </RequiredPackages>
+    <Units Count="14">
+      <Unit0>
+        <Filename Value="dianetdialer.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="dianetdialer"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="11" Y="2"/>
+        <UsageCount Value="205"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="MainUnit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="ConfigForm"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="MainUnit"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="699"/>
+        <CursorPos X="15" Y="706"/>
+        <UsageCount Value="205"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="C:\lazarus\lcl\include\control.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="3175"/>
+        <CursorPos X="1" Y="3189"/>
+        <UsageCount Value="518"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="defs.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Utils"/>
+        <TopLine Value="1"/>
+        <CursorPos X="11" Y="1"/>
+        <UsageCount Value="1180"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="Utils.pas"/>
+        <UnitName Value="Utils"/>
+        <EditorIndex Value="3"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="9" Y="243"/>
+        <UsageCount Value="579"/>
+        <Loaded Value="True"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="news.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="NewsForm"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="news"/>
+        <EditorIndex Value="2"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="74" Y="2"/>
+        <UsageCount Value="1112"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="balance.pas"/>
+        <UnitName Value="balance"/>
+        <EditorIndex Value="4"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="72" Y="1"/>
+        <UsageCount Value="520"/>
+        <Loaded Value="True"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="C:\lazarus\lcl\interfaces\win32\win32wscontrols.pp"/>
+        <UnitName Value="Win32WSControls"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="205"/>
+        <CursorPos X="24" Y="261"/>
+        <UsageCount Value="519"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="C:\lazarus\components\indy\lib\i386-win32\IdStack.pas"/>
+        <UnitName Value="IdStack"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="630"/>
+        <CursorPos X="1" Y="644"/>
+        <UsageCount Value="518"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="IdHTTP.pas"/>
+        <UnitName Value="IdHTTP"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1075"/>
+        <CursorPos X="20" Y="1106"/>
+        <UsageCount Value="15"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="C:\lazarus\lcl\include\interfacebase.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="35"/>
+        <CursorPos X="26" Y="46"/>
+        <UsageCount Value="14"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="C:\lazarus\components\indy\lib\i386-win32\IdSSLOpenSSL.pas"/>
+        <UnitName Value="IdSSLOpenSSL"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1438"/>
+        <CursorPos X="1" Y="1452"/>
+        <UsageCount Value="9"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="C:\lazarus\lcl\include\menuitem.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1081"/>
+        <CursorPos X="26" Y="1093"/>
+        <UsageCount Value="13"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="MainUnit.lfm"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="9"/>
+        <DefaultSyntaxHighlighter Value="LFM"/>
+      </Unit13>
+    </Units>
+    <JumpHistory Count="30" HistoryIndex="29">
+      <Position1>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="841" Column="9" TopLine="825"/>
+      </Position1>
+      <Position2>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="1038" Column="9" TopLine="1022"/>
+      </Position2>
+      <Position3>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="1245" Column="7" TopLine="1229"/>
+      </Position3>
+      <Position4>
+        <Filename Value="Utils.pas"/>
+        <Caret Line="2" Column="69" TopLine="1"/>
+      </Position4>
+      <Position5>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="1402" Column="12" TopLine="1398"/>
+      </Position5>
+      <Position6>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="2" Column="73" TopLine="1"/>
+      </Position6>
+      <Position7>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="296" Column="9" TopLine="280"/>
+      </Position7>
+      <Position8>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="400" Column="9" TopLine="384"/>
+      </Position8>
+      <Position9>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="413" Column="9" TopLine="403"/>
+      </Position9>
+      <Position10>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="711" Column="122" TopLine="695"/>
+      </Position10>
+      <Position11>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="704" Column="14" TopLine="695"/>
+      </Position11>
+      <Position12>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="710" Column="24" TopLine="700"/>
+      </Position12>
+      <Position13>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="1518" Column="1" TopLine="1499"/>
+      </Position13>
+      <Position14>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="706" Column="19" TopLine="700"/>
+      </Position14>
+      <Position15>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="714" Column="2" TopLine="697"/>
+      </Position15>
+      <Position16>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="4" Column="53" TopLine="1"/>
+      </Position16>
+      <Position17>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="53" Column="16" TopLine="37"/>
+      </Position17>
+      <Position18>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="61" Column="16" TopLine="45"/>
+      </Position18>
+      <Position19>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="74" Column="19" TopLine="58"/>
+      </Position19>
+      <Position20>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="81" Column="12" TopLine="65"/>
+      </Position20>
+      <Position21>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="90" Column="26" TopLine="74"/>
+      </Position21>
+      <Position22>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="114" Column="22" TopLine="98"/>
+      </Position22>
+      <Position23>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="165" Column="29" TopLine="149"/>
+      </Position23>
+      <Position24>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="173" Column="21" TopLine="157"/>
+      </Position24>
+      <Position25>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="174" Column="24" TopLine="158"/>
+      </Position25>
+      <Position26>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="175" Column="24" TopLine="159"/>
+      </Position26>
+      <Position27>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="176" Column="27" TopLine="160"/>
+      </Position27>
+      <Position28>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="217" Column="10" TopLine="201"/>
+      </Position28>
+      <Position29>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="218" Column="18" TopLine="202"/>
+      </Position29>
+      <Position30>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="220" Column="13" TopLine="204"/>
+      </Position30>
+    </JumpHistory>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="9"/>
+    <PathDelim Value="\"/>
+    <Target>
+      <Filename Value="dianetdialer.exe"/>
+    </Target>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)"/>
+      <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+    </SearchPaths>
+    <Parsing>
+      <SyntaxOptions>
+        <UseAnsiStrings Value="False"/>
+      </SyntaxOptions>
+    </Parsing>
+    <CodeGeneration>
+      <SmartLinkUnit Value="True"/>
+      <HeapSize Value="16777216"/>
+      <Optimizations>
+        <VariablesInRegisters Value="True"/>
+      </Optimizations>
+    </CodeGeneration>
+    <Linking>
+      <Debugging>
+        <GenerateDebugInfo Value="True"/>
+        <UseExternalDbgSyms Value="True"/>
+      </Debugging>
+      <LinkSmart Value="True"/>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
+    </Linking>
+    <Other>
+      <Verbosity>
+        <ShowHintsForUnusedUnitsInMainSrc Value="True"/>
+      </Verbosity>
+      <CompilerMessages>
+        <UseMsgFile Value="True"/>
+      </CompilerMessages>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Watches Count="1"/>
+    <Exceptions Count="4">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+      <Item4>
+        <Name Value="EIdConnClosedGracefully"/>
+      </Item4>
+    </Exceptions>
+  </Debugging>
+</CONFIG>
