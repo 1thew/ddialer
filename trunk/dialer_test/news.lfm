@@ -1,7 +1,7 @@
 object NewsForm: TNewsForm
-  Left = 276
+  Left = 248
   Height = 270
-  Top = 214
+  Top = 211
   Width = 433
   BorderStyle = bsDialog
   Caption = 'Новости'

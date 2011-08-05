@@ -14,7 +14,7 @@ type
 
   TSetRCT = class(TThread)
   private
-  procedure SetTime;
+    procedure SetTime;
   protected
     procedure Execute; override;
   public
@@ -22,7 +22,7 @@ type
 
   TSetNewsTimer = class(TThread)
   private
-  procedure SetTimer;
+    procedure SetTimer;
   protected
     procedure Execute; override;
   public
@@ -180,6 +180,9 @@ type
     procedure LButtonUp(x, y: integer);
     procedure FormMouseMove(x, y: integer);
     procedure UpdateWin;
+    function IsOldWindows: boolean;
+    procedure CheckRegForl2tp;
+    function Reboot(RebootParam: longword): boolean;
   protected
 
   public
@@ -198,24 +201,24 @@ type
 
 // *** процедуры ***
 
-procedure DoEvent(number:integer);
+procedure DoEvent(number: integer);
 
 
 var
   ConfigForm: TConfigForm;
   CanExit: boolean = False;
   FirstStart: boolean = True;
-  VPNAvaible:boolean=false;
-  LastError:integer=0;
-  Filial:PChar;
+  VPNAvaible: boolean = False;
+  LastError: integer = 0;
+  Filial: PChar;
 
-  SetNewsTimer:TSetNewsTimer;
-  SetRCT:TSetRCT;
+  SetNewsTimer: TSetNewsTimer;
+  SetRCT: TSetRCT;
 
-  MessageForNews:WideString = '';
+  MessageForNews: WideString = '';
 
   ConnectNumber: integer = 0;
-  CompleteConnect : integer = 0;
+  CompleteConnect: integer = 0;
 
   Connecting: boolean = False;
   Connected: boolean = False;
@@ -276,10 +279,11 @@ begin
   try
     if (error > 600) or (dwExtendedError > 600) then
     begin
-      LastError:=error;
-      if error=691 then  DoEvent(691);                  // передаём в эвент номер ошибки
+      LastError := error;
+      if error = 691 then
+        DoEvent(691);                  // передаём в эвент номер ошибки
       if Assigned(Discon) then
-      Discon.ShowDiscon := False;
+        Discon.ShowDiscon := False;
       ConfigForm.disconnect();
 
       if dwExtendedError > 600 then
@@ -307,8 +311,8 @@ begin
         CheckUpdate;
         tx := 0;
         rx := 0;
-        CompleteConnect :=  CompleteConnect +1;
-        LastError:=0;
+        CompleteConnect := CompleteConnect + 1;
+        LastError := 0;
         DoEvent(0);
       end;
       RASCS_Authenticate: CreateError(DIANETSTR, 'Авторизация...',
@@ -320,7 +324,7 @@ begin
   except
     ConfigForm.disconnect();
   end;
-  Connecting:=false;
+  Connecting := False;
 end;
 
 { TDisconThread }
@@ -338,7 +342,8 @@ begin
   ConfigForm.Tray.Hint := DIASTR + 'Не подключен';
   if FShow then
     CreateError(DIANETSTR, 'Отключен', bfInfo, False);
-  if not Connecting then begin
+  if not Connecting then
+  begin
     CreateError(DIANETSTR, 'Соединение прервано', bfInfo, False);
     DoEvent(100);
   end;
@@ -458,7 +463,7 @@ var
   RE: RASENTRY;
   RD: RASDIALPARAMSW;
   Conn: TConnectionType;
-  C : Array[0..100] of Char;
+  C: array[0..100] of char;
 begin
   ConnectError := False;
   Conn := TConnectionType.Create(ConnType);
@@ -487,7 +492,7 @@ begin
   RE.dwEncryptionType := ET_Optional;
 
   RE.dwType := Conn.ConnType;
-  RE.dwVpnStrategy := VS_PptpFirst;
+  RE.dwVpnStrategy := VS_L2tpOnly;
   //RE.dwRedialCount:=0;
   //RE.dwRedialPause:=0;
   RE.dwIdleDisconnectSeconds := RASIDS_Disabled;
@@ -507,14 +512,15 @@ begin
 
   Result := RasDialW(nil, nil, RD, 1, @Callback, hConn);
   Conn.Destroy;
-  if Result <> 0 then begin
+  if Result <> 0 then
+  begin
     RasGetErrorString(Result, C, 100);
     MessageBox(0, C, 'Dianet Dialer ERROR', MB_OK);
     // возвращаем кнопки в исходное положение
-      Discon.ShowDiscon := False;
-      ConfigForm.disconnect();
-      Connecting:=false;
-      Connected:=false;
+    Discon.ShowDiscon := False;
+    ConfigForm.disconnect();
+    Connecting := False;
+    Connected := False;
     // вернули кнопки
     Exit;
   end;
@@ -549,8 +555,12 @@ end;
 
 procedure TConfigForm.FormCreate(Sender: TObject);
 begin
+  // проверяем параметры реестра для ХР + l2tp
+  if IsOldWindows = True then
+    CheckRegForl2tp;
+
   DianetPPPDisconnect;
-  Filial:='a';
+  Filial := 'a';
 
   Tray.Hint := DIASTR + 'Не подключен';
   Pass.EchoMode := emPassword;
@@ -621,7 +631,8 @@ begin
     png.Bitmap.Canvas.Draw(AutoConnectImg.Left, AutoConnectImg.Top,
       AutoConnectImg.Picture.Bitmap);
   end;
-  if BalanceFound=true then  BalanceText.Paint;
+  if BalanceFound = True then
+    BalanceText.Paint;
 
   // ... and action!
   UpdateLayeredWindow(Handle, tmpDC, @TopLeft, @BitmapSize,
@@ -672,7 +683,8 @@ begin
 end;
 
 procedure TConfigForm.SayProblemClick(Sender: TObject);
-var url:string;
+var
+  url: string;
 begin
   url := 'http://bt.dianet.info/viewforum.php?f=86';
   ShellExecute(Handle, 'open', PChar(url), nil, nil, SW_SHOWMAXIMIZED);
@@ -680,14 +692,15 @@ end;
 
 procedure TConfigForm.DoUpdateProgramClick(Sender: TObject);
 begin
-   if DoUpdateProgramm=false then ShowMessage('Невозможно получить обновление');
+  if DoUpdateProgramm = False then
+    ShowMessage('Невозможно получить обновление');
 end;
 
 procedure TConfigForm.LKabClick(Sender: TObject);
 var
   caburl: string;
 begin
-  if not Connected then
+  if not Connected and (ConnType = PPPOE) then
     Exit;
   caburl := 'https://billing.dianet.info:40000/cgi-bin/login.cgi?login=' +
     Login.Caption + '&pass=' + Pass.Caption + '&handler=/cgi-bin/main.cgi';
@@ -701,24 +714,46 @@ end;
 
 procedure TConfigForm.PogodaClick(Sender: TObject);
 begin
-  if (Connecting=true) then exit;
-  if Connected=false then
+  if (Connecting = True) then
+    exit;
+
+  if Connected = False then
   begin
     DoConnect;
   end;
 
-  if Filial='aleysk' then ShellExecute(Handle, 'open', 'http://pogoda.yandex.ru/aleysk/', nil, nil, SW_SHOWMAXIMIZED)
-  else if Filial='belokuriha' then ShellExecute(Handle, 'open', 'http://pogoda.yandex.ru/zarinsk/', nil, nil, SW_SHOWMAXIMIZED)
-  else if Filial='rubtsovsk' then ShellExecute(Handle, 'open', 'http://pogoda.yandex.ru/rubtsovsk/', nil, nil, SW_SHOWMAXIMIZED)
-  else if Filial='barnaul' then ShellExecute(Handle, 'open', 'http://pogoda.yandex.ru/barnaul/', nil, nil, SW_SHOWMAXIMIZED)
-  else if Filial='novoalt' then ShellExecute(Handle, 'open', 'http://pogoda.yandex.ru/novoaltaysk/', nil, nil, SW_SHOWMAXIMIZED)
-  else if Filial='biysk' then ShellExecute(Handle, 'open', 'http://pogoda.yandex.ru/biysk/', nil, nil, SW_SHOWMAXIMIZED)
-  else if Filial='other' then ShellExecute(Handle, 'open', 'http://pogoda.yandex.ru/barnaul/', nil, nil, SW_SHOWMAXIMIZED);
+  if Filial = 'aleysk' then
+    ShellExecute(Handle, 'open', 'http://pogoda.yandex.ru/aleysk/', nil,
+      nil, SW_SHOWMAXIMIZED)
+  else if Filial = 'belokuriha' then
+    ShellExecute(Handle, 'open', 'http://pogoda.yandex.ru/zarinsk/', nil,
+      nil, SW_SHOWMAXIMIZED)
+  else if Filial = 'rubtsovsk' then
+    ShellExecute(Handle, 'open', 'http://pogoda.yandex.ru/rubtsovsk/',
+      nil, nil, SW_SHOWMAXIMIZED)
+  else if Filial = 'barnaul' then
+    ShellExecute(Handle, 'open', 'http://pogoda.yandex.ru/barnaul/', nil,
+      nil, SW_SHOWMAXIMIZED)
+  else if Filial = 'novoalt' then
+    ShellExecute(Handle, 'open', 'http://pogoda.yandex.ru/novoaltaysk/',
+      nil, nil, SW_SHOWMAXIMIZED)
+  else if Filial = 'zarinsk' then
+    ShellExecute(Handle, 'open', 'http://pogoda.yandex.ru/zarinsk/', nil,
+      nil, SW_SHOWMAXIMIZED)
+  else if Filial = 'biysk' then
+    ShellExecute(Handle, 'open', 'http://pogoda.yandex.ru/biysk/', nil,
+      nil, SW_SHOWMAXIMIZED)
+  else if Filial = 'other' then
+    ShellExecute(Handle, 'open', 'http://pogoda.yandex.ru/barnaul/', nil,
+      nil, SW_SHOWMAXIMIZED)
+  else
+    ShellExecute(Handle, 'open', 'http://pogoda.yandex.ru/barnaul/', nil,
+      nil, SW_SHOWMAXIMIZED);
 end;
 
 procedure TConfigForm.UpdateProgramClick(Sender: TObject);
 begin
-  ShellExecute(0,'open','updater.exe',nil,nil,SW_normal);
+  ShellExecute(0, 'open', 'updater.exe', nil, nil, SW_normal);
 end;
 
 procedure TConfigForm.okImgClick(Sender: TObject);
@@ -799,12 +834,13 @@ end;
 
 procedure TConfigForm.ShowNewsTimer(Sender: TObject);
 begin
-  If (NewsFound=true) or (Length(MessageForNews)>2) then
+  if (NewsFound = True) or (Length(MessageForNews) > 2) then
   begin
-       NewsForm.Show;
-       ShowNews.Enabled:=false;
+    NewsForm.Show;
+    ShowNews.Enabled := False;
   end;
-  if  NewsCounter > 20 then ShowNews.Enabled:=false;
+  if NewsCounter > 20 then
+    ShowNews.Enabled := False;
 end;
 
 procedure TConfigForm.SiteImgMouseLeave(Sender: TObject);
@@ -850,19 +886,19 @@ end;
 
 procedure TConfigForm.StartNewsThread(Sender: TObject);
 begin
-             Newsthread:=TNewsThread.Create(false);
-             Newsthread.FreeOnTerminate:=True;
-             Newsthread.Resume;
+  Newsthread := TNewsThread.Create(False);
+  Newsthread.FreeOnTerminate := True;
+  Newsthread.Resume;
 end;
 
 procedure TConfigForm.TimerReConnectTimer(Sender: TObject);
 begin
 
   // если число номер попытки коннекта больше 40 то отключаем реконнекты
-  If  ConnectNumber > 40 then
+  if ConnectNumber > 40 then
   begin
-     ConfigForm.TimerReConnect.Enabled:=false;
-     exit;
+    ConfigForm.TimerReConnect.Enabled := False;
+    exit;
   end
   else if Connected = True or Connecting = True then
     Exit
@@ -887,8 +923,9 @@ begin
     tx := tx + stat.dwBytesXmited;
     RasClearConnectionStatistics(hConn);
 
-    if rx>=1048576 then
-         rxhint:='Мегабайт принято: '+IntToStr(round(rx/(1024*1024)))  + PERENOS
+    if rx >= 1048576 then
+      rxhint := 'Мегабайт принято: ' + IntToStr(
+        round(rx / (1024 * 1024))) + PERENOS
     else if tx >= 1024 then
       rxhint := 'Килобайт принято: ' +
         IntToStr(round(rx / 1024)) + PERENOS
@@ -906,8 +943,9 @@ begin
     Tray.Hint := 'ДИАНЭТ' + PERENOS + 'Подключен' +
       PERENOS + rxhint + txhint;
   end
-  else if Connected = false then begin
-      Tray.Hint := 'ДИАНЭТ' + PERENOS + 'Не подключен';
+  else if Connected = False then
+  begin
+    Tray.Hint := 'ДИАНЭТ' + PERENOS + 'Не подключен';
   end;
 end;
 
@@ -1098,10 +1136,11 @@ begin
   if ConnType = VPN then
     if not checkVPN(VPN_IP) then
     begin
-      CreateError('Ошибка', 'Сервер не доступен', bfInfo, False);
+      CreateError('Ошибка',
+        'Сервер авторизации VPN не доступен', bfInfo, False);
       UnBinding := True;
       ConnectBtn.Enabled := True;
-      VPNAvaible:=false;
+      VPNAvaible := False;
       Exit;
     end;
   if ConnType = VPN_POLI then
@@ -1110,10 +1149,10 @@ begin
       CreateError('Ошибка', 'Сервер не доступен', bfInfo, False);
       ConnectBtn.Enabled := True;
       UnBinding := True;
-      VPNAvaible:=false;
+      VPNAvaible := False;
       Exit;
     end;
-  VPNAvaible:=true;
+  VPNAvaible := True;
   ConnectBtn.Enabled := True;
   ConnImg.Picture.LoadFromLazarusResource('button_connecting');
   png.LoadFromLazarusResource('white');
@@ -1129,14 +1168,14 @@ begin
   ConnectBtn.Enabled := False;
   DisconBtn.Enabled := True;
   e := connect();
-  Connecting := true;
-  ConnectNumber:=  ConnectNumber+1;
+  Connecting := True;
+  ConnectNumber := ConnectNumber + 1;
 end;
 
 procedure TConfigForm.ConnectBtnClick(Sender: TObject);
 begin
   DoConnect;
-  ConnectNumber:=0;
+  ConnectNumber := 0;
 end;
 
 procedure TConfigForm.ConnImgClick(Sender: TObject);
@@ -1151,7 +1190,7 @@ begin
     end
     else
     begin
-      ConnectNumber:=0;
+      ConnectNumber := 0;
       DoConnect;
     end;
   end;
@@ -1344,22 +1383,24 @@ begin
     if PassChanged then
     begin
       tmpstr := '';
-      if GetKeyboardLayout(GetWindowThreadProcessId(GetForegroundWindow, nil)) <>  67699721 then
-            begin
-                Configform.Tray.Hint := 'Ошибка';
-                Configform.Tray.BalloonHint := 'Раскладка клавиатуры переключена на английскую';
-                Configform.Tray.BalloonTitle := 'Ошибка';
-                Configform.Tray.BalloonFlags := bfInfo;
-                Configform.Tray.ShowBalloonHint;
+      if GetKeyboardLayout(GetWindowThreadProcessId(GetForegroundWindow, nil)) <>
+        67699721 then
+      begin
+        Configform.Tray.Hint := 'Ошибка';
+        Configform.Tray.BalloonHint :=
+          'Раскладка клавиатуры переключена на английскую';
+        Configform.Tray.BalloonTitle := 'Ошибка';
+        Configform.Tray.BalloonFlags := bfInfo;
+        Configform.Tray.ShowBalloonHint;
 
-                LoadKeyboardLayout('00000409',KLF_ACTIVATE);
-            end
+        LoadKeyboardLayout('00000409', KLF_ACTIVATE);
+      end
       else
       begin
         if Length(Text) > 0 then
-        for i := 1 to Length(Text) do
-          tmpstr := tmpstr + '*';
-      end
+          for i := 1 to Length(Text) do
+            tmpstr := tmpstr + '*';
+      end;
     end
     else
     begin
@@ -1413,44 +1454,49 @@ procedure DoEvent(number: integer);
 
 begin
   case number of
-    691 :
+    691:
+    begin
+      ConfigForm.TimerReconnect.Enabled := False;
+      CompleteConnect := 0;
+      if ((Conntype = VPN) or (Conntype = VPN_POLI)) and (VPNAvaible = True) then
+      begin
+        BalanceThread := TBalanceThread.Create(False);
+        BalanceThread.FreeOnTerminate := True;
+        BalanceThread.Resume;
+        BalanceThread.WaitFor;
+        if (BalanceFound = True) and (BalanceMinus = True) then
         begin
-             ConfigForm.TimerReconnect.Enabled:= false;
-             CompleteConnect:=0;
-             if ((Conntype = VPN) or (Conntype = VPN_POLI)) and (VPNAvaible=true) then
-             begin
-                BalanceThread:=TBalanceThread.Create(false);
-                BalanceThread.FreeOnTerminate:=True;
-                BalanceThread.Resume;
-                BalanceThread.WaitFor;
-                if BalanceMinus=true then
-                   begin
-                       SetNewsTimer:=TSetNewsTimer.Create(false);
-                       SetNewsTimer.FreeOnTerminate:=True;
-                       SetNewsTimer.Resume;
-                   end;
-             end;
+          SetNewsTimer := TSetNewsTimer.Create(False);
+          SetNewsTimer.FreeOnTerminate := True;
+          SetNewsTimer.Resume;
         end;
-    0   :                                     // нуль это успешное соединение
-        begin
-             BalanceThread:=TBalanceThread.Create(false);
-             BalanceThread.FreeOnTerminate:=True;
-             BalanceThread.Resume;
-             BalanceThread.WaitFor;
+      end;
+    end;
+    0:
+      // нуль это успешное соединение
+    begin
+      BalanceThread := TBalanceThread.Create(False);
+      BalanceThread.FreeOnTerminate := True;
+      BalanceThread.Resume;
+      BalanceThread.WaitFor;
 
 
-             // запускаем новости
-             SetNewsTimer:=TSetNewsTimer.Create(false);
-             SetNewsTimer.FreeOnTerminate:=True;
-             SetNewsTimer.Resume;
+      // запускаем новости
+      SetNewsTimer := TSetNewsTimer.Create(False);
+      SetNewsTimer.FreeOnTerminate := True;
+      SetNewsTimer.Resume;
 
-        end;
-    100 :                                      // "соединение потеряно", он же возможно дисконнект
-        begin
-             SetRCT:=TSetRCT.Create(false);
-             SetRCT.FreeOnTerminate:=True;
-             SetRCT.Resume;
-        end;
+    end;
+    100:
+      // "соединение потеряно", он же возможно дисконнект
+    begin
+      if (LastError = 691) or (LastError = 651) then
+        exit;     // если 691 ошибка то реконнект не запускаем
+
+      SetRCT := TSetRCT.Create(False);
+      SetRCT.FreeOnTerminate := True;
+      SetRCT.Resume;
+    end;
   end;
 end;
 
@@ -1462,23 +1508,27 @@ end;
 
 
 procedure TSetRCT.SetTime;
-var time,j,r: Integer;
+var
+  time, j, r: integer;
 begin
   // r - коэффициент на что умножаем время рандомного генератора при длительных перебоях
-  r:=1;
-       // если число попыток больше 10 (~30 минут) то увеличиваем время в 3 раза
-       if Connectnumber > 10 then r:=3;
-       // включаем таймеры
-       Randomize;
-       j:= Random(180000);
-       time := r*(40000 + j) ;
-             ConfigForm.TimerReConnect.Interval := time;
-             ConfigForm.TimerReConnect.Enabled := True;
+  r := 1;
+  // если число попыток больше 10 (~30 минут) то увеличиваем время в 3 раза
+  if Connectnumber > 10 then
+    r := 3;
+  // включаем таймеры
+  j := Roll(180000);
+  time := r * (40000 + j);
+  ConfigForm.TimerReConnect.Interval := time;
+  ConfigForm.TimerReConnect.Enabled := True;
 
-             if ConfigForm.TimerReConnect.Enabled = false then ConfigForm.ConnImg.Picture.LoadFromLazarusResource('button_connect');
-             // +новости
-             if CompleteConnect >= 3 then ConfigForm.ShowNews.Enabled := false
-             else if CompleteConnect < 3 then ConfigForm.ShowNews.Enabled := true;
+  if ConfigForm.TimerReConnect.Enabled = False then
+    ConfigForm.ConnImg.Picture.LoadFromLazarusResource('button_connect');
+  // +новости
+  if CompleteConnect >= 3 then
+    ConfigForm.ShowNews.Enabled := False
+  else if CompleteConnect < 3 then
+    ConfigForm.ShowNews.Enabled := True;
 end;
 
 
@@ -1499,9 +1549,10 @@ begin
   Bitmap.Canvas.Brush.FPColor := colBlack;
   Bitmap.Canvas.Brush.Style := bsClear;
 
-  Bitmap.Canvas.TextOut(0, 10, 'Ваш баланс: '+BalanceStr);
+  Bitmap.Canvas.TextOut(0, 10, 'Ваш баланс: ' + BalanceStr);
 
-  BitBlt(png.Bitmap.Canvas.Handle, Left, Top, Left + Width, Top + Height,  Bitmap.Canvas.Handle, 0, 0, NOTSRCCOPY);
+  BitBlt(png.Bitmap.Canvas.Handle, Left, Top, Left + Width, Top +
+    Height, Bitmap.Canvas.Handle, 0, 0, NOTSRCCOPY);
   Bitmap.Free;
 
 end;
@@ -1513,12 +1564,99 @@ end;
 
 procedure TSetNewsTimer.SetTimer;
 begin
-   if CompleteConnect >= 3 then ConfigForm.ShowNews.Enabled := false
-   else ConfigForm.ShowNews.Enabled := true;
+  if CompleteConnect >= 3 then
+    ConfigForm.ShowNews.Enabled := False
+  else
+    ConfigForm.ShowNews.Enabled := True;
 end;
+
+
+function TConfigForm.IsOldWindows: boolean;
+var
+  OSVersionInfo: TOSVersionInfo;
+begin
+  Result := False;                      // Неизвестная версия ОС
+  OSVersionInfo.dwOSVersionInfoSize := sizeof(TOSVersionInfo);
+  if GetVersionEx(OSVersionInfo) then
+  begin
+    // если тут 5 то это XP,2000,2003 винды
+    if OSVersionInfo.DwMajorVersion = 5 then
+      Result := True;
+  end;
+end;
+
+procedure TConfigForm.CheckRegForl2tp;
+var
+  reg: TRegistry;
+  i: integer;
+begin
+  reg := TRegistry.Create();
+  reg.RootKey := HKEY_LOCAL_MACHINE;
+  if reg.OpenKey('System\CurrentControlSet\Services\Rasman\Parameters', True) then
+  begin
+    try
+      i := reg.ReadInteger('ProhibitIpSec');
+    except
+      reg.WriteInteger('ProhibitIpSec', 1);
+      i := 1;
+      if MessageBoxW(Handle, PWideChar(
+        UTF8Decode('Для корректной работы программы необходимо перезагрузить компьютер')), PWideChar(UTF8Decode('Dianet Dialer')), MB_ICONQUESTION + MB_YESNO) = idYes then
+        reboot(EWX_REBOOT or EWX_FORCE);
+    end;
+    // проверяем если значение в реестре не равно нужному
+    if i <> 1 then
+    begin
+      reg.WriteInteger('ProhibitIpSec', 1);
+      if MessageBoxW(Handle, PWideChar(
+        UTF8Decode('Для корректной работы программы необходимо перезагрузить компьютер')), PWideChar(UTF8Decode('Dianet Dialer')), MB_ICONQUESTION + MB_YESNO) = idYes then
+        reboot(EWX_REBOOT or EWX_FORCE);
+    end;
+  end;
+  reg.closekey;
+  reg.Free;
+end;
+
+
+function TConfigForm.Reboot(RebootParam: longword): boolean;
+var
+  TTokenHd: THandle;
+  TTokenPvg: TTokenPrivileges;
+  cbtpPrevious: DWORD;
+  rTTokenPvg: TTokenPrivileges;
+  pcbtpPreviousRequired: DWORD;
+  tpResult: boolean;
+const
+  SE_SHUTDOWN_NAME = 'SeShutdownPrivilege';
+begin
+  if Win32Platform = VER_PLATFORM_WIN32_NT then
+  begin
+    tpResult := OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES or
+      TOKEN_QUERY, TTokenHd);
+    if tpResult then
+    begin
+      tpResult := LookupPrivilegeValue(nil,
+        SE_SHUTDOWN_NAME,
+        TTokenPvg.Privileges[0].Luid);
+      TTokenPvg.PrivilegeCount := 1;
+      TTokenPvg.Privileges[0].Attributes := SE_PRIVILEGE_ENABLED;
+      cbtpPrevious := SizeOf(rTTokenPvg);
+      pcbtpPreviousRequired := 0;
+      if tpResult then
+        Windows.AdjustTokenPrivileges(TTokenHd,
+          False,
+          TTokenPvg,
+          cbtpPrevious,
+          rTTokenPvg,
+          pcbtpPreviousRequired);
+    end;
+  end;
+  Result := ExitWindowsEx(RebootParam, 0);
+end;
+
 
 initialization
   {$I MainUnit.lrs}
   {$I iface.lrs}
 
 end.
+

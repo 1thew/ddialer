@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, ExtCtrls, IdHTTP, utils, windows;
+  StdCtrls, ExtCtrls, IdHTTP, windows;
 
 
 type
@@ -116,9 +116,8 @@ begin
   end;
 
       // если последний день и баланс низкий
-   if (IsLastDay=true) and (BalanceIntg<490) and (Connected=true) then
+   if (IsLastDay=true) and (BalanceFound=true) and (BalanceIntg<490) and (Connected=true) then
         begin
-        if BalanceFound= false then exit;
 
         i1:='Уважаемый пользователь! В ночь на первое число каждого месяца снимается абонентская плата.';
         i2:='Для того, чтобы оставаться "на связи" - не забывайте своевременно пополнять баланс.';
@@ -142,9 +141,6 @@ begin
            TempSTR:=i1;
            Synchronize(@UpdateLabel);
         end;
-
-
-
   NewsCounter:= NewsCounter+1;
 end;
 

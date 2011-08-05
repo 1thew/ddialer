@@ -1,7 +1,7 @@
 object ConfigForm: TConfigForm
-  Left = 276
+  Left = 466
   Height = 372
-  Top = 143
+  Top = 198
   Width = 430
   BorderIcons = []
   BorderStyle = bsNone
@@ -10,6 +10,7 @@ object ConfigForm: TConfigForm
   ClientWidth = 430
   Color = clWhite
   Font.Style = [fsItalic]
+  FormStyle = fsStayOnTop
   Icon.Data = {
     3E08010000000100010080800000010020002808010016000000280000008000
     0000000100000100200000000000000001006400000064000000000000000000
