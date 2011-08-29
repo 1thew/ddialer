@@ -3,23 +3,24 @@ object Form1: TForm1
   Height = 377
   Top = 132
   Width = 403
-  BorderStyle = bsSingle
+  Align = alRight
+  BorderStyle = bsDialog
   Caption = 'Dianet Diagnos'
   ClientHeight = 377
   ClientWidth = 403
-  LCLVersion = '0.9.31'
+  LCLVersion = '0.9.30'
   object PageControl1: TPageControl
     Left = 8
     Height = 368
     Top = 8
     Width = 393
-    ActivePage = TabSheet1
-    TabIndex = 0
+    ActivePage = TabSheet2
+    TabIndex = 1
     TabOrder = 0
     OnChange = PageControl1Change
     object TabSheet1: TTabSheet
       Caption = 'Главная'
-      ClientHeight = 342
+      ClientHeight = 340
       ClientWidth = 385
       object Button1: TButton
         Left = 12
@@ -32,9 +33,9 @@ object Form1: TForm1
       end
       object Label1: TLabel
         Left = 8
-        Height = 53
+        Height = 61
         Top = 80
-        Width = 173
+        Width = 193
         Caption = 'Программа диагноcтики поможет'#13#10' нашим специалистам определить'#13#10' проблемы вашего подключения'#13#10' в локальную сеть Dianet'
         ParentColor = False
       end
@@ -194,7 +195,7 @@ object Form1: TForm1
     end
     object TabSheet2: TTabSheet
       Caption = 'Дополнительно'
-      ClientHeight = 342
+      ClientHeight = 340
       ClientWidth = 385
       object GroupBox2: TGroupBox
         Left = 14
@@ -231,6 +232,15 @@ object Form1: TForm1
           Caption = 'Трасерт до сервера'
           OnClick = Button6Click
           TabOrder = 2
+        end
+        object Button7: TButton
+          Left = 182
+          Height = 35
+          Top = 63
+          Width = 158
+          Caption = 'Показать ARP'
+          OnClick = Button7Click
+          TabOrder = 3
         end
       end
       object GroupBox3: TGroupBox
@@ -271,9 +281,9 @@ object Form1: TForm1
         TabOrder = 2
         object Label2: TLabel
           Left = 17
-          Height = 27
+          Height = 31
           Top = 7
-          Width = 244
+          Width = 267
           Caption = 'Используйте ЭТИ кнопки ТОЛЬКО по указанию '#13#10'специалиста ГК Дианэт!'
           ParentColor = False
         end
@@ -281,7 +291,7 @@ object Form1: TForm1
     end
     object TabSheet3: TTabSheet
       Caption = 'Логирование'
-      ClientHeight = 342
+      ClientHeight = 340
       ClientWidth = 385
       object Memo1: TMemo
         Left = 4
@@ -2421,7 +2431,7 @@ object Form1: TForm1
         Left = 180
         Height = 31
         Top = 26
-        Width = 176
+        Width = 146
         Caption = 'start.dianet.info'
         Font.Color = clRed
         Font.Height = 30
@@ -2430,9 +2440,9 @@ object Form1: TForm1
       end
       object Label6: TLabel
         Left = 180
-        Height = 25
+        Height = 29
         Top = 74
-        Width = 176
+        Width = 169
         Caption = 'Всегда актуально !'
         Font.Color = clBackground
         Font.Height = -20
@@ -2442,21 +2452,21 @@ object Form1: TForm1
     end
     object TabSheet4: TTabSheet
       Caption = 'О программе'
-      ClientHeight = 342
+      ClientHeight = 340
       ClientWidth = 385
       object Label3: TLabel
         Left = 12
-        Height = 144
+        Height = 166
         Top = 26
-        Width = 335
+        Width = 364
         Caption = 'Программа Дианет Диагноз призвана помочь пользователю'#13#10'диагностировать проблемы при подключении к сети Дианэт.'#13#10#13#10'Внимание! Использование программы без указания специалиста'#13#10'ГК Дианэт может привести к плачевным результатам.'#13#10#13#10'Разработчик: Derwin, ему же принадлежат все интелектуальные'#13#10' права по использованию программы.'#13#10#13#10'Все вопросы и пожелания можете присылать на '#13#10'электронный ящик bt@dianet.info - будем только рады :)'
         ParentColor = False
       end
       object Label4: TLabel
         Left = 20
-        Height = 73
+        Height = 85
         Top = 226
-        Width = 331
+        Width = 328
         Caption = '(3852) 388-558'#13#10'Наш телефон поддержки клиентов.'#13#10'Круглосуточно!'
         Font.Height = -20
         ParentColor = False
