@@ -21,6 +21,7 @@ type
     Button4: TButton;
     Button5: TButton;
     Button6: TButton;
+    Button7: TButton;
     GroupBox1: TGroupBox;
     GroupBox2: TGroupBox;
     GroupBox3: TGroupBox;
@@ -46,6 +47,7 @@ type
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
+    procedure Button7Click(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
   private
     { private declarations }
@@ -59,6 +61,7 @@ type
     function oemtolocal(s:string):string;
     procedure RoutePrint();
     procedure TracertVPN();
+    procedure GetARP();
     procedure RouteDel();
     function GetDiagnos() : string;
     procedure SetIPAuto();
@@ -140,8 +143,34 @@ begin
     begin
       memo1.Lines.Add('Шлюз для даннного адреса не определен');
       FindGateway :=0;
+      exit;
     end;
-  if Gateway <> 'error' then  FindGateway :=1;
+  if Gateway <> 'error' then
+    begin
+      FindGateway :=1;
+      begin
+         if Gateway = '100' then
+           begin
+             FindGateway :=100;
+             exit;
+           end;
+      end;
+    end;
+  Application.ProcessMessages;
+  // пингуем шлюз
+  memo1.Lines.Add('Запускаем пинг шлюза....');
+  case PingGateway (gateway) of
+     1:
+     begin
+       memo1.Lines.Add('Шлюз пингуется....');
+     end;
+     0:
+     begin
+       memo1.Lines.Add('Шлюз НЕ пингуется!!!!');
+     end;
+     else memo1.Lines.Add('Опять проблемы с пингом шлюза....!!!!'+ IntToStr(Ping(Gateway)));
+  end;
+  Application.ProcessMessages;
   // пингуем DNS
   memo1.Lines.Add('Запускаем пинг DNS2....');
   case Ping (DNS2) of
@@ -156,19 +185,7 @@ begin
        CheckPingDNS := 0;
      end;
   end;
-  // пингуем шлюз
-  memo1.Lines.Add('Запускаем пинг шлюза....');
-  case PingGateway (gateway) of
-     1:
-     begin
-       memo1.Lines.Add('Шлюз пингуется....');
-     end;
-     0:
-     begin
-       memo1.Lines.Add('Шлюз НЕ пингуется!!!!');
-     end;
-     else memo1.Lines.Add('Опять проблемы с пингом шлюза....!!!!'+ IntToStr(Ping(Gateway)));
-  end;
+  Application.ProcessMessages;
   // резолвим
    memo1.Lines.Add('Запускаем резолв mail.ru....');
   case Resolv (inet_host) of
@@ -183,7 +200,7 @@ begin
        CheckDNSResolv := 0;
      end;
   end;
-
+  Application.ProcessMessages;
   // пингуем VPN сервер
    memo1.Lines.Add('Запускаем пинг vpn.dianet.info....');
   case PingVPN (vpn_host) of
@@ -228,8 +245,19 @@ begin
 end;
 
 procedure TForm1.Button6Click(Sender: TObject);
+var s:string;
 begin
-  TracertVPN();
+     Button6.Enable:=false;
+     s:=Button6.Caption;
+     Button6.Caption:='Ждите....';
+     TracertVPN();
+     Button6.Enable:=true;
+     Button6.Caption:=s;
+end;
+
+procedure TForm1.Button7Click(Sender: TObject);
+begin
+  GetARP();
 end;
 
 procedure TForm1.PageControl1Change(Sender: TObject);
@@ -393,8 +421,18 @@ begin
      ip.a := StrToInt(Copy(LocalIP, 1, Pos('.', LocalIP) - 1)); Delete(LocalIP, 1, Pos('.', LocalIP));
      ip.b := StrToInt(Copy(LocalIP, 1, Pos('.', LocalIP) - 1)); Delete(LocalIP, 1, Pos('.', LocalIP));
      ip.c := StrToInt(Copy(LocalIP, 1, Pos('.', LocalIP) - 1)); Delete(LocalIP, 1, Pos('.', LocalIP));
-  // оффисная локалка
-  if (ip.a=192) and (ip.b=168) and (ip.b=168) and (ip.c=254) then
+
+
+    // неопределённая сеть
+   if (ip.a=169)then
+     begin
+         result:='100';
+         memo1.Lines.Add('Нет настроенного IP на компе');
+         exit;
+     end;
+
+    // оффисная локалка
+    if (ip.a=192) and (ip.b=168) and (ip.b=168) and (ip.c=254) then
      begin
          result:='192.168.254.254';
          memo1.Lines.Add('Обнаружен шлюз 192.168.254.254');
@@ -564,6 +602,35 @@ begin
             FindGateway:=1;
             result:='172.16.44.1';
             memo1.Lines.Add('Обнаружен шлюз 172.16.44.1');
+            exit;
+          end;
+          46:
+          begin
+            FindGateway:=1;
+            result:='172.16.46.1';
+            memo1.Lines.Add('Обнаружен шлюз 172.16.46.1');
+            exit;
+          end;
+          47:
+          begin
+            FindGateway:=1;
+            result:='172.16.46.1';
+            memo1.Lines.Add('Обнаружен шлюз 172.16.46.1');
+            exit;
+          end;
+
+          48:
+          begin
+            FindGateway:=1;
+            result:='172.16.48.1';
+            memo1.Lines.Add('Обнаружен шлюз 172.16.48.1');
+            exit;
+          end;
+          49:
+          begin
+            FindGateway:=1;
+            result:='172.16.48.1';
+            memo1.Lines.Add('Обнаружен шлюз 172.16.48.1');
             exit;
           end;
 
@@ -812,6 +879,11 @@ end;
 
 function TForm1.GetDiagnos() : string;
 begin
+   if Gateway = '100' then
+     begin
+       result:='Нет настроенного IP адреса на компьютере';
+       exit;
+     end;
    if (CheckPingDNS=1)  and (CheckPingGateway=1)
       and (CheckPingVPN=1) and (CheckDNSResolv=1)
       and (LocalIPAdress =1) and (FindGateway=1)then
@@ -828,10 +900,11 @@ begin
 
    if (FindGateway=0) then
      begin
-       if LocalIP = '127.0.01' then begin
+       if LocalIP = '127.0.01' then
+          begin
                result := 'Не удалось найти активное подключение по локальной сети';
                exit;
-       end;
+          end
        else result := 'Не удалось определить шлюз для вашего подключения.'+' Ваш IP: '+LocalIP;
        exit;
      end;
@@ -839,22 +912,27 @@ begin
    If (CheckPingGateway=0) then
      begin
        result:= 'Шлюз не пингуется! Проблемы с линией ДО шлюза.'+' Шлюз: '+ Gateway;
+       exit;
      end;
-   If (CheckPingDNS=0) then begin
-     result:= 'Сервер DNS-2 не пингуется! Проверьте настройки локальной сети';
-     exit;
-   end;
+   If (CheckPingDNS=0) then
+     begin
+       result:= 'Сервер DNS-2 не пингуется! Проверьте настройки локальной сети';
+       exit;
+     end;
 
-   If (CheckDNSResolv=0) then begin
-     result:= 'Сервер DNS-2 не резолвит!!';
-     exit;
-   end;
+   If (CheckDNSResolv=0) then
+     begin
+          result:= 'Сервер DNS-2 не резолвит!!';
+          exit;
+     end;
 
-   If (CheckPingVPN=0) then begin
-     result:= 'Сервер авторизации не пингуется!';
-     exit;
-   end
-   else result:='какая то неведомая фигня!'+' Код ошибки: '+IntToStr(CheckPingDNS)+IntToStr(CheckPingGateway)
+   If (CheckPingVPN=0) then
+     begin
+          result:= 'Сервер авторизации не пингуется!';
+          exit;
+     end
+   else result:='Неизвестная проблема!'+' Код ошибки: '
+   +IntToStr(CheckPingDNS)+IntToStr(CheckPingGateway)
      +IntToStr(CheckPingVPN)+'-'+IntToStr(CheckDNSResolv)
       +IntToStr(LocalIPAdress)+'-'+IntToStr(FindGateway);
 
@@ -918,6 +996,65 @@ begin
             CheckPingVPN := 0;
             result :=0;
         end;
+      until (BytesRead < BUFSIZE);
+    end;
+  FreeMem(Buffer);
+  CloseHandle(ProcessInfo.hProcess);
+  CloseHandle(ProcessInfo.hThread);
+  CloseHandle(hReadPipe);
+  CloseHandle(hWritePipe);
+end;
+end;
+
+
+procedure TForm1.GetARP();
+const BUFSIZE = 10000;
+var SecAttr    : TSecurityAttributes;
+   hReadPipe,
+   hWritePipe : THandle;
+   StartupInfo: TStartUpInfo;
+   ProcessInfo: TProcessInformation;
+   Buffer     : PChar;
+   WaitReason,
+   BytesRead  : DWord;
+begin
+ with SecAttr do
+ begin
+      nlength              := SizeOf(TSecurityAttributes);
+      binherithandle       := true;
+      lpsecuritydescriptor := nil;
+ end;
+if Createpipe (hReadPipe, hWritePipe, @SecAttr, 0) then
+begin
+  Buffer  := AllocMem(BUFSIZE + 1);
+  FillChar(StartupInfo, Sizeof(StartupInfo), #0);
+  StartupInfo.cb          := SizeOf(StartupInfo);
+  StartupInfo.hStdOutput  := hWritePipe;
+  StartupInfo.hStdInput   := hReadPipe;
+  StartupInfo.dwFlags     := STARTF_USESTDHANDLES +
+                             STARTF_USESHOWWINDOW;
+  StartupInfo.wShowWindow := SW_HIDE;
+  if CreateProcess(nil,
+     Pchar('arp -a'),
+     @SecAttr,
+     @SecAttr,
+     true,
+     NORMAL_PRIORITY_CLASS,
+     nil,
+     nil,
+     StartupInfo,
+     ProcessInfo) then
+    begin
+      repeat
+        WaitReason := WaitForSingleObject( ProcessInfo.hProcess,100);
+        Application.ProcessMessages;
+      until (WaitReason <> WAIT_TIMEOUT);
+      Repeat
+        BytesRead := 0;
+        ReadFile(hReadPipe, Buffer[0], BUFSIZE, BytesRead, nil);
+        Buffer[BytesRead]:= #0;
+        memo1.Text := memo1.text + oemtolocal(Buffer);
+        ShowMessage (oemtolocal(Buffer));
       until (BytesRead < BUFSIZE);
     end;
   FreeMem(Buffer);
