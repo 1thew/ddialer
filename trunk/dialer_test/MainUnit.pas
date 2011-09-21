@@ -180,7 +180,6 @@ type
     procedure LButtonUp(x, y: integer);
     procedure FormMouseMove(x, y: integer);
     procedure UpdateWin;
-    function IsOldWindows: boolean;
     procedure CheckRegForl2tp;
     function Reboot(RebootParam: longword): boolean;
   protected
@@ -280,8 +279,15 @@ begin
     if (error > 600) or (dwExtendedError > 600) then
     begin
       LastError := error;
-      if error = 691 then
-        DoEvent(691);                  // передаём в эвент номер ошибки
+
+      case error of       // передаём в эвент номер ошибки
+        629: DoEvent(629);
+        630: DoEvent(630);
+        633: DoEvent(633);
+        691: DoEvent(691);
+        692: DoEvent(692);
+      end;
+
       if Assigned(Discon) then
         Discon.ShowDiscon := False;
       ConfigForm.disconnect();
@@ -556,7 +562,7 @@ end;
 procedure TConfigForm.FormCreate(Sender: TObject);
 begin
   // проверяем параметры реестра для ХР + l2tp
-  if IsOldWindows = True then
+  if IsOldWindows = 5 then
     CheckRegForl2tp;
 
   DianetPPPDisconnect;
@@ -834,10 +840,12 @@ end;
 
 procedure TConfigForm.ShowNewsTimer(Sender: TObject);
 begin
-  if (NewsFound = True) or (Length(MessageForNews) > 2) then
+  if (NewsFound = True) or (Length(MessageForNews) > 2)
+    or (AllowNewsWindow=true)then
   begin
     NewsForm.Show;
     ShowNews.Enabled := False;
+    AllowNewsWindow:=false;
   end;
   if NewsCounter > 20 then
     ShowNews.Enabled := False;
@@ -1454,6 +1462,33 @@ procedure DoEvent(number: integer);
 
 begin
   case number of
+    629:
+    begin
+      ConfigForm.TimerReconnect.Enabled := False;
+      CompleteConnect := 0;
+
+          SetNewsTimer := TSetNewsTimer.Create(False);
+          SetNewsTimer.FreeOnTerminate := True;
+          SetNewsTimer.Resume;
+    end;
+    630:
+    begin
+      ConfigForm.TimerReconnect.Enabled := False;
+      CompleteConnect := 0;
+
+          SetNewsTimer := TSetNewsTimer.Create(False);
+          SetNewsTimer.FreeOnTerminate := True;
+          SetNewsTimer.Resume;
+    end;
+    633:
+    begin
+      ConfigForm.TimerReconnect.Enabled := False;
+      CompleteConnect := 0;
+
+          SetNewsTimer := TSetNewsTimer.Create(False);
+          SetNewsTimer.FreeOnTerminate := True;
+          SetNewsTimer.Resume;
+    end;
     691:
     begin
       ConfigForm.TimerReconnect.Enabled := False;
@@ -1464,14 +1499,24 @@ begin
         BalanceThread.FreeOnTerminate := True;
         BalanceThread.Resume;
         BalanceThread.WaitFor;
-        if (BalanceFound = True) and (BalanceMinus = True) then
-        begin
+
           SetNewsTimer := TSetNewsTimer.Create(False);
           SetNewsTimer.FreeOnTerminate := True;
           SetNewsTimer.Resume;
-        end;
       end;
     end;
+
+    692:
+    begin
+      ConfigForm.TimerReconnect.Enabled := False;
+      CompleteConnect := 0;
+      HealError(692);
+
+          SetNewsTimer := TSetNewsTimer.Create(False);
+          SetNewsTimer.FreeOnTerminate := True;
+          SetNewsTimer.Resume;
+    end;
+
     0:
       // нуль это успешное соединение
     begin
@@ -1570,20 +1615,6 @@ begin
     ConfigForm.ShowNews.Enabled := True;
 end;
 
-
-function TConfigForm.IsOldWindows: boolean;
-var
-  OSVersionInfo: TOSVersionInfo;
-begin
-  Result := False;                      // Неизвестная версия ОС
-  OSVersionInfo.dwOSVersionInfoSize := sizeof(TOSVersionInfo);
-  if GetVersionEx(OSVersionInfo) then
-  begin
-    // если тут 5 то это XP,2000,2003 винды
-    if OSVersionInfo.DwMajorVersion = 5 then
-      Result := True;
-  end;
-end;
 
 procedure TConfigForm.CheckRegForl2tp;
 var

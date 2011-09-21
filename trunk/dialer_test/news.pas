@@ -46,6 +46,7 @@ var
   NewsStrList: TStringlist;
   NewsStr:WideString;
   NewsCounter:integer=0;
+  AllowNewsWindow:Boolean=false;
   function IsLastDay():boolean;
 
 const
@@ -140,7 +141,89 @@ begin
            NewsFound:= true;
            TempSTR:=i1;
            Synchronize(@UpdateLabel);
+           exit;
         end;
+   // если 691 ошибка
+   if (LastError=691) and (Conntype <>1 {это значит !PPPoE}) then
+        begin
+             i1:='Уважаемый пользователь!';
+             i2:='Ошибка 691 это неправильно указанные данные логина или пароля для доступа в интернет.';
+             i3:='Пожалуйста, проверьте и введите эти данные заново!';
+
+             NewsStrList:= TStringlist.Create;
+             NewsStrList.Add(i1);
+             NewsStrList.Add(i2);
+             NewsStrList.Add(i3);
+             TempSTR:=NewsStrList[0]+ #13+NewsStrList[1]+#13+#13+NewsStrList[2];
+             Synchronize(@UpdateLabel);
+             NewsStrList.Free;
+             AllowNewsWindow:=true;
+             exit;
+        end
+      else if (LastError=692) then
+      begin
+             i1:='Уважаемый пользователь!';
+             i2:='Ошибка 692 это проблема работы сетевой платы.';
+             i3:='Попробуйте перезагрузиться, если не поможет - обращайтесь к компьютерному мастеру.';
+
+             NewsStrList:= TStringlist.Create;
+             NewsStrList.Add(i1);
+             NewsStrList.Add(i2);
+             NewsStrList.Add(i3);
+             TempSTR:=NewsStrList[0]+ #13+NewsStrList[1]+#13+#13+NewsStrList[2];
+             Synchronize(@UpdateLabel);
+             NewsStrList.Free;
+             AllowNewsWindow:=true;
+             exit;
+      end
+      else if (LastError=629) then
+      begin
+             i1:='Уважаемый пользователь!';
+             i2:='Ошибка 629 - ваша операционная система заблокировала соединение.';
+             i3:='Попробуйте перезагрузиться, если не поможет - обращайтесь к компьютерному мастеру.';
+
+             NewsStrList:= TStringlist.Create;
+             NewsStrList.Add(i1);
+             NewsStrList.Add(i2);
+             NewsStrList.Add(i3);
+             TempSTR:=NewsStrList[0]+ #13+NewsStrList[1]+#13+#13+NewsStrList[2];
+             Synchronize(@UpdateLabel);
+             NewsStrList.Free;
+             AllowNewsWindow:=true;
+             exit;
+      end
+      else if (LastError=630) then
+      begin
+             i1:='Уважаемый пользователь!';
+             i2:='Ошибка 630 говорит о неисправности сетевой платы или её драйвера.';
+             i3:='Попробуйте перезагрузиться, если не поможет - обращайтесь к компьютерному мастеру.';
+
+             NewsStrList:= TStringlist.Create;
+             NewsStrList.Add(i1);
+             NewsStrList.Add(i2);
+             NewsStrList.Add(i3);
+             TempSTR:=NewsStrList[0]+ #13+NewsStrList[1]+#13+#13+NewsStrList[2];
+             Synchronize(@UpdateLabel);
+             NewsStrList.Free;
+             AllowNewsWindow:=true;
+             exit;
+      end
+      else if (LastError=633) then
+      begin
+             i1:='Уважаемый пользователь!';
+             i2:='Ошибка 633 говорит о проблеме доступа к соединению.';
+             i3:='Попробуйте перезагрузиться, если не поможет - обращайтесь к компьютерному мастеру.';
+
+             NewsStrList:= TStringlist.Create;
+             NewsStrList.Add(i1);
+             NewsStrList.Add(i2);
+             NewsStrList.Add(i3);
+             TempSTR:=NewsStrList[0]+ #13+NewsStrList[1]+#13+#13+NewsStrList[2];
+             Synchronize(@UpdateLabel);
+             NewsStrList.Free;
+             AllowNewsWindow:=true;
+             exit;
+      end;
   NewsCounter:= NewsCounter+1;
 end;
 

@@ -1,3 +1,1 @@
-#define MANIFEST 24
-#define IDR_XPMANIFEST 1
-IDR_XPMANIFEST MANIFEST "dianetdialer.exe.manifest"
+1 24 "project 1.exe.manifest"

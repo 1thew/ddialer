@@ -1,5 +1,5 @@
 object NewsForm: TNewsForm
-  Left = 248
+  Left = 249
   Height = 270
   Top = 211
   Width = 433
