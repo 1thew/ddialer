@@ -6,6 +6,7 @@
     <General>
       <MainUnit Value="0"/>
       <Title Value="Dianet Dialer"/>
+      <UseXPManifest Value="True"/>
       <Icon Value="0"/>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
@@ -13,11 +14,11 @@
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="1"/>
       <MinorVersionNr Value="3"/>
-      <RevisionNr Value="1"/>
-      <BuildNr Value="8"/>
+      <RevisionNr Value="2"/>
+      <BuildNr Value="1"/>
       <Language Value="0419"/>
       <CharSet Value="04B0"/>
-      <StringTable Comments="Autor Derwin" CompanyName="Дианэт" FileDescription="Dianet Dialer" InternalName="dianetdialer" LegalCopyright="©«Дианэт»" OriginalFilename="dianetdialer" ProductName="Dianet Dialer" ProductVersion="1.3.1.0"/>
+      <StringTable Comments="Autor Derwin" CompanyName="Дианэт" FileDescription="Dianet Dialer" InternalName="dianetdialer" LegalCopyright="©«Дианэт»" OriginalFilename="dianetdialer" ProductName="Dianet Dialer" ProductVersion="1.3.2.0"/>
     </VersionInfo>
     <BuildModes Count="1">
       <Item1 Name="default" Default="True"/>
@@ -60,11 +61,10 @@
         <Filename Value="dianetdialer.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="dianetdialer"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="7"/>
-        <CursorPos X="1" Y="16"/>
+        <TopLine Value="1"/>
+        <CursorPos X="36" Y="15"/>
         <UsageCount Value="205"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -76,8 +76,8 @@
         <UnitName Value="MainUnit"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1635"/>
-        <CursorPos X="1" Y="1656"/>
+        <TopLine Value="1608"/>
+        <CursorPos X="1" Y="1618"/>
         <UsageCount Value="205"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -100,10 +100,11 @@
       <Unit4>
         <Filename Value="Utils.pas"/>
         <UnitName Value="Utils"/>
-        <EditorIndex Value="3"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="4"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="810"/>
-        <CursorPos X="17" Y="864"/>
+        <TopLine Value="331"/>
+        <CursorPos X="19" Y="11"/>
         <UsageCount Value="579"/>
         <Loaded Value="True"/>
       </Unit4>
@@ -113,10 +114,13 @@
         <ComponentName Value="NewsForm"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="news"/>
+        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="64"/>
-        <CursorPos X="34" Y="15"/>
+        <TopLine Value="160"/>
+        <CursorPos X="36" Y="203"/>
         <UsageCount Value="1112"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit5>
       <Unit6>
         <Filename Value="balance.pas"/>
@@ -183,11 +187,11 @@
       <Unit14>
         <Filename Value="RASUnit.pas"/>
         <UnitName Value="RASUnit"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
         <TopLine Value="124"/>
         <CursorPos X="23" Y="7"/>
-        <UsageCount Value="20"/>
+        <UsageCount Value="23"/>
         <Loaded Value="True"/>
       </Unit14>
       <Unit15>
@@ -226,115 +230,123 @@
         <UsageCount Value="10"/>
       </Unit19>
     </Units>
-    <JumpHistory Count="27" HistoryIndex="26">
+    <JumpHistory Count="29" HistoryIndex="28">
       <Position1>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="568" Column="15" TopLine="545"/>
+        <Caret Line="285" Column="16" TopLine="265"/>
       </Position1>
       <Position2>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="1018" Column="13" TopLine="995"/>
+        <Caret Line="204" Column="16" TopLine="190"/>
       </Position2>
       <Position3>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="1618" Column="20" TopLine="1595"/>
+        <Caret Line="285" Column="19" TopLine="271"/>
       </Position3>
       <Position4>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="3" Column="65" TopLine="1"/>
+        <Caret Line="286" Column="19" TopLine="271"/>
       </Position4>
       <Position5>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="519" Column="15" TopLine="505"/>
+        <Caret Line="287" Column="19" TopLine="271"/>
       </Position5>
       <Position6>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="570" Column="5" TopLine="545"/>
+        <Caret Line="288" Column="19" TopLine="271"/>
       </Position6>
       <Position7>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="4" Column="62" TopLine="1"/>
+        <Caret Line="289" Column="19" TopLine="271"/>
       </Position7>
       <Position8>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="519" Column="15" TopLine="496"/>
+        <Caret Line="323" Column="14" TopLine="300"/>
       </Position8>
       <Position9>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="562" Column="15" TopLine="551"/>
+        <Caret Line="355" Column="10" TopLine="335"/>
       </Position9>
       <Position10>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="568" Column="15" TopLine="551"/>
+        <Caret Line="644" Column="75" TopLine="634"/>
       </Position10>
       <Position11>
-        <Filename Value="MainUnit.pas"/>
-        <Caret Line="568" Column="15" TopLine="551"/>
+        <Filename Value="Utils.pas"/>
+        <Caret Line="16" Column="32" TopLine="7"/>
       </Position11>
       <Position12>
-        <Filename Value="MainUnit.pas"/>
-        <Caret Line="261" Column="12" TopLine="252"/>
+        <Filename Value="Utils.pas"/>
+        <Caret Line="44" Column="15" TopLine="21"/>
       </Position12>
       <Position13>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="128" Column="21" TopLine="114"/>
+        <Caret Line="1463" Column="28" TopLine="1454"/>
       </Position13>
       <Position14>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="560" Column="31" TopLine="546"/>
+        <Caret Line="171" Column="23" TopLine="157"/>
       </Position14>
       <Position15>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="3" Column="65" TopLine="1"/>
+        <Caret Line="566" Column="15" TopLine="543"/>
       </Position15>
       <Position16>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="5" Column="22" TopLine="1"/>
+        <Caret Line="3" Column="55" TopLine="1"/>
       </Position16>
       <Position17>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="62" Column="9" TopLine="39"/>
+        <Caret Line="6" Column="35" TopLine="1"/>
       </Position17>
       <Position18>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="89" Column="19" TopLine="66"/>
+        <Caret Line="289" Column="25" TopLine="275"/>
       </Position18>
       <Position19>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="3" Column="64" TopLine="1"/>
+        <Caret Line="1510" Column="8" TopLine="1499"/>
       </Position19>
       <Position20>
-        <Filename Value="MainUnit.pas"/>
-        <Caret Line="62" Column="9" TopLine="39"/>
+        <Filename Value="Utils.pas"/>
+        <Caret Line="885" Column="27" TopLine="877"/>
       </Position20>
       <Position21>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="126" Column="20" TopLine="103"/>
+        <Caret Line="170" Column="49" TopLine="160"/>
       </Position21>
       <Position22>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="127" Column="20" TopLine="104"/>
+        <Caret Line="288" Column="12" TopLine="265"/>
       </Position22>
       <Position23>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="128" Column="22" TopLine="105"/>
+        <Caret Line="5" Column="62" TopLine="1"/>
       </Position23>
       <Position24>
-        <Filename Value="dianetdialer.lpr"/>
-        <Caret Line="16" Column="13" TopLine="8"/>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="565" Column="21" TopLine="542"/>
       </Position24>
       <Position25>
-        <Filename Value="MainUnit.pas"/>
-        <Caret Line="278" Column="49" TopLine="273"/>
+        <Filename Value="Utils.pas"/>
+        <Caret Line="903" Column="23" TopLine="896"/>
       </Position25>
       <Position26>
-        <Filename Value="MainUnit.pas"/>
-        <Caret Line="128" Column="22" TopLine="114"/>
+        <Filename Value="Utils.pas"/>
+        <Caret Line="901" Column="15" TopLine="870"/>
       </Position26>
       <Position27>
-        <Filename Value="dianetdialer.lpr"/>
-        <Caret Line="22" Column="28" TopLine="1"/>
+        <Filename Value="Utils.pas"/>
+        <Caret Line="906" Column="48" TopLine="896"/>
       </Position27>
+      <Position28>
+        <Filename Value="Utils.pas"/>
+        <Caret Line="43" Column="14" TopLine="29"/>
+      </Position28>
+      <Position29>
+        <Filename Value="Utils.pas"/>
+        <Caret Line="117" Column="8" TopLine="106"/>
+      </Position29>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>

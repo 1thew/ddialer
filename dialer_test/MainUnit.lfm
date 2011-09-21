@@ -5524,7 +5524,7 @@ object ConfigForm: TConfigForm
   end
   object ShowNews: TTimer
     Enabled = False
-    Interval = 10000
+    Interval = 5000
     OnTimer = ShowNewsTimer
     OnStartTimer = StartNewsThread
     left = 378

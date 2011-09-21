@@ -9,11 +9,13 @@ uses
   Interfaces, // this includes the LCL widgetset
   Forms, MainUnit, Windows, dialogs, news;
 
-{$IFDEF WINDOWS}{$R dianetdialer.rc}{$R manifest.res}{$ENDIF}
+//{$IFDEF WINDOWS}{$R manifest.rc}{$ENDIF}
 
 var
   Mutex:THandle;
 
+
+{$R *.res}
 
 begin
   Mutex := CreateMutex(nil, False, 'DianetDialerMutex');

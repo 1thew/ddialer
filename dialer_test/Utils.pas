@@ -7,7 +7,7 @@ interface
 
 uses
   Classes, SysUtils, Windows, lnet, XMLRead, DOM, Forms,
-  RASUnit, jwaiptypes, JwaIpHlpApi, IdHTTP;
+  RASUnit, jwaiptypes, JwaIpHlpApi, IdHTTP, Registry;
 
 const
   PERENOS = Char($0D)+Char($0A);
@@ -25,7 +25,7 @@ const
 
   VPN_IP ='vpn.dianet.info';
   VPN_IP_POLI ='vpn.dianet.info';
-  VERSION = '1.3.1.8';
+  VERSION = '1.3.2.1';
   RETRAKER_URL = 'http://start.dianet.info';
 
   XML_URL='http://update.dianet.info/dialer/downloads/test/upd.xml';
@@ -41,6 +41,8 @@ function CheckConnectType : integer;
 procedure DianetPPPDisconnect;
 function DoUpdateProgramm:boolean;
 function Roll(interval:integer):integer;
+function IsOldWindows: integer;
+procedure HealError(i:integer);
 
 type
 
@@ -112,7 +114,7 @@ var s: string;
    MStream:TMemoryStream;
 begin
 // далее запускаем рандомизатор обновлений
-if Roll(100)<55 then
+if Roll(100)<25 then
 begin
 try
   try
@@ -880,6 +882,42 @@ begin
 randomize;
 result:=Random(interval);
 end;
+
+procedure HealError(i:integer);
+var
+  reg: TRegistry;
+begin
+  case i of
+    692:
+      begin
+
+           reg := TRegistry.Create();
+           reg.RootKey := HKEY_LOCAL_MACHINE;
+           if (IsOldWindows = 6) and (reg.OpenKey('SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\FirewallRules', True)) then
+           begin
+             reg.WriteString('RRAS-L2TP-In-UDP', 'v2.10|Action=Allow|Active=TRUE|Dir=In|Protocol=17|LPort=1701|App=System|Name=@FirewallAPI.dll,-33753|Desc=@FirewallAPI.dll,-33756|EmbedCtxt=@FirewallAPI.dll,-33752|');
+             reg.WriteString('RRAS-L2TP-Out-UDP', 'v2.10|Action=Allow|Active=TRUE|Dir=Out|Protocol=17|RPort=1701|App=System|Name=@FirewallAPI.dll,-33757|Desc=@FirewallAPI.dll,-33760|EmbedCtxt=@FirewallAPI.dll,-33752|');
+           end;
+             reg.closekey;       // освобождаем ресурсы
+             reg.Free;
+      end;
+  end;
+end;
+
+
+function IsOldWindows: integer;
+var
+  OSVersionInfo: TOSVersionInfo;
+begin
+  Result := 0;                      // Неизвестная версия ОС
+  OSVersionInfo.dwOSVersionInfoSize := sizeof(TOSVersionInfo);
+  if GetVersionEx(OSVersionInfo) then
+  begin
+    // если тут 5 то это XP,2000,2003 винды
+      Result := OSVersionInfo.DwMajorVersion
+  end;
+end;
+
 
 end.
 
