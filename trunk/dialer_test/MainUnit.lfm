@@ -1,5 +1,5 @@
 object ConfigForm: TConfigForm
-  Left = 466
+  Left = 465
   Height = 372
   Top = 198
   Width = 430
