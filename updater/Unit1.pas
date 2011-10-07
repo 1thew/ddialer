@@ -16,10 +16,8 @@ type
     Image1: TImage;
     StaticText1: TStaticText;
     Timer1: TTimer;
-    Timer2: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
-    procedure Timer2Timer(Sender: TObject);
   private
     { private declarations }
     procedure ApplicationPath;
@@ -31,6 +29,12 @@ var
   UpdForm: TUpdForm;
   InstallDir:string;
 
+const
+  d1: string = 'dianetdialer.exe';
+  d2: string = 'dianetdialer.exe_backup';
+  u1: string = 'updater.exe';
+  u2: string = 'updater.exe_backup';
+
 implementation
 
 {$R *.lfm}
@@ -38,34 +42,43 @@ implementation
 { TUpdForm }
 
 procedure TUpdForm.FormCreate(Sender: TObject);
-var params:string;
 begin
   ApplicationPath;
-  // тут вырубаем процесс диалера
-  params:= '/f /im dianetdialer.exe';
-  ShellExecute(0,'open','taskkill',Pchar(params),nil,SW_hide);
+  DeleteFile(PChar(d2));
+  DeleteFile(PChar(u2))
 end;
+
 
 
 procedure TUpdForm.Timer1Timer(Sender: TObject);
 var params:string;
 begin
-   // запускаем обновлялку с путями
+   // привязывем обработчик
+
+   Timer1.Enabled:=false;
+
+   if not FileExists('update.exe') then
+      begin
+        ShowMessage('Нет файла обновления');
+        Close;
+        Exit;
+      end;
+
+   // ренеймим файл диалера
+   if not RenameFile(d1,d2)
+      then ShowMessage('Ошибка переименования DianetDialer.exe ');
+
+   // не забываем переименовывать апдейтер
+   if not RenameFile(u1,u2)
+      then ShowMessage('Ошибка переименования updater.exe ');
+
+   // дальше запускаем обновлялку с путями
    params:='/S'+' '+ '/D='+InstallDir;
    ShellExecute(0,'open','update.exe',Pchar(params),nil,SW_hide);
-   // не забываем включить таймер2, там запустится диалер
-   Timer1.Enabled:=false;
-   Timer2.Enabled:=true;
+
+   close;
 end;
 
-procedure TUpdForm.Timer2Timer(Sender: TObject);
-begin
-  // таймер запускает процесс диалера
-  ShellExecute(0,'open','dianetdialer.exe',nil,nil,SW_normal);
-  //DeleteFile('update.exe');
-  Timer2.Enabled:=false;
-  Close;
-end;
 
 
 procedure TUpdForm.ApplicationPath;
