@@ -398,6 +398,7 @@ end;
 procedure TConfigForm.LoadConfig;
 var
   reg: TRegistry;
+  i:integer;
 begin
   reg := TRegistry.Create();
   reg.RootKey := HKEY_CURRENT_USER;
@@ -405,20 +406,19 @@ begin
   begin
     if reg.ValueExists('conntype') then
       ConnType := reg.ReadInteger('conntype');
-    if (ConnType > MAX_CONN_TYPE) or (ConnType < MIN_CONN_TYPE) or
-      (CheckConnectType = 1) then
+    if (ConnType > MAX_CONN_TYPE) or (ConnType < MIN_CONN_TYPE) then
       ConnType := VPN;
     case ConnType of
       VPN: ConnSel.Text := 'VPN (default)';
       PPPoE: ConnSel.Text := 'PPPoE';
       VPN_POLI: ConnSel.Text := 'VPN (Политех)';
     end;
-
-    if (CheckConnectType = 1) then
+    i:=CheckConnectType;
+    if (i = 1) then
       ConnType := VPN;
-    if (CheckConnectType = 2) then
+    if (i = 2) then
       ConnType := VPN_POLI;
-    if (CheckConnectType = 4) then
+    if (i = 4) then
       ConnType := PPPoE;
 
     case ConnType of
@@ -565,8 +565,9 @@ begin
   if IsOldWindows = 5 then
     CheckRegForl2tp;
 
+  Filial:= 'other';
+
   DianetPPPDisconnect;
-  Filial := 'a';
 
   Tray.Hint := DIASTR + 'Не подключен';
   Pass.EchoMode := emPassword;
@@ -698,8 +699,10 @@ end;
 
 procedure TConfigForm.DoUpdateProgramClick(Sender: TObject);
 begin
-  if DoUpdateProgramm = False then
-    ShowMessage('Невозможно получить обновление');
+  case DoUpdateProgramm of
+    1: ShowMEssage('Нет доступных обновлений');
+    3: ShowMEssage('Проблема доступа для обновления');
+  end;
 end;
 
 procedure TConfigForm.LKabClick(Sender: TObject);
@@ -748,6 +751,9 @@ begin
       nil, SW_SHOWMAXIMIZED)
   else if Filial = 'biysk' then
     ShellExecute(Handle, 'open', 'http://pogoda.yandex.ru/biysk/', nil,
+      nil, SW_SHOWMAXIMIZED)
+  else if Filial = 'sibir' then
+    ShellExecute(Handle, 'open', 'http://pogoda.yandex.ru/sibirskij/', nil,
       nil, SW_SHOWMAXIMIZED)
   else if Filial = 'other' then
     ShellExecute(Handle, 'open', 'http://pogoda.yandex.ru/barnaul/', nil,
@@ -840,6 +846,11 @@ end;
 
 procedure TConfigForm.ShowNewsTimer(Sender: TObject);
 begin
+  if Connected=false then
+  begin
+    ShowNews.Enabled := False;
+    exit;
+  end;
   if (NewsFound = True) or (Length(MessageForNews) > 2)
     or (AllowNewsWindow=true)then
   begin
@@ -901,7 +912,6 @@ end;
 
 procedure TConfigForm.TimerReConnectTimer(Sender: TObject);
 begin
-
   // если число номер попытки коннекта больше 40 то отключаем реконнекты
   if ConnectNumber > 40 then
   begin
@@ -1272,13 +1282,14 @@ begin
 end;
 
 procedure TConfigForm.ConnSelChange(Sender: TObject);
+var i:integer;
 begin
-
-  if (CheckConnectType = 1) then
-    ConnType := VPN;
-  if (CheckConnectType = 2) then
-    ConnType := VPN_POLI;
-  if (CheckConnectType = 4) then
+  i:=  CheckConnectType;
+  if (i = 1) then
+    ConnType := VPN
+  else if (i = 2) then
+    ConnType := VPN_POLI
+  else if (i = 4) then
     ConnType := PPPoE
   else
   begin
@@ -1525,7 +1536,6 @@ begin
       BalanceThread.Resume;
       BalanceThread.WaitFor;
 
-
       // запускаем новости
       SetNewsTimer := TSetNewsTimer.Create(False);
       SetNewsTimer.FreeOnTerminate := True;
@@ -1559,7 +1569,8 @@ begin
   // r - коэффициент на что умножаем время рандомного генератора при длительных перебоях
   r := 1;
   // если число попыток больше 10 (~30 минут) то увеличиваем время в 3 раза
-  if Connectnumber > 10 then
+  // или опять упал биллинг
+  if (Connectnumber > 10) or (LastError = 718) then
     r := 3;
   // включаем таймеры
   j := Roll(180000);

@@ -72,7 +72,7 @@ procedure TNewsThread.GetNews1;
 var IdHTTP4:TIdHTTP;
   i1,i2,i3:String;
 begin
-
+NewsCounter:= NewsCounter+1;
   try
      try
           IdHTTP4 := TIdHTTP.Create(nil);
@@ -137,7 +137,7 @@ begin
       // текст для сообщения об отрицательном балансе
    if (BalanceMinus=true) and (LastError<>0) and (BalanceFound=true) then
         begin
-           i1:='У вас отрицательный баланс! Пополните счёт на '+IntToStr(BalanceIntg+1)+' рублей';
+           i1:='У вас отрицательный баланс! Пополните счёт на '+IntToStr(BalanceIntg+1)+' рублей.';
            NewsFound:= true;
            TempSTR:=i1;
            Synchronize(@UpdateLabel);
@@ -224,7 +224,6 @@ begin
              AllowNewsWindow:=true;
              exit;
       end;
-  NewsCounter:= NewsCounter+1;
 end;
 
 function TNewsThread.Tokenize(Str: WideString; Delimiter: string): TStringList;

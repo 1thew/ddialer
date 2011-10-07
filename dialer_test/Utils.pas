@@ -7,7 +7,8 @@ interface
 
 uses
   Classes, SysUtils, Windows, lnet, XMLRead, DOM, Forms,
-  RASUnit, jwaiptypes, JwaIpHlpApi, IdHTTP, Registry;
+  RASUnit, jwaiptypes, JwaIpHlpApi, IdHTTP, Registry, winsock, dialogs,
+  IdDNSResolver, Idglobal;
 
 const
   PERENOS = Char($0D)+Char($0A);
@@ -25,10 +26,11 @@ const
 
   VPN_IP ='vpn.dianet.info';
   VPN_IP_POLI ='vpn.dianet.info';
-  VERSION = '1.3.2.1';
+  VERSION = '1.3.2.2';
   RETRAKER_URL = 'http://start.dianet.info';
 
   XML_URL='http://update.dianet.info/dialer/downloads/test/upd.xml';
+  updater_URL='http://update.dianet.info/dialer/downloads/updater.exe';
 
 
 function UpdateLayeredWindow(Handle: THandle; hdcDest: HDC; pptDst: PPoint; _psize: PSize; hdcSrc: HDC; pptSrc: PPoint; crKey: COLORREF; pblend: PBLENDFUNCTION; dwFlags: DWORD): Boolean; stdcall; external 'user32' name 'UpdateLayeredWindow';
@@ -39,10 +41,12 @@ procedure CheckUpdate;
 Procedure CheckIp;
 function CheckConnectType : integer;
 procedure DianetPPPDisconnect;
-function DoUpdateProgramm:boolean;
+function DoUpdateProgramm:integer;
 function Roll(interval:integer):integer;
 function IsOldWindows: integer;
 procedure HealError(i:integer);
+procedure DownloadFile(s1,s2:string);
+function getNameOf(const IP: string): Ansistring;
 
 type
 
@@ -111,19 +115,18 @@ var s: string;
      PassNode: TDOMNode;
    Doc:      TXMLDocument;
    j: integer;
-   MStream:TMemoryStream;
 begin
+  //************************************************
+  // С некоторым шансом скачиваем апдейтер
+  //************************************************
+if Roll(100)<8 then
+  DownloadFile(updater_URL,'updater.exe');
+
 // далее запускаем рандомизатор обновлений
 if Roll(100)<25 then
 begin
-try
   try
-     AssignFile(OutputFile, 'upd.xml');
-     ReWrite(OutputFile);
-     IdHTTP1 := TIdHTTP.Create(nil);
-     s:= idHTTP1.Get(XML_URL);
-     Write(OutputFile, s);
-     CloseFile(OutputFile);
+    DownloadFile(XML_URL,'upd.xml');
 
      ReadXMLFile(Doc,'upd.xml');
 
@@ -140,24 +143,13 @@ try
   except exit;
   end;
 
-finally idHTTP1.Free;
-end;
-
      // если обновление найдено то его качаем.
      if UpdateFound=True then
      begin
        try
-           IdHTTP1 := TIdHTTP.Create(nil);
-           MStream:=TMemoryStream.Create;
-           IdHTTP1.HandleRedirects:=true;
-           try
-               IdHTTP1.get(UpdateLink,MStream);
-               MStream.SaveToFile('update.exe');
-               ShellExecute(0,'open','updater.exe',nil,nil,SW_normal);
-           except MessageForNews:='Возникли проблемы с доступом! Проверьте настройки антивируса/фаервола!';
-           end;
-       finally
-          idHTTP1.Free;
+          DownloadFile(UpdateLink,'update.exe');
+          ShellExecute(0,'open','updater.exe',nil,nil,SW_normal);
+       except MessageForNews:='Возникли проблемы с доступом! Проверьте настройки антивируса/фаервола!';
        end;
      end;
 
@@ -244,7 +236,24 @@ begin
 end;
 
 procedure CheckIpInList(var ip:TIpAddr);
+var name,ipa:string;
 begin
+  {****************************************************
+
+  список филиалов:
+
+  Filial:='aleysk'
+  Filial:='zarinsk'
+  Filial:='belokuriha'
+  Filial:='biysk'
+  Filial:='rubtsovsk'
+  Filial:='barnaul'
+  Filial:='sibir'
+  Filial:='novoalt'
+
+  ****************************************************}
+
+
   //Belokuriha, Rubcovsk, Aleysk, Zarinsk, Byisk to retracker
   if (ip.a=172) and (ip.b=16) then
     case ip.c of
@@ -301,6 +310,7 @@ begin
               AddRoute('172.16.44.0','255.255.254.0','172.16.28.1');
               AddRoute('172.16.46.0','255.255.254.0','172.16.28.1');
               AddRoute('172.16.48.0','255.255.254.0','172.16.28.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.28.1');
               end;
       29:
               begin
@@ -316,6 +326,7 @@ begin
               AddRoute('172.16.44.0','255.255.254.0','172.16.28.1');
               AddRoute('172.16.46.0','255.255.254.0','172.16.28.1');
               AddRoute('172.16.48.0','255.255.254.0','172.16.28.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.28.1');
               end;
       40:
               begin
@@ -331,6 +342,7 @@ begin
               AddRoute('172.16.44.0','255.255.254.0','172.16.40.1');
               AddRoute('172.16.46.0','255.255.254.0','172.16.40.1');
               AddRoute('172.16.48.0','255.255.254.0','172.16.40.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.40.1');
               end;
       41:
               begin
@@ -346,6 +358,7 @@ begin
               AddRoute('172.16.44.0','255.255.254.0','172.16.40.1');
               AddRoute('172.16.46.0','255.255.254.0','172.16.40.1');
               AddRoute('172.16.48.0','255.255.254.0','172.16.40.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.40.1');
               end;
       46:
               begin
@@ -361,6 +374,7 @@ begin
               AddRoute('172.16.42.0','255.255.254.0','172.16.46.1');
               AddRoute('172.16.44.0','255.255.254.0','172.16.46.1');
               AddRoute('172.16.48.0','255.255.254.0','172.16.46.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.46.1');
               end;
 
       47:
@@ -377,6 +391,7 @@ begin
               AddRoute('172.16.42.0','255.255.254.0','172.16.46.1');
               AddRoute('172.16.44.0','255.255.254.0','172.16.46.1');
               AddRoute('172.16.48.0','255.255.254.0','172.16.46.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.46.1');
               end;
 
 
@@ -393,6 +408,7 @@ begin
               AddRoute('172.16.28.0','255.255.254.0','172.16.30.1');
               AddRoute('172.16.32.0','255.255.240.0','172.16.30.1');
               AddRoute('172.16.48.0','255.255.254.0','172.16.30.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.30.1');
               end;
       31:
               begin
@@ -401,6 +417,7 @@ begin
               AddRoute('172.16.28.0','255.255.254.0','172.16.30.1');
               AddRoute('172.16.32.0','255.255.240.0','172.16.30.1');
               AddRoute('172.16.48.0','255.255.254.0','172.16.30.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.30.1');
               end;
       34:
               begin
@@ -412,6 +429,7 @@ begin
               AddRoute('172.16.36.0','255.255.252.0','172.16.34.1');
               AddRoute('172.16.40.0','255.255.248.0','172.16.34.1');
               AddRoute('172.16.48.0','255.255.252.0','172.16.34.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.34.1');
               end;
       35:
               begin
@@ -423,6 +441,7 @@ begin
               AddRoute('172.16.36.0','255.255.252.0','172.16.34.1');
               AddRoute('172.16.40.0','255.255.248.0','172.16.34.1');
               AddRoute('172.16.48.0','255.255.252.0','172.16.34.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.34.1');
               end;
       36:
               begin
@@ -434,6 +453,7 @@ begin
               AddRoute('172.16.38.0','255.255.254.0','172.16.36.1');
               AddRoute('172.16.40.0','255.255.248.0','172.16.36.1');
               AddRoute('172.16.48.0','255.255.254.0','172.16.36.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.36.1');
               end;
        37:
               begin
@@ -445,6 +465,7 @@ begin
               AddRoute('172.16.38.0','255.255.254.0','172.16.36.1');
               AddRoute('172.16.40.0','255.255.248.0','172.16.36.1');
               AddRoute('172.16.48.0','255.255.254.0','172.16.36.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.31.1');
               end;
        38:
               begin
@@ -456,6 +477,7 @@ begin
 
               AddRoute('172.16.40.0','255.255.248.0','172.16.38.1');      //21
               AddRoute('172.16.48.0','255.255.254.0','172.16.38.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.38.1');
               end;
         39:
               begin
@@ -467,6 +489,7 @@ begin
 
               AddRoute('172.16.40.0','255.255.248.0','172.16.38.1');      //21
               AddRoute('172.16.48.0','255.255.254.0','172.16.38.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.38.1');
               end;
     end;
 
@@ -491,6 +514,7 @@ begin
               AddRoute('172.16.44.0','255.255.254.0','172.16.32.1');
               AddRoute('172.16.46.0','255.255.254.0','172.16.32.1');
               AddRoute('172.16.48.0','255.255.254.0','172.16.32.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.32.1');
               end;
 	  33:
               begin
@@ -507,6 +531,7 @@ begin
               AddRoute('172.16.44.0','255.255.254.0','172.16.32.1');
               AddRoute('172.16.46.0','255.255.254.0','172.16.32.1');
               AddRoute('172.16.48.0','255.255.254.0','172.16.32.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.32.1');
               end;
           42:
               begin
@@ -523,22 +548,24 @@ begin
               AddRoute('172.16.44.0','255.255.254.0','172.16.42.1');
               AddRoute('172.16.46.0','255.255.254.0','172.16.42.1');
               AddRoute('172.16.48.0','255.255.254.0','172.16.42.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.42.1');
               end;
           43:
               begin
 			   Filial:='belokuriha';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.32.1');
-              AddRoute('172.16.28.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.30.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.32.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.34.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.36.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.38.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.40.0','255.255.254.0','172.16.32.1');
+              AddRoute('10.110.0.0','255.255.252.0','172.16.42.1');
+              AddRoute('172.16.28.0','255.255.254.0','172.16.42.1');
+              AddRoute('172.16.30.0','255.255.254.0','172.16.42.1');
+              AddRoute('172.16.32.0','255.255.254.0','172.16.42.1');
+              AddRoute('172.16.34.0','255.255.254.0','172.16.42.1');
+              AddRoute('172.16.36.0','255.255.254.0','172.16.42.1');
+              AddRoute('172.16.38.0','255.255.254.0','172.16.42.1');
+              AddRoute('172.16.40.0','255.255.254.0','172.16.42.1');
 
-              AddRoute('172.16.44.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.46.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.48.0','255.255.254.0','172.16.32.1');
+              AddRoute('172.16.44.0','255.255.254.0','172.16.42.1');
+              AddRoute('172.16.46.0','255.255.254.0','172.16.42.1');
+              AddRoute('172.16.48.0','255.255.254.0','172.16.42.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.42.1');
               end;
           end;
     end;
@@ -556,6 +583,7 @@ begin
 
               AddRoute('172.16.46.0','255.255.254.0','172.16.44.1');
               AddRoute('172.16.48.0','255.255.254.0','172.16.44.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.44.1');
         end;
       45:
         begin
@@ -566,6 +594,7 @@ begin
 
               AddRoute('172.16.46.0','255.255.254.0','172.16.44.1');
               AddRoute('172.16.48.0','255.255.254.0','172.16.44.1');
+              AddRoute('172.30.0.0','255.255.0.0','172.16.44.1');
         end;
     end;
    end;
@@ -588,6 +617,7 @@ begin
           AddRoute('172.16.42.0','255.255.252.0','172.16.48.1');
           AddRoute('172.16.44.0','255.255.252.0','172.16.48.1');
           AddRoute('172.16.46.0','255.255.254.0','172.16.48.1');
+          AddRoute('172.30.0.0','255.255.0.0','172.16.48.1');
         end;
       49:
         begin
@@ -603,6 +633,7 @@ begin
           AddRoute('172.16.42.0','255.255.252.0','172.16.48.1');
           AddRoute('172.16.44.0','255.255.252.0','172.16.48.1');
           AddRoute('172.16.46.0','255.255.254.0','172.16.48.1');
+          AddRoute('172.30.0.0','255.255.0.0','172.16.48.1');
         end;
     end;
    end;
@@ -639,6 +670,9 @@ begin
     end;
    end;
 
+  //***************************************
+  // FIX ME: маршруты тут не нужны
+  //***************************************
   //Politeh to retracker
   if (ip.a=10) and (ip.b=0) then
     case ip.c of
@@ -665,11 +699,27 @@ begin
        26:Filial:='rubtsovsk';
        27:Filial:='rubtsovsk';
      end;
-   end
-  else begin
-    if Length(Filial)<3 then
-      Filial:='other';
-     end;
+   end;
+  //*************************************************
+  // прописываем НОВЫЕ сети, маршруты получим по DHCP
+  //*************************************************
+
+  if (ip.a=172) and (ip.b=30) then
+   begin
+        // начинаем возню с определением филиала по IP
+        ipa:=(IntToStr(ip.a)+'.'+IntToStr(ip.b)+'.'+IntToStr(ip.c)+'.'+IntToStr(ip.d));
+        name:=GetNameOf(ipa);
+
+        // определяем филиалы
+        if AnsiPOS('sibirskiy',name) > 0 then filial:='sibir'
+        else if AnsiPOS('aleysk',name) > 0 then filial:='aleysk'
+        else if AnsiPOS('belokuriha',name) > 0 then filial:='belokuriha'
+        else if AnsiPOS('biysk',name) > 0 then filial:='biysk'
+        else if AnsiPOS('novoaltaysk',name) > 0 then filial:='novoalt'
+        else if AnsiPOS('rubtsovsk',name) > 0 then filial:='rubtsovsk'
+        else if AnsiPOS('zarinsk',name) > 0 then filial:='zarinsk'
+        else if AnsiPOS('barnaul',name) > 0 then filial:='barnaul';
+   end;
 end;
 
 { TConnectionType }
@@ -782,42 +832,93 @@ begin
     end;
   pAI := pAdapterInfo;
   s:='';
-  while pAI<>nil do
+  while (pAI<>nil) do
   begin
     IpAddrString := pAI^.IpAddressList;
     pnext:=@IpAddrString;
-    While pNext<>nil Do
+    While (pNext<>nil) Do
     Begin
       IpAddrString:=pnext^;
       s:=IpAddrString.IpAddress.S;
       ip.a := StrToInt(Copy(s, 1, Pos('.', s) - 1)); Delete(s, 1, Pos('.', s));
       ip.b := StrToInt(Copy(s, 1, Pos('.', s) - 1)); Delete(s, 1, Pos('.', s));
       ip.c := StrToInt(Copy(s, 1, Pos('.', s) - 1)); Delete(s, 1, Pos('.', s));
+      {*****************************************
+      CheckConnectType:
+      1 = VPN
+      2 = VPN_POLI
+      3 = PPPoE or VPN
+      4 = PPPoE
+      ******************************************}
       if (ip.a=172) and (ip.b=16) then
         begin
           result :=1;
           exit;
-        end;
-      if (ip.a=10) and (ip.b=110) then
+        end
+      else if (ip.a=10) and (ip.b=110) then
         begin
           result :=4;
           exit;
-        end;
-      if (ip.a=10) and (ip.b=0) and (ip.c=110) then
+        end
+      else if (ip.a=10) and (ip.b=0) and (ip.c=110) then
         begin
           result :=2;
           exit;
-        end;
-      if (ip.a=192) and (ip.b=168) and (ip.c=254) then
+        end
+      {**************************************
+       DEBUG: данный участок нужен для тестирования в оффисе
+      ***************************************}
+      {else if (ip.a=192) and (ip.b=168) and (ip.c=254) then
         begin
           result :=3;
           exit;
-        end;
+        end}
+
+      // разворачиваем новые диапазоны result :=4;
+      else if Filial= 'sibir' then
+      begin
+       result :=4;
+       exit;
+      end
+      else if Filial= 'barnaul' then
+      begin
+       result :=3;
+       exit;
+      end
+      else if Filial= 'novoalt' then
+      begin
+       result :=3;
+       exit;
+      end
+      else if Filial= 'belokuriha' then
+      begin
+       result :=1;
+       exit;
+      end
+      else if Filial= 'biysk' then
+      begin
+       result :=1;
+       exit;
+      end
+      else if Filial= 'rubtsovsk' then
+      begin
+       result :=1;
+       exit;
+      end
+      else if Filial= 'zarinsk' then
+      begin
+       result :=1;
+       exit;
+      end
+      else if Filial= 'aleysk' then
+      begin
+       result :=1;
+       exit;
+      end;
       pnext := IpAddrString.Next;
     End;
     pAI := pAI^.Next;
   end;
-  result := 0;
 end;
 
 procedure DianetPPPDisconnect;
@@ -828,21 +929,20 @@ begin
   ShellExecute(0,'open','rasdial',PChar(params),nil,SW_HIDE);
 end;
 
-function DoUpdateProgramm:boolean;
+function DoUpdateProgramm:integer;
 var GetFile,IdHTTP1: TIdHTTP;
     MStream:TMemoryStream;
-    s:string;
     PassNode: TDOMNode;
     Doc: TXMLDocument;
 begin
-
+  //********************************************
+  // Описание DoUpdateProgramm:result
+  // 1 = нет доступных обновлений
+  // 2 = всё нормально
+  // 3 = проблема доступа для обновления
+  //********************************************
      // получаем файл с описанием
-    AssignFile(OutputFile, 'upd.xml');
-    ReWrite(OutputFile);
-    IdHTTP1 := TIdHTTP.Create(nil);
-    s:= idHTTP1.Get(XML_URL);
-    Write(OutputFile, s);
-    CloseFile(OutputFile);
+    DownloadFile(XML_URL,'upd.xml');
 
     ReadXMLFile(Doc,'upd.xml');
 
@@ -854,27 +954,26 @@ begin
        PassNode := Doc.DocumentElement.FindNode('url');
        UpdateLink:=PassNode.TextContent;
        UpdateFound:=True;
+    end
+    else
+    begin
+      result:=1;
+      exit;
     end;
 
-   GetFile:=TIdHTTP.Create(nil);
-   MStream:=TMemoryStream.Create;
-   // работаем с файлом
+   //////////////////////////////////////////////////////
    try
-      GetFile.get(UpdateLink,MStream);
-      MStream.SaveToFile('update.exe');
+      DownloadFile(updater_URL,'updater.exe');
+      DownloadFile(UpdateLink,'update.exe');
    except
-      result:=false;
-      exit;
+      result:=3;
    end;
 
-   //прибираемся
-   GetFile.free;
-   MStream.Free;
-   IdHTTP1.Free;
+   //////////////////////////////////////////////////////
 
    // запускаем обновлялку
    ShellExecute(0,'open','updater.exe',nil,nil,SW_normal);
-   result:=true;
+   result:=2;
 end;
 
 function Roll(interval:integer):integer;
@@ -916,6 +1015,51 @@ begin
     // если тут 5 то это XP,2000,2003 винды
       Result := OSVersionInfo.DwMajorVersion
   end;
+end;
+
+
+procedure DownloadFile(s1,s2:string);
+var GetFile: TIdHTTP;
+    MStream:TMemoryStream;
+begin
+  //*********************************************
+  // s1 - URL файла
+  // s2 - имя файла на диске
+  //*********************************************
+   GetFile:=TIdHTTP.Create(nil);
+   GetFile.HandleRedirects:=true;
+   MStream:=TMemoryStream.Create;
+   // работаем с файлом
+   try
+      GetFile.get(s1,MStream);
+      MStream.SaveToFile(s2);
+   except
+      exit;
+   end;
+   GetFile.Free;
+   MStream.Free;
+end;
+
+
+function GetNameOf(const IP: string): Ansistring;
+var
+   TheDns: TIdDNSResolver;
+   i: integer;
+   sTemp: string;
+begin
+     TheDns := TIdDNSResolver.Create;
+     TheDns.AllowRecursiveQueries := False;
+     TheDns.Host := '78.109.128.2';
+     TheDns.QueryType := [qtPTR];
+try
+   TheDns.Resolve(IP);
+   //Result := BytesToString(TheDns.QueryResult.Items[0].RData);
+   Result := TPTRRecord(TheDns.QueryResult.Items[0]).HostName;
+except
+      Result := ''; //"Not found" as well as errors raise an
+//exception in TIdDNSResolver
+end;
+TheDns.Destroy;
 end;
 
 
