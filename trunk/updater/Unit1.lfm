@@ -1,11 +1,11 @@
 object UpdForm: TUpdForm
   Left = 276
-  Height = 190
+  Height = 196
   Top = 199
   Width = 191
   BorderStyle = bsDialog
   Caption = 'Dianet Updater'
-  ClientHeight = 190
+  ClientHeight = 196
   ClientWidth = 191
   OnCreate = FormCreate
   LCLVersion = '0.9.30'
@@ -2134,7 +2134,7 @@ object UpdForm: TUpdForm
   end
   object StaticText1: TStaticText
     Left = 8
-    Height = 25
+    Height = 33
     Top = 159
     Width = 169
     Caption = 'Происходит обновление....'#13#10'Подождите....'
@@ -2145,12 +2145,5 @@ object UpdForm: TUpdForm
     OnTimer = Timer1Timer
     left = 144
     top = 16
-  end
-  object Timer2: TTimer
-    Enabled = False
-    Interval = 3000
-    OnTimer = Timer2Timer
-    left = 144
-    top = 72
   end
 end
