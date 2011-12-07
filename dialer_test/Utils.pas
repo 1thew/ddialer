@@ -8,7 +8,7 @@ interface
 uses
   Classes, SysUtils, Windows, lnet, XMLRead, DOM, Forms,
   RASUnit, jwaiptypes, JwaIpHlpApi, IdHTTP, Registry, winsock, dialogs,
-  IdDNSResolver, Idglobal;
+  IdDNSResolver, Idglobal,IdIcmpClient;
 
 const
   PERENOS = Char($0D)+Char($0A);
@@ -26,7 +26,7 @@ const
 
   VPN_IP ='vpn.dianet.info';
   VPN_IP_POLI ='vpn.dianet.info';
-  VERSION = '1.3.2.2';
+  VERSION = '1.3.2.3';
   RETRAKER_URL = 'http://start.dianet.info';
 
   XML_URL='http://update.dianet.info/dialer/downloads/test/upd.xml';
@@ -34,9 +34,8 @@ const
 
 
 function UpdateLayeredWindow(Handle: THandle; hdcDest: HDC; pptDst: PPoint; _psize: PSize; hdcSrc: HDC; pptSrc: PPoint; crKey: COLORREF; pblend: PBLENDFUNCTION; dwFlags: DWORD): Boolean; stdcall; external 'user32' name 'UpdateLayeredWindow';
-procedure DelRoute(route:string);
-procedure AddRoute(ip,mask,router:string);
 function checkVPN(ip:String):boolean;
+function checkVPNAdv():integer;
 procedure CheckUpdate;
 Procedure CheckIp;
 function CheckConnectType : integer;
@@ -47,6 +46,7 @@ function IsOldWindows: integer;
 procedure HealError(i:integer);
 procedure DownloadFile(s1,s2:string);
 function getNameOf(const IP: string): Ansistring;
+
 
 type
 
@@ -84,15 +84,29 @@ type
    private
     FQuit: boolean;
     FStatus:Boolean;
+    FError:integer;
     FCon: TLTcp; // the connection
+    AvgMS:Double;
     procedure OnDs(aSocket: TLSocket);
     procedure OnRe(aSocket: TLSocket);
     procedure OnEr(const msg: string; aSocket: TLSocket);
+    //**********************************************//
+    // тут функции по определению проблем
+    //**********************************************//
+
+    procedure GetIP();
+    procedure GetPing();
+    procedure GetDNS();
+    // второстепенное
+    function PingHost() : Boolean;
+    function Resolv () : boolean;
    public
     constructor Create;
     destructor Destroy; override;
     procedure Test(ip:String);
+    procedure GetError();
     property Status:Boolean read FStatus;
+    property Error:Integer read FError;
   end;
 
 
@@ -202,6 +216,93 @@ begin
   FStatus:=FCon.Connected;
 end;
 
+procedure TLVPNTest.GetError();
+begin
+  FError:=0;
+  GetIP;
+  if FError =0 then
+  begin
+    GetDNS;
+    Application.ProcessMessages;
+    if FError = 0 then GetPING;
+  end;
+end;
+
+procedure TLVPNTest.GetIP;
+begin
+     if Filial='other' then FError:=300;
+end;
+
+procedure TLVPNTest.GetPing();
+begin
+  if PingHost=false then FError:=100;
+end;
+
+procedure TLVPNTest.GetDNS();
+begin
+  if Resolv=false then FError:=200;
+end;
+
+function TLVPNTest.Resolv() : boolean;
+var
+  HostEnt: PHostEnt;
+  GInitData: TWSAData;
+begin
+ // WSAStartup(MAKEWORD(2,0), &GInitData);
+  WSAStartup($101, GInitData);
+  HostEnt:= gethostbyname(PChar(VPN_IP));
+  if HostEnt <> nil then
+  begin
+    result := true;
+  end
+  else
+  begin
+    result := false;
+  end;
+  WSACleanup;
+end;
+
+
+function TLVPNTest.PingHost() : Boolean;
+ var
+  R : array of Cardinal;
+  i : integer;
+const
+  ATimes = 50;
+begin
+  Result := True;
+  AvgMS := 0;
+  if ATimes>0 then
+    with TIdIcmpClient.Create() do
+    try
+        Host := VPN_IP;
+        ReceiveTimeout:=50; //TimeOut ping
+        SetLength(R,ATimes);
+        {Pinguer le client}
+        for i:=0 to Pred(ATimes) do
+        begin
+            try
+              Ping();
+              Application.ProcessMessages; //ne bloque pas l'application
+              R[i] := ReplyStatus.MsRoundTripTime;
+            except
+              Result := False;
+              Exit;
+            end;
+          if ReplyStatus.ReplyStatusType<>rsEcho Then result := False; //pas d'écho, on renvoi false.
+        end;
+        {Faire une moyenne}
+        for i:=Low(R) to High(R) do
+        begin
+          Application.ProcessMessages;
+          AvgMS := AvgMS + R[i];
+        end;
+        AvgMS := AvgMS / i;
+    finally
+        Free;
+    end;
+end;
+
 function checkVPN(ip:String):boolean;
 var
   lVPN:TLVPNTest;
@@ -212,6 +313,17 @@ begin
   lVPN.Free;
 end;
 
+
+function checkVPNAdv():integer;
+var
+  lVPN:TLVPNTest;
+begin
+  lVPN := TLVPNTest.Create;
+  lVPN.GetError();
+  Result:=lVPN.Error;
+  lVPN.Free;
+end;
+
 procedure CheckUpdate;
 begin
   updater:=TUpdateThread.Create(True);
@@ -219,27 +331,12 @@ begin
   updater.Resume;
 end;
 
-procedure AddRoute(ip,mask,router:string);
-var
-  params:String;
-begin
-  params:='add '+ip+' MASK '+mask+' '+router+' METRIC 1';
-  ShellExecute(0,'open','route',PChar(params),nil,SW_HIDE);
-end;
 
-procedure DelRoute(route:string);
-var
-  params:String;
-begin
-  params:='delete '+route;
-  ShellExecute(0,'open','route',PChar(params),nil,SW_HIDE);
-end;
 
 procedure CheckIpInList(var ip:TIpAddr);
 var name,ipa:string;
 begin
-  {****************************************************
-
+  {***************************************************
   список филиалов:
 
   Filial:='aleysk'
@@ -250,461 +347,21 @@ begin
   Filial:='barnaul'
   Filial:='sibir'
   Filial:='novoalt'
-
+  Filial:='office'
   ****************************************************}
 
-
-  //Belokuriha, Rubcovsk, Aleysk, Zarinsk, Byisk to retracker
-  if (ip.a=172) and (ip.b=16) then
-    case ip.c of
-      28:AddRoute('172.16.20.58','255.255.255.255','172.16.28.1');
-      29:AddRoute('172.16.20.58','255.255.255.255','172.16.28.1');
-
-      30:AddRoute('172.16.20.58','255.255.255.255','172.16.30.1');
-      31:AddRoute('172.16.20.58','255.255.255.255','172.16.30.1');
-
-      32:AddRoute('172.16.20.58','255.255.255.255','172.16.32.1');
-      33:AddRoute('172.16.20.58','255.255.255.255','172.16.32.1');
-
-      34:AddRoute('172.16.20.58','255.255.255.255','172.16.34.1');
-      35:AddRoute('172.16.20.58','255.255.255.255','172.16.34.1');
-
-      36:AddRoute('172.16.20.58','255.255.255.255','172.16.36.1');
-      37:AddRoute('172.16.20.58','255.255.255.255','172.16.36.1');
-
-      38:AddRoute('172.16.20.58','255.255.255.255','172.16.38.1');
-      39:AddRoute('172.16.20.58','255.255.255.255','172.16.38.1');
-
-      40:AddRoute('172.16.20.58','255.255.255.255','172.16.40.1');
-      41:AddRoute('172.16.20.58','255.255.255.255','172.16.40.1');
-
-      42:AddRoute('172.16.20.58','255.255.255.255','172.16.42.1');
-      43:AddRoute('172.16.20.58','255.255.255.255','172.16.42.1');
-
-      44:AddRoute('172.16.20.58','255.255.255.255','172.16.44.1');
-      45:AddRoute('172.16.20.58','255.255.255.255','172.16.44.1');
-
-      46:AddRoute('172.16.20.58','255.255.255.255','172.16.46.1');
-      47:AddRoute('172.16.20.58','255.255.255.255','172.16.46.1');
-
-      48:AddRoute('172.16.20.58','255.255.255.255','172.16.48.1');
-      49:AddRoute('172.16.20.58','255.255.255.255','172.16.48.1');
-
-
-    end;
-  //Aleysk to Dianet_local
-  if (ip.a=172) and (ip.b=16) then
-   begin
-     case ip.c of
-      28:
-              begin
-			  Filial:='aleysk';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.28.1');
-              AddRoute('172.16.30.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.16.32.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.16.34.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.16.36.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.16.38.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.16.40.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.16.42.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.16.44.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.16.46.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.16.48.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.28.1');
-              end;
-      29:
-              begin
-			  Filial:='aleysk';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.28.1');
-              AddRoute('172.16.30.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.16.32.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.16.34.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.16.36.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.16.38.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.16.40.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.16.42.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.16.44.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.16.46.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.16.48.0','255.255.254.0','172.16.28.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.28.1');
-              end;
-      40:
-              begin
-			  Filial:='aleysk';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.40.1');
-              AddRoute('172.16.28.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.16.30.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.16.32.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.16.34.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.16.36.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.16.38.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.16.42.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.16.44.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.16.46.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.16.48.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.40.1');
-              end;
-      41:
-              begin
-			  Filial:='aleysk';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.40.1');
-              AddRoute('172.16.28.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.16.30.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.16.32.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.16.34.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.16.36.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.16.38.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.16.42.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.16.44.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.16.46.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.16.48.0','255.255.254.0','172.16.40.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.40.1');
-              end;
-      46:
-              begin
-                 Filial:='aleysk';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.46.1');
-              AddRoute('172.16.28.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.16.30.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.16.32.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.16.34.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.16.36.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.16.38.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.16.40.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.16.42.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.16.44.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.16.48.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.46.1');
-              end;
-
-      47:
-              begin
-                 Filial:='aleysk';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.46.1');
-              AddRoute('172.16.28.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.16.30.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.16.32.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.16.34.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.16.36.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.16.38.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.16.40.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.16.42.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.16.44.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.16.48.0','255.255.254.0','172.16.46.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.46.1');
-              end;
-
-
-     end;
-    end;
-  //Zarinsk to Dianet_local
-  if (ip.a=172) and (ip.b=16) then
-   begin
-    case ip.c of
-      30:
-              begin
-			  Filial:='zarinsk';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.30.1');
-              AddRoute('172.16.28.0','255.255.254.0','172.16.30.1');
-              AddRoute('172.16.32.0','255.255.240.0','172.16.30.1');
-              AddRoute('172.16.48.0','255.255.254.0','172.16.30.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.30.1');
-              end;
-      31:
-              begin
-			  Filial:='zarinsk';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.30.1');
-              AddRoute('172.16.28.0','255.255.254.0','172.16.30.1');
-              AddRoute('172.16.32.0','255.255.240.0','172.16.30.1');
-              AddRoute('172.16.48.0','255.255.254.0','172.16.30.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.30.1');
-              end;
-      34:
-              begin
-			  Filial:='zarinsk';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.34.1');
-              AddRoute('172.16.28.0','255.255.252.0','172.16.34.1');
-              AddRoute('172.16.32.0','255.255.254.0','172.16.34.1');
-
-              AddRoute('172.16.36.0','255.255.252.0','172.16.34.1');
-              AddRoute('172.16.40.0','255.255.248.0','172.16.34.1');
-              AddRoute('172.16.48.0','255.255.252.0','172.16.34.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.34.1');
-              end;
-      35:
-              begin
-			  Filial:='zarinsk';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.34.1');
-              AddRoute('172.16.28.0','255.255.252.0','172.16.34.1');
-              AddRoute('172.16.32.0','255.255.254.0','172.16.34.1');
-
-              AddRoute('172.16.36.0','255.255.252.0','172.16.34.1');
-              AddRoute('172.16.40.0','255.255.248.0','172.16.34.1');
-              AddRoute('172.16.48.0','255.255.252.0','172.16.34.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.34.1');
-              end;
-      36:
-              begin
-			    Filial:='zarinsk';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.36.1');
-              AddRoute('172.16.28.0','255.255.252.0','172.16.36.1');
-              AddRoute('172.16.32.0','255.255.252.0','172.16.36.1');
-
-              AddRoute('172.16.38.0','255.255.254.0','172.16.36.1');
-              AddRoute('172.16.40.0','255.255.248.0','172.16.36.1');
-              AddRoute('172.16.48.0','255.255.254.0','172.16.36.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.36.1');
-              end;
-       37:
-              begin
-			    Filial:='zarinsk';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.36.1');
-              AddRoute('172.16.28.0','255.255.252.0','172.16.36.1');
-              AddRoute('172.16.32.0','255.255.252.0','172.16.36.1');
-
-              AddRoute('172.16.38.0','255.255.254.0','172.16.36.1');
-              AddRoute('172.16.40.0','255.255.248.0','172.16.36.1');
-              AddRoute('172.16.48.0','255.255.254.0','172.16.36.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.31.1');
-              end;
-       38:
-              begin
-			    Filial:='zarinsk';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.38.1');
-              AddRoute('172.16.28.0','255.255.252.0','172.16.38.1');      //22
-              AddRoute('172.16.32.0','255.255.252.0','172.16.38.1');
-              AddRoute('172.16.36.0','255.255.254.0','172.16.38.1');      //23
-
-              AddRoute('172.16.40.0','255.255.248.0','172.16.38.1');      //21
-              AddRoute('172.16.48.0','255.255.254.0','172.16.38.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.38.1');
-              end;
-        39:
-              begin
-			    Filial:='zarinsk';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.38.1');
-              AddRoute('172.16.28.0','255.255.252.0','172.16.38.1');      //22
-              AddRoute('172.16.32.0','255.255.252.0','172.16.38.1');
-              AddRoute('172.16.36.0','255.255.254.0','172.16.38.1');      //23
-
-              AddRoute('172.16.40.0','255.255.248.0','172.16.38.1');      //21
-              AddRoute('172.16.48.0','255.255.254.0','172.16.38.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.38.1');
-              end;
-    end;
-
-   end;
-
-  //Belokuriha to Dianet_local
-  if (ip.a=172) and (ip.b=16) then
-   begin
-    case ip.c of
-          32:
-              begin
-			   Filial:='belokuriha';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.32.1');
-              AddRoute('172.16.28.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.30.0','255.255.254.0','172.16.32.1');
-
-              AddRoute('172.16.34.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.36.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.38.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.40.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.42.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.44.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.46.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.48.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.32.1');
-              end;
-	  33:
-              begin
-			   Filial:='belokuriha';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.32.1');
-              AddRoute('172.16.28.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.30.0','255.255.254.0','172.16.32.1');
-
-              AddRoute('172.16.34.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.36.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.38.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.40.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.42.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.44.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.46.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.16.48.0','255.255.254.0','172.16.32.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.32.1');
-              end;
-          42:
-              begin
-			   Filial:='belokuriha';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.42.1');
-              AddRoute('172.16.28.0','255.255.254.0','172.16.42.1');
-              AddRoute('172.16.30.0','255.255.254.0','172.16.42.1');
-              AddRoute('172.16.32.0','255.255.254.0','172.16.42.1');
-              AddRoute('172.16.34.0','255.255.254.0','172.16.42.1');
-              AddRoute('172.16.36.0','255.255.254.0','172.16.42.1');
-              AddRoute('172.16.38.0','255.255.254.0','172.16.42.1');
-              AddRoute('172.16.40.0','255.255.254.0','172.16.42.1');
-
-              AddRoute('172.16.44.0','255.255.254.0','172.16.42.1');
-              AddRoute('172.16.46.0','255.255.254.0','172.16.42.1');
-              AddRoute('172.16.48.0','255.255.254.0','172.16.42.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.42.1');
-              end;
-          43:
-              begin
-			   Filial:='belokuriha';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.42.1');
-              AddRoute('172.16.28.0','255.255.254.0','172.16.42.1');
-              AddRoute('172.16.30.0','255.255.254.0','172.16.42.1');
-              AddRoute('172.16.32.0','255.255.254.0','172.16.42.1');
-              AddRoute('172.16.34.0','255.255.254.0','172.16.42.1');
-              AddRoute('172.16.36.0','255.255.254.0','172.16.42.1');
-              AddRoute('172.16.38.0','255.255.254.0','172.16.42.1');
-              AddRoute('172.16.40.0','255.255.254.0','172.16.42.1');
-
-              AddRoute('172.16.44.0','255.255.254.0','172.16.42.1');
-              AddRoute('172.16.46.0','255.255.254.0','172.16.42.1');
-              AddRoute('172.16.48.0','255.255.254.0','172.16.42.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.42.1');
-              end;
-          end;
-    end;
-
-   //Biysk(vlan 99) to Dianet_local
-  if (ip.a=172) and (ip.b=16) then
-   begin
-    case ip.c of
-      44:
-        begin
-		    Filial:='biysk';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.44.1');        //22
-              AddRoute('172.16.32.0','255.255.248.0','172.16.44.1');       //21
-              AddRoute('172.16.40.0','255.255.252.0','172.16.44.1');
-
-              AddRoute('172.16.46.0','255.255.254.0','172.16.44.1');
-              AddRoute('172.16.48.0','255.255.254.0','172.16.44.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.44.1');
-        end;
-      45:
-        begin
-		    Filial:='biysk';
-              AddRoute('10.110.0.0','255.255.252.0','172.16.44.1');        //22
-              AddRoute('172.16.32.0','255.255.248.0','172.16.44.1');       //21
-              AddRoute('172.16.40.0','255.255.252.0','172.16.44.1');
-
-              AddRoute('172.16.46.0','255.255.254.0','172.16.44.1');
-              AddRoute('172.16.48.0','255.255.254.0','172.16.44.1');
-              AddRoute('172.30.0.0','255.255.0.0','172.16.44.1');
-        end;
-    end;
-   end;
-
-     //Rubtsovsk(VLAN_101) to Dianet_local
-  if (ip.a=172) and (ip.b=16) then
-   begin
-    case ip.c of
-      48:
-        begin
-          Filial:='rubtsovsk';
-          AddRoute('10.110.0.0','255.255.252.0','172.16.48.1');
-          AddRoute('172.16.28.0','255.255.248.0','172.16.48.1');
-          AddRoute('172.16.30.0','255.255.248.0','172.16.48.1');
-          AddRoute('172.16.32.0','255.255.248.0','172.16.48.1');
-          AddRoute('172.16.34.0','255.255.248.0','172.16.48.1');
-          AddRoute('172.16.36.0','255.255.248.0','172.16.48.1');
-          AddRoute('172.16.38.0','255.255.248.0','172.16.48.1');
-          AddRoute('172.16.40.0','255.255.252.0','172.16.48.1');
-          AddRoute('172.16.42.0','255.255.252.0','172.16.48.1');
-          AddRoute('172.16.44.0','255.255.252.0','172.16.48.1');
-          AddRoute('172.16.46.0','255.255.254.0','172.16.48.1');
-          AddRoute('172.30.0.0','255.255.0.0','172.16.48.1');
-        end;
-      49:
-        begin
-          Filial:='rubtsovsk';
-          AddRoute('10.110.0.0','255.255.252.0','172.16.48.1');
-          AddRoute('172.16.28.0','255.255.248.0','172.16.48.1');
-          AddRoute('172.16.30.0','255.255.248.0','172.16.48.1');
-          AddRoute('172.16.32.0','255.255.248.0','172.16.48.1');
-          AddRoute('172.16.34.0','255.255.248.0','172.16.48.1');
-          AddRoute('172.16.36.0','255.255.248.0','172.16.48.1');
-          AddRoute('172.16.38.0','255.255.248.0','172.16.48.1');
-          AddRoute('172.16.40.0','255.255.252.0','172.16.48.1');
-          AddRoute('172.16.42.0','255.255.252.0','172.16.48.1');
-          AddRoute('172.16.44.0','255.255.252.0','172.16.48.1');
-          AddRoute('172.16.46.0','255.255.254.0','172.16.48.1');
-          AddRoute('172.30.0.0','255.255.0.0','172.16.48.1');
-        end;
-    end;
-   end;
-
-  //Novoaltaysk to retracker
-  if (ip.a=10) and (ip.b=33) then
-  begin
-    Filial:='novoalt';
-    case ip.c of
-      26:AddRoute('172.16.20.58','255.255.255.255','10.33.26.1');
-      27:AddRoute('172.16.20.58','255.255.255.255','10.33.26.1');
-
-      28:AddRoute('172.16.20.58','255.255.255.255','10.33.28.1');
-      29:AddRoute('172.16.20.58','255.255.255.255','10.33.28.1');
-
-      30:AddRoute('172.16.20.58','255.255.255.255','10.33.30.1');
-      31:AddRoute('172.16.20.58','255.255.255.255','10.33.30.1');
-    end;
-  end;
-
-  //Novoaltaysk to local
-  if (ip.a=10) and (ip.b=33) then
-   begin
-      Filial:='novoalt';
-    case ip.c of
-      26:AddRoute('10.33.0.0','255.255.0.0','10.33.26.1');
-      27:AddRoute('10.33.0.0','255.255.0.0','10.33.26.1');
-
-      28:AddRoute('10.33.0.0','255.255.0.0','10.33.28.1');
-      29:AddRoute('10.33.0.0','255.255.0.0','10.33.28.1');
-
-      30:AddRoute('10.33.0.0','255.255.0.0','10.33.30.1');
-      31:AddRoute('10.33.0.0','255.255.0.0','10.33.30.1');	  
-    end;
-   end;
-
-  //***************************************
-  // FIX ME: маршруты тут не нужны
-  //***************************************
-  //Politeh to retracker
-  if (ip.a=10) and (ip.b=0) then
-    case ip.c of
-      110:AddRoute('172.16.20.58','255.255.255.255','10.0.110.6');
-      111:AddRoute('172.16.20.58','255.255.255.255','10.0.110.6');
-    end;
-  //Politeh to Barnaul
-  if (ip.a=10) and (ip.b=0) then
-   begin
-    case ip.c of
-      110:AddRoute('10.110.0.0','255.255.252.0','10.0.110.6');
-      111:AddRoute('10.110.0.0','255.255.252.0','10.0.110.6');
-    end;
-    Filial:='barnaul';
-   end;
-
-  // find "filial" for other location
-  if  (ip.a=10) and (ip.b=110) then Filial:='barnaul';
-  if  (ip.a=172) and (ip.b=16) then
-   begin
-     case ip.c of
-       24:Filial:='biysk';
-       25:Filial:='biysk';
-       26:Filial:='rubtsovsk';
-       27:Filial:='rubtsovsk';
-     end;
-   end;
   //*************************************************
   // прописываем НОВЫЕ сети, маршруты получим по DHCP
   //*************************************************
 
-  if (ip.a=172) and (ip.b=30) then
+  if (ip.a=192) and (ip.b=168) and (ip.c=254) then
+  begin
+    filial:=  'office';
+  end;
+
+  if (((ip.a=172) and (ip.b=30))
+    or ((ip.a=10) and ((ip.b=110))))
+  then
    begin
         // начинаем возню с определением филиала по IP
         ipa:=(IntToStr(ip.a)+'.'+IntToStr(ip.b)+'.'+IntToStr(ip.c)+'.'+IntToStr(ip.d));
@@ -719,7 +376,8 @@ begin
         else if AnsiPOS('rubtsovsk',name) > 0 then filial:='rubtsovsk'
         else if AnsiPOS('zarinsk',name) > 0 then filial:='zarinsk'
         else if AnsiPOS('barnaul',name) > 0 then filial:='barnaul';
-   end;
+   end
+  else if (ip.a=10) and (ip.c=110) then filial:='barnaul';
 end;
 
 { TConnectionType }
@@ -850,19 +508,9 @@ begin
       3 = PPPoE or VPN
       4 = PPPoE
       ******************************************}
-      if (ip.a=172) and (ip.b=16) then
+      if (ip.a=10) and (ip.b=0) and (ip.c=110) then
         begin
           result :=1;
-          exit;
-        end
-      else if (ip.a=10) and (ip.b=110) then
-        begin
-          result :=4;
-          exit;
-        end
-      else if (ip.a=10) and (ip.b=0) and (ip.c=110) then
-        begin
-          result :=2;
           exit;
         end
       {**************************************
@@ -930,9 +578,7 @@ begin
 end;
 
 function DoUpdateProgramm:integer;
-var GetFile,IdHTTP1: TIdHTTP;
-    MStream:TMemoryStream;
-    PassNode: TDOMNode;
+var PassNode: TDOMNode;
     Doc: TXMLDocument;
 begin
   //********************************************
@@ -1044,8 +690,6 @@ end;
 function GetNameOf(const IP: string): Ansistring;
 var
    TheDns: TIdDNSResolver;
-   i: integer;
-   sTemp: string;
 begin
      TheDns := TIdDNSResolver.Create;
      TheDns.AllowRecursiveQueries := False;

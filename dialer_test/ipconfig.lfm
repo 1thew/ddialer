@@ -1,0 +1,189 @@
+object Form1: TForm1
+  Left = 231
+  Height = 286
+  Top = 164
+  Width = 627
+  BorderStyle = bsDialog
+  Caption = 'Диагностика'
+  ClientHeight = 286
+  ClientWidth = 627
+  LCLVersion = '0.9.30'
+  object GroupBox1: TGroupBox
+    Left = 16
+    Height = 251
+    Top = 28
+    Width = 153
+    Caption = 'Параметры сети'
+    ClientHeight = 233
+    ClientWidth = 149
+    TabOrder = 0
+    object AdapterList: TListBox
+      Left = 3
+      Height = 106
+      Top = 20
+      Width = 141
+      ItemHeight = 0
+      OnClick = AdapterClick
+      TabOrder = 0
+    end
+    object Label1: TLabel
+      Left = 6
+      Height = 16
+      Top = 4
+      Width = 75
+      Caption = 'Интерфейсы:'
+      ParentColor = False
+    end
+    object ListBox2: TListBox
+      Left = 3
+      Height = 81
+      Top = 148
+      Width = 141
+      ItemHeight = 0
+      TabOrder = 1
+    end
+    object Label2: TLabel
+      Left = 3
+      Height = 16
+      Top = 132
+      Width = 79
+      Caption = 'ДНС серверы:'
+      ParentColor = False
+    end
+  end
+  object GroupBox2: TGroupBox
+    Left = 184
+    Height = 184
+    Top = 28
+    Width = 264
+    Caption = 'Общие сведения об адаптере'
+    ClientHeight = 166
+    ClientWidth = 260
+    TabOrder = 1
+    object Edit4: TEdit
+      Left = 9
+      Height = 23
+      Top = 31
+      Width = 245
+      Enabled = False
+      ReadOnly = True
+      TabOrder = 0
+      Text = 'Ключ реестра'
+    end
+    object Edit5: TEdit
+      Left = 9
+      Height = 23
+      Top = 92
+      Width = 245
+      ReadOnly = True
+      TabOrder = 1
+      Text = 'Описание(название) сетевого адаптера'
+    end
+    object Label6: TLabel
+      Left = 6
+      Height = 16
+      Top = 12
+      Width = 108
+      Caption = 'Название в реестре'
+      ParentColor = False
+    end
+    object Label7: TLabel
+      Left = 9
+      Height = 16
+      Top = 76
+      Width = 56
+      Caption = 'Описание'
+      ParentColor = False
+    end
+    object CheckBox1: TCheckBox
+      Left = 14
+      Height = 34
+      Top = 136
+      Width = 165
+      Caption = 'DHCP включен'
+      Enabled = False
+      Font.Height = 30
+      ParentFont = False
+      TabOrder = 2
+    end
+  end
+  object GroupBox3: TGroupBox
+    Left = 456
+    Height = 184
+    Top = 28
+    Width = 160
+    Caption = 'Параметры IP протокола'
+    ClientHeight = 166
+    ClientWidth = 156
+    TabOrder = 2
+    object Edit1: TEdit
+      Left = 8
+      Height = 23
+      Top = 28
+      Width = 115
+      ReadOnly = True
+      TabOrder = 0
+      Text = 'ip адрес'
+    end
+    object Edit2: TEdit
+      Left = 8
+      Height = 23
+      Top = 84
+      Width = 115
+      ReadOnly = True
+      TabOrder = 1
+      Text = 'Основной шлюз'
+    end
+    object Edit3: TEdit
+      Left = 8
+      Height = 23
+      Top = 132
+      Width = 115
+      ReadOnly = True
+      TabOrder = 2
+      Text = 'адрес сервера'
+    end
+    object Label3: TLabel
+      Left = 14
+      Height = 16
+      Top = 12
+      Width = 11
+      Caption = 'IP'
+      ParentColor = False
+    end
+    object Label4: TLabel
+      Left = 14
+      Height = 16
+      Top = 64
+      Width = 34
+      Caption = 'Шлюз'
+      ParentColor = False
+    end
+    object Label5: TLabel
+      Left = 14
+      Height = 16
+      Top = 116
+      Width = 74
+      Caption = 'DHCP сервер'
+      ParentColor = False
+    end
+  end
+  object Button1: TButton
+    Left = 232
+    Height = 39
+    Top = 232
+    Width = 168
+    Caption = 'Получить данные'
+    OnClick = Button1Click
+    TabOrder = 3
+  end
+  object Button2: TButton
+    Left = 456
+    Height = 41
+    Top = 231
+    Width = 150
+    Caption = 'Сделать тест'
+    OnClick = Button2Click
+    TabOrder = 4
+  end
+end
