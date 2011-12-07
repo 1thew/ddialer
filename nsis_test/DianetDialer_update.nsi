@@ -67,7 +67,8 @@ XPStyle on
 
 
 Function .onInit
-       ${nsProcess::KillProcess} "dianetdialer.exe" $R0
+	; ниже строка в коменте, чтобы не рубить диалер при обновлении
+    ;  ${nsProcess::KillProcess} "dianetdialer.exe" $R0
 		
 		${If} ${RunningX64}
         ${EnableX64FSRedirection}

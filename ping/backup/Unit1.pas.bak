@@ -247,11 +247,11 @@ end;
 procedure TForm1.Button6Click(Sender: TObject);
 var s:string;
 begin
-     Button6.Enable:=false;
+     Button6.Enabled:=false;
      s:=Button6.Caption;
      Button6.Caption:='Ждите....';
      TracertVPN();
-     Button6.Enable:=true;
+     Button6.Enabled:=true;
      Button6.Caption:=s;
 end;
 
