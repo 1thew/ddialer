@@ -7,7 +7,7 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, MainUnit, Windows, dialogs, news;
+  Forms, MainUnit, Windows, dialogs, news, ipconfig;
 
 //{$IFDEF WINDOWS}{$R manifest.rc}{$ENDIF}
 
@@ -29,6 +29,7 @@ begin
      Application.Initialize;
      Application.CreateForm(TConfigForm, ConfigForm);
      Application.CreateForm(TNewsForm, NewsForm);
+     Application.CreateForm(TForm1, Form1);
      Application.Run;
      CloseHandle(Mutex);
     end;

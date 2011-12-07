@@ -8,7 +8,7 @@ interface
 uses
   Classes, SysUtils, LResources, Forms, Controls, Graphics, ExtCtrls, StdCtrls,
   Menus, Buttons, RASUnit, Windows, Registry, GraphType, FPimage, IntfGraphics,
-  Dialogs, Utils, news, balance;
+  Dialogs, Utils, news, balance,ipconfig;
 
 type
 
@@ -61,6 +61,7 @@ type
     AutoConnectImg: TImage;
     AboutBtn: TMenuItem;
     Image1: TImage;
+    diagnos: TMenuItem;
     SayProblem: TMenuItem;
     DoUpdateProgram: TMenuItem;
     LKab: TMenuItem;
@@ -138,6 +139,7 @@ type
     procedure GoSiteClick(Sender: TObject);
     procedure DoUpdateProgramClick(Sender: TObject);
     procedure LKabClick(Sender: TObject);
+    procedure diagnosClick(Sender: TObject);
     procedure MenuItem4Click(Sender: TObject);
     procedure PogodaClick(Sender: TObject);
     procedure UpdateProgramClick(Sender: TObject);
@@ -207,7 +209,6 @@ var
   ConfigForm: TConfigForm;
   CanExit: boolean = False;
   FirstStart: boolean = True;
-  VPNAvaible: boolean = False;
   LastError: integer = 0;
   Filial: PChar;
 
@@ -286,6 +287,7 @@ begin
         633: DoEvent(633);
         691: DoEvent(691);
         692: DoEvent(692);
+        800: DoEvent(800);
       end;
 
       if Assigned(Discon) then
@@ -489,7 +491,7 @@ begin
   RE.dwfOptions2 := RASEO2_Internet;
 
   RE.szLocalPhoneNumber := Conn.PhoneNumber;
-  RE.dwfNetProtocols := RASNP_Ip;
+  RE.dwfNetProtocols := RASNP_Ip+RASNP_Ipv6;
   RE.dwFramingProtocol := RASFP_Ppp;
 
   RE.szDeviceType := Conn.DeviceType;
@@ -566,6 +568,7 @@ begin
     CheckRegForl2tp;
 
   Filial:= 'other';
+  CheckIp;
 
   DianetPPPDisconnect;
 
@@ -716,6 +719,12 @@ begin
   ShellExecute(Handle, 'open', PChar(caburl), nil, nil, SW_SHOWMAXIMIZED);
 end;
 
+procedure TConfigForm.diagnosClick(Sender: TObject);
+begin
+  ConfigForm.Hide;
+  Form1.Show;
+end;
+
 procedure TConfigForm.MenuItem4Click(Sender: TObject);
 begin
   ShellExecute(Handle, 'open', DIANET_SITE, nil, nil, SW_SHOWMAXIMIZED);
@@ -846,11 +855,6 @@ end;
 
 procedure TConfigForm.ShowNewsTimer(Sender: TObject);
 begin
-  if Connected=false then
-  begin
-    ShowNews.Enabled := False;
-    exit;
-  end;
   if (NewsFound = True) or (Length(MessageForNews) > 2)
     or (AllowNewsWindow=true)then
   begin
@@ -912,6 +916,11 @@ end;
 
 procedure TConfigForm.TimerReConnectTimer(Sender: TObject);
 begin
+  // если нет успешных подключений то отключаемся
+  if CompleteConnect=0 then
+  begin
+    ConfigForm.TimerReconnect.Enabled := False;
+  end;
   // если число номер попытки коннекта больше 40 то отключаем реконнекты
   if ConnectNumber > 40 then
   begin
@@ -1151,26 +1160,6 @@ begin
     Exit;
   end;
 
-  if ConnType = VPN then
-    if not checkVPN(VPN_IP) then
-    begin
-      CreateError('Ошибка',
-        'Сервер авторизации VPN не доступен', bfInfo, False);
-      UnBinding := True;
-      ConnectBtn.Enabled := True;
-      VPNAvaible := False;
-      Exit;
-    end;
-  if ConnType = VPN_POLI then
-    if not checkVPN(VPN_IP_POLI) then
-    begin
-      CreateError('Ошибка', 'Сервер не доступен', bfInfo, False);
-      ConnectBtn.Enabled := True;
-      UnBinding := True;
-      VPNAvaible := False;
-      Exit;
-    end;
-  VPNAvaible := True;
   ConnectBtn.Enabled := True;
   ConnImg.Picture.LoadFromLazarusResource('button_connecting');
   png.LoadFromLazarusResource('white');
@@ -1504,17 +1493,19 @@ begin
     begin
       ConfigForm.TimerReconnect.Enabled := False;
       CompleteConnect := 0;
-      if ((Conntype = VPN) or (Conntype = VPN_POLI)) and (VPNAvaible = True) then
-      begin
+
         BalanceThread := TBalanceThread.Create(False);
         BalanceThread.FreeOnTerminate := True;
         BalanceThread.Resume;
         BalanceThread.WaitFor;
+        if BalanceFound=true then
+        begin
 
           SetNewsTimer := TSetNewsTimer.Create(False);
           SetNewsTimer.FreeOnTerminate := True;
           SetNewsTimer.Resume;
-      end;
+
+        end;
     end;
 
     692:
@@ -1544,8 +1535,9 @@ begin
     end;
     100:
       // "соединение потеряно", он же возможно дисконнект
+      // или неудачное соединение
     begin
-      if (LastError = 691) or (LastError = 651) then
+      if (LastError = 691) or (LastError = 651) or (LastError = 800) then
         exit;     // если 691 ошибка то реконнект не запускаем
 
       SetRCT := TSetRCT.Create(False);
@@ -1553,6 +1545,7 @@ begin
       SetRCT.Resume;
     end;
   end;
+
 end;
 
 

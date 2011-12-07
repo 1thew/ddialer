@@ -117,7 +117,7 @@ NewsCounter:= NewsCounter+1;
   end;
 
       // если последний день и баланс низкий
-   if (IsLastDay=true) and (BalanceFound=true) and (BalanceIntg<490) and (Connected=true) then
+   if (IsLastDay=true) and (BalanceFound=true) and (BalanceIntg<490) then
         begin
 
         i1:='Уважаемый пользователь! В ночь на первое число каждого месяца снимается абонентская плата.';
@@ -142,9 +142,9 @@ NewsCounter:= NewsCounter+1;
            TempSTR:=i1;
            Synchronize(@UpdateLabel);
            exit;
-        end;
+        end
    // если 691 ошибка
-   if (LastError=691) and (Conntype <>1 {это значит !PPPoE}) then
+   else if (LastError=691) and (connected=false) then
         begin
              i1:='Уважаемый пользователь!';
              i2:='Ошибка 691 это неправильно указанные данные логина или пароля для доступа в интернет.';
