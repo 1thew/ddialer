@@ -46,6 +46,8 @@ function IsOldWindows: integer;
 procedure HealError(i:integer);
 procedure DownloadFile(s1,s2:string);
 function getNameOf(const IP: string): Ansistring;
+procedure GetTCfromDNS();
+function StringWork(s : ansistring):ansistring;
 
 
 type
@@ -118,6 +120,8 @@ var
   updater:TUpdateThread;
   OutputFile: textfile;
   Binding:Boolean=False;
+  DNSname:string;
+  DNSTC:Ansistring;
 
 
 implementation
@@ -333,8 +337,8 @@ end;
 
 
 
-procedure CheckIpInList(var ip:TIpAddr);
-var name,ipa:string;
+function CheckIpInList(var ip:TIpAddr):integer;
+var ipa:string;
 begin
   {***************************************************
   список филиалов:
@@ -347,37 +351,41 @@ begin
   Filial:='barnaul'
   Filial:='sibir'
   Filial:='novoalt'
-  Filial:='office'
   ****************************************************}
 
-  //*************************************************
-  // прописываем НОВЫЕ сети, маршруты получим по DHCP
-  //*************************************************
+  // объявим что филиал найден, если это не так - в конце исправим
+  result:=1;
 
+  {
   if (ip.a=192) and (ip.b=168) and (ip.c=254) then
   begin
-    filial:=  'office';
-  end;
+    filial:= 'debug';
+  end;}
 
-  if (((ip.a=172) and (ip.b=30))
-    or ((ip.a=10) and ((ip.b=110))))
-  then
-   begin
         // начинаем возню с определением филиала по IP
         ipa:=(IntToStr(ip.a)+'.'+IntToStr(ip.b)+'.'+IntToStr(ip.c)+'.'+IntToStr(ip.d));
-        name:=GetNameOf(ipa);
+        DNSname:=GetNameOf(ipa);
 
         // определяем филиалы
-        if AnsiPOS('sibirskiy',name) > 0 then filial:='sibir'
-        else if AnsiPOS('aleysk',name) > 0 then filial:='aleysk'
-        else if AnsiPOS('belokuriha',name) > 0 then filial:='belokuriha'
-        else if AnsiPOS('biysk',name) > 0 then filial:='biysk'
-        else if AnsiPOS('novoaltaysk',name) > 0 then filial:='novoalt'
-        else if AnsiPOS('rubtsovsk',name) > 0 then filial:='rubtsovsk'
-        else if AnsiPOS('zarinsk',name) > 0 then filial:='zarinsk'
-        else if AnsiPOS('barnaul',name) > 0 then filial:='barnaul';
-   end
-  else if (ip.a=10) and (ip.c=110) then filial:='barnaul';
+        if AnsiPOS('sibirskiy',DNSname) > 0 then filial:='sibir'
+        else if AnsiPOS('aleysk',DNSname) > 0 then filial:='aleysk'
+        else if AnsiPOS('belokuriha',DNSname) > 0 then filial:='belokuriha'
+        else if AnsiPOS('biysk',DNSname) > 0 then filial:='biysk'
+        else if AnsiPOS('novoaltaysk',DNSname) > 0 then filial:='novoalt'
+        else if AnsiPOS('rubtsovsk',DNSname) > 0 then filial:='rubtsovsk'
+        else if AnsiPOS('zarinsk',DNSname) > 0 then filial:='zarinsk'
+        else if AnsiPOS('barnaul',DNSname) > 0 then filial:='barnaul';
+
+  // для АлтГТУ
+  if (ip.a=10) and (ip.c=110) then filial:='barnaul';
+  if filial='other' then result:=0;
+
+  // если найден филиал, и не сраный политех
+  if (result=1) and ((ip.a<>10) and (ip.c<>110)) then
+  begin
+     GetTCfromDNS();
+  end;
+
 end;
 
 { TConnectionType }
@@ -419,6 +427,7 @@ var
   err:DWORD;
   ip:TIpAddr;
   pnext:PIP_ADDR_STRING;
+  i:integer;
 begin
   OutBufLen := 0;
   GetMem(pAdapterInfo,sizeof(TIpAdapterInfo));
@@ -451,7 +460,8 @@ begin
       ip.b := StrToInt(Copy(s, 1, Pos('.', s) - 1)); Delete(s, 1, Pos('.', s));
       ip.c := StrToInt(Copy(s, 1, Pos('.', s) - 1)); Delete(s, 1, Pos('.', s));
       ip.d := StrToInt(s);
-      CheckIpInList(ip);
+      i:=CheckIpInList(ip);
+      if i=1 then exit;
       pnext := IpAddrString.Next;
     End;
     pAI := pAI^.Next;
@@ -461,113 +471,20 @@ end;
 
 
 function CheckConnectType : integer;
-var
-  pAdapterInfo, pAI : PIpAdapterInfo;
-  AdapterInfo       :  TIpAdapterInfo;
-  OutBufLen: ULONG;
-  s: string;
-  IpAddrString: TIpAddrString;
-  err:DWORD;
-  ip:TIpAddr;
-  pnext:PIP_ADDR_STRING;
 begin
-  OutBufLen := 0;
-  GetMem(pAdapterInfo,sizeof(TIpAdapterInfo));
-  FillMemory(pAdapterInfo,SizeOf(TIpAdapterInfo),0);
-  err:=GetAdaptersInfo(pAdapterInfo, OutBufLen);
-  if err = ERROR_BUFFER_OVERFLOW then
-    begin
-      FreeMem(pAdapterInfo);
-      GetMem(pAdapterInfo,OutBufLen);
-      FillMemory(pAdapterInfo,OutBufLen,0);
-      err := GetAdaptersInfo(pAdapterInfo, OutBufLen);
-    end;
-  if err <> NO_ERROR then
-    begin
-      FreeMem(pAdapterInfo);
-      //CreateError('Ошибка','Не удалось получить локальный адрес',bfInfo,False);
-      exit;
-    end;
-  pAI := pAdapterInfo;
-  s:='';
-  while (pAI<>nil) do
-  begin
-    IpAddrString := pAI^.IpAddressList;
-    pnext:=@IpAddrString;
-    While (pNext<>nil) Do
-    Begin
-      IpAddrString:=pnext^;
-      s:=IpAddrString.IpAddress.S;
-      ip.a := StrToInt(Copy(s, 1, Pos('.', s) - 1)); Delete(s, 1, Pos('.', s));
-      ip.b := StrToInt(Copy(s, 1, Pos('.', s) - 1)); Delete(s, 1, Pos('.', s));
-      ip.c := StrToInt(Copy(s, 1, Pos('.', s) - 1)); Delete(s, 1, Pos('.', s));
-      {*****************************************
+   {*****************************************
       CheckConnectType:
       1 = VPN
       2 = VPN_POLI
       3 = PPPoE or VPN
       4 = PPPoE
       ******************************************}
-      if (ip.a=10) and (ip.b=0) and (ip.c=110) then
-        begin
-          result :=1;
-          exit;
-        end
-      {**************************************
-       DEBUG: данный участок нужен для тестирования в оффисе
-      ***************************************}
-      {else if (ip.a=192) and (ip.b=168) and (ip.c=254) then
-        begin
-          result :=3;
-          exit;
-        end}
+   if AnsiPOS('pppoe',DNSTC)>0 then result:= 4
+   else if AnsiPOS('l2tp',DNSTC)>0 then result:= 1
+   else if AnsiPOS('pptp',DNSTC)>0 then result:= 1
+   else result:=3;
+End;
 
-      // разворачиваем новые диапазоны result :=4;
-      else if Filial= 'sibir' then
-      begin
-       result :=4;
-       exit;
-      end
-      else if Filial= 'barnaul' then
-      begin
-       result :=3;
-       exit;
-      end
-      else if Filial= 'novoalt' then
-      begin
-       result :=3;
-       exit;
-      end
-      else if Filial= 'belokuriha' then
-      begin
-       result :=1;
-       exit;
-      end
-      else if Filial= 'biysk' then
-      begin
-       result :=1;
-       exit;
-      end
-      else if Filial= 'rubtsovsk' then
-      begin
-       result :=1;
-       exit;
-      end
-      else if Filial= 'zarinsk' then
-      begin
-       result :=1;
-       exit;
-      end
-      else if Filial= 'aleysk' then
-      begin
-       result :=1;
-       exit;
-      end;
-      pnext := IpAddrString.Next;
-    End;
-    pAI := pAI^.Next;
-  end;
-end;
 
 procedure DianetPPPDisconnect;
 var
@@ -698,14 +615,68 @@ begin
 try
    TheDns.Resolve(IP);
    //Result := BytesToString(TheDns.QueryResult.Items[0].RData);
-   Result := TPTRRecord(TheDns.QueryResult.Items[0]).HostName;
+   result := TPTRRecord(TheDns.QueryResult.Items[0]).HostName;
 except
       Result := ''; //"Not found" as well as errors raise an
-//exception in TIdDNSResolver
 end;
 TheDns.Destroy;
 end;
 
+procedure GetTCfromDNS();
+var
+   TheDns: TIdDNSResolver;
+   s,                     // строка запроса в DNS
+     s1,                  //строка после парса, до первой точки DNSName
+     s2,                   // строка, после первой точки (без влана)
+     s3                   // строка после StringWork
+     :ansistring;
+   s4:Tstrings;
+   i:integer;             // номер символа точки в строке
+begin
+     TheDns := TIdDNSResolver.Create;
+     TheDns.AllowRecursiveQueries := False;
+     TheDns.Host := '78.109.128.2';
+     TheDns.QueryType := [qtTXT];
+
+if AnsiPOS('.',DNSname)>0  then
+begin
+i:=AnsiPOS('.',DNSname);
+s1:=Copy(DNSname,0,i);     // копируем всё ДО знака первой точки
+s2:=Copy(DNSname,i,Length(DNSname)-i+1); // копируем всё ПОСЛЕ первой точки
+
+s3:= StringWork(s1);
+//ShowMessage('s1='+s1+' s2='+s2+' s3='+s3);
+
+s:='proto.'+s3+s2;
+//ShowMessage(s);
+//ShowMessage(s);
+try
+   TheDns.Resolve(s);
+
+       s4 := TTextRecord(TheDns.QueryResult.Items[0]).text;
+
+       if Length(s4.GetText)>1 then DNSTC:=s4.GetText;
+       s4.Clear;
+
+except
+end;
+
+end;
+TheDns.Destroy;
+end;
+
+
+function StringWork(s: ansistring):ansistring;
+var i:integer;
+begin
+     i:=AnsiPOS('-',s);          // номер знака "-", после номера влана
+     s:=Copy(s,0,i-1);          // копируем всё что до знака "-"
+     while AnsiPOS('0',s)=1 do
+     begin
+       s:= Copy(s,2,Length(s)-1);  // урезаем нули перед вланом
+       result:=s;
+     end;
+end;
 
 end.
 

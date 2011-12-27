@@ -415,11 +415,10 @@ begin
       PPPoE: ConnSel.Text := 'PPPoE';
       VPN_POLI: ConnSel.Text := 'VPN (Политех)';
     end;
-    i:=CheckConnectType;
+
+    i:=CheckConnectType();
     if (i = 1) then
       ConnType := VPN;
-    if (i = 2) then
-      ConnType := VPN_POLI;
     if (i = 4) then
       ConnType := PPPoE;
 
@@ -499,8 +498,20 @@ begin
 
   RE.dwEncryptionType := ET_Optional;
 
+  // ConnType не трогаем, он определяется при запуске и при выборе вручную
   RE.dwType := Conn.ConnType;
-  RE.dwVpnStrategy := VS_L2tpOnly;
+  {************************************
+    Тут на основе DNS определяем тип VPN
+  *************************************}
+  if AnsiPOS('pptp',DNSTC)>0 then RE.dwVpnStrategy := VS_PptpOnly
+  else if (AnsiPOS('l2tp',DNSTC)=1) and (AnsiPOS('pptp',DNSTC)>0)
+    then RE.dwVpnStrategy := VS_L2tpFirst
+  else if (AnsiPOS('l2tp',DNSTC)>0) and (AnsiPOS('pptp',DNSTC)=1)
+    then RE.dwVpnStrategy := VS_PptpFirst
+  else RE.dwVpnStrategy := VS_L2tpOnly;
+  {************************************
+    конец работы с определением типа VPN
+  *************************************}
   //RE.dwRedialCount:=0;
   //RE.dwRedialPause:=0;
   RE.dwIdleDisconnectSeconds := RASIDS_Disabled;
@@ -567,9 +578,12 @@ begin
   if IsOldWindows = 5 then
     CheckRegForl2tp;
 
+  // присваиваем что филиал не найден. Если найдётся - дальше исправим
   Filial:= 'other';
+  // запускаем проверку адресов
   CheckIp;
 
+  // выключаем все PPP линки
   DianetPPPDisconnect;
 
   Tray.Hint := DIASTR + 'Не подключен';
@@ -596,8 +610,6 @@ begin
 
   png.Bitmap.Canvas.Font.Style := [fsItalic];
   png.Bitmap.Canvas.Font.FPColor := colBlack;
-
-  CheckIp;
 end;
 
 procedure TConfigForm.FormHide(Sender: TObject);
@@ -1276,8 +1288,6 @@ begin
   i:=  CheckConnectType;
   if (i = 1) then
     ConnType := VPN
-  else if (i = 2) then
-    ConnType := VPN_POLI
   else if (i = 4) then
     ConnType := PPPoE
   else
