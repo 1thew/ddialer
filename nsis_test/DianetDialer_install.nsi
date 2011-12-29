@@ -91,7 +91,6 @@ Section Install
   File "ssleay32.dll"
   File "msvcr90.dll"
   File "WS2_32.dll"
-  File "diagnos.exe"
   File "updater.exe"
 
   CreateDirectory "$SMPROGRAMS\DIANET"
@@ -102,7 +101,6 @@ Section Install
   CreateShortcut "$DESKTOP\DianetDialer.lnk" "$INSTDIR\dianetdialer.exe"
   CreateShortcut "$SMPROGRAMS\DIANET\Удалить.lnk" "$INSTDIR\Uninstall.exe"
 	;-----------------------------------
-  CreateShortcut "$SMPROGRAMS\DIANET\Diagnos.lnk" "$INSTDIR\diagnos.exe"  
     ;------------------------------------
   
   ;Store installation folder
@@ -123,7 +121,6 @@ Section Uninstall
 
   ;ADD YOUR OWN FILES HERE...
   Delete "$INSTDIR\dianetdialer.exe"
-  Delete "$INSTDIR\diagnos.exe"
   Delete "$INSTDIR\dianetdialer.exe.manifest"
   Delete "$INSTDIR\libeay32.dll"
   Delete "$INSTDIR\libssl32.dll"
