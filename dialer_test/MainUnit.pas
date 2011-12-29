@@ -1305,6 +1305,7 @@ begin
     VPN_POLI: ConnSelImg.Picture.LoadFromLazarusResource('vpn_poli');
     PPPoE: ConnSelImg.Picture.LoadFromLazarusResource('pppoe');
   end;
+  if Length(DNSTC)<2 then  CheckIP;
 end;
 
 procedure TConfigForm.ConnSelClick(Sender: TObject);
