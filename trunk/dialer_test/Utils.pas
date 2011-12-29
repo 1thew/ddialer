@@ -26,7 +26,7 @@ const
 
   VPN_IP ='vpn.dianet.info';
   VPN_IP_POLI ='vpn.dianet.info';
-  VERSION = '1.3.2.3';
+  VERSION = '1.3.2.4';
   RETRAKER_URL = 'http://start.dianet.info';
 
   XML_URL='http://update.dianet.info/dialer/downloads/test/upd.xml';
@@ -355,12 +355,6 @@ begin
 
   // объявим что филиал найден, если это не так - в конце исправим
   result:=1;
-
-  {
-  if (ip.a=192) and (ip.b=168) and (ip.c=254) then
-  begin
-    filial:= 'debug';
-  end;}
 
         // начинаем возню с определением филиала по IP
         ipa:=(IntToStr(ip.a)+'.'+IntToStr(ip.b)+'.'+IntToStr(ip.c)+'.'+IntToStr(ip.d));
