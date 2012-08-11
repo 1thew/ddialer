@@ -15,7 +15,7 @@
       <MajorVersionNr Value="1"/>
       <MinorVersionNr Value="3"/>
       <RevisionNr Value="2"/>
-      <BuildNr Value="4"/>
+      <BuildNr Value="5"/>
       <Language Value="0419"/>
       <CharSet Value="04B0"/>
       <StringTable Comments="Autor Derwin" CompanyName="Дианэт" FileDescription="Dianet Dialer" InternalName="dianetdialer" LegalCopyright="©«Дианэт»" OriginalFilename="dianetdialer" ProductName="Dianet Dialer" ProductVersion="1.3.2.0"/>
@@ -64,7 +64,7 @@
         <EditorIndex Value="8"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="5" Y="1"/>
+        <CursorPos X="35" Y="21"/>
         <UsageCount Value="205"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -76,8 +76,8 @@
         <UnitName Value="MainUnit"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="58"/>
-        <CursorPos X="20" Y="81"/>
+        <TopLine Value="1"/>
+        <CursorPos X="19" Y="722"/>
         <UsageCount Value="205"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -103,7 +103,7 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="10"/>
+        <TopLine Value="1"/>
         <CursorPos X="21" Y="29"/>
         <UsageCount Value="579"/>
         <Loaded Value="True"/>
@@ -161,8 +161,8 @@
         <UnitName Value="RASUnit"/>
         <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="17"/>
-        <CursorPos X="14" Y="38"/>
+        <TopLine Value="1"/>
+        <CursorPos X="15" Y="41"/>
         <UsageCount Value="115"/>
         <Loaded Value="True"/>
       </Unit10>
@@ -183,7 +183,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="136"/>
         <CursorPos X="43" Y="158"/>
-        <UsageCount Value="175"/>
+        <UsageCount Value="179"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit12>
@@ -194,7 +194,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="24" Y="183"/>
-        <UsageCount Value="88"/>
+        <UsageCount Value="89"/>
         <Loaded Value="True"/>
       </Unit13>
       <Unit14>
@@ -219,131 +219,127 @@
         <WindowIndex Value="0"/>
         <TopLine Value="4162"/>
         <CursorPos X="1" Y="4176"/>
-        <UsageCount Value="15"/>
+        <UsageCount Value="16"/>
         <Loaded Value="True"/>
       </Unit16>
     </Units>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="29" HistoryIndex="28">
       <Position1>
         <Filename Value="Utils.pas"/>
-        <Caret Line="485" Column="20" TopLine="468"/>
+        <Caret Line="467" Column="26" TopLine="435"/>
       </Position1>
       <Position2>
         <Filename Value="Utils.pas"/>
-        <Caret Line="648" Column="11" TopLine="625"/>
+        <Caret Line="476" Column="18" TopLine="447"/>
       </Position2>
       <Position3>
         <Filename Value="Utils.pas"/>
-        <Caret Line="651" Column="11" TopLine="628"/>
+        <Caret Line="2" Column="72" TopLine="1"/>
       </Position3>
       <Position4>
-        <Filename Value="MainUnit.pas"/>
-        <Caret Line="4" Column="37" TopLine="1"/>
+        <Filename Value="Utils.pas"/>
+        <Caret Line="49" Column="23" TopLine="17"/>
       </Position4>
       <Position5>
         <Filename Value="Utils.pas"/>
-        <Caret Line="640" Column="35" TopLine="1"/>
+        <Caret Line="380" Column="18" TopLine="348"/>
       </Position5>
       <Position6>
         <Filename Value="Utils.pas"/>
-        <Caret Line="41" Column="26" TopLine="18"/>
+        <Caret Line="476" Column="16" TopLine="444"/>
       </Position6>
       <Position7>
         <Filename Value="Utils.pas"/>
-        <Caret Line="1" Column="51" TopLine="1"/>
+        <Caret Line="655" Column="42" TopLine="631"/>
       </Position7>
       <Position8>
         <Filename Value="Utils.pas"/>
-        <Caret Line="124" Column="8" TopLine="101"/>
+        <Caret Line="1" Column="72" TopLine="1"/>
       </Position8>
       <Position9>
         <Filename Value="Utils.pas"/>
-        <Caret Line="482" Column="28" TopLine="459"/>
+        <Caret Line="124" Column="8" TopLine="92"/>
       </Position9>
       <Position10>
         <Filename Value="Utils.pas"/>
-        <Caret Line="483" Column="32" TopLine="460"/>
+        <Caret Line="476" Column="42" TopLine="444"/>
       </Position10>
       <Position11>
         <Filename Value="Utils.pas"/>
-        <Caret Line="484" Column="32" TopLine="461"/>
+        <Caret Line="665" Column="18" TopLine="631"/>
       </Position11>
       <Position12>
         <Filename Value="Utils.pas"/>
-        <Caret Line="3" Column="69" TopLine="1"/>
+        <Caret Line="653" Column="35" TopLine="633"/>
       </Position12>
       <Position13>
         <Filename Value="Utils.pas"/>
-        <Caret Line="124" Column="8" TopLine="101"/>
+        <Caret Line="632" Column="1" TopLine="612"/>
       </Position13>
       <Position14>
         <Filename Value="Utils.pas"/>
-        <Caret Line="482" Column="28" TopLine="459"/>
+        <Caret Line="478" Column="1" TopLine="458"/>
       </Position14>
       <Position15>
-        <Filename Value="Utils.pas"/>
-        <Caret Line="484" Column="28" TopLine="461"/>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="1291" Column="1" TopLine="1259"/>
       </Position15>
       <Position16>
         <Filename Value="Utils.pas"/>
-        <Caret Line="485" Column="32" TopLine="462"/>
+        <Caret Line="637" Column="35" TopLine="612"/>
       </Position16>
       <Position17>
         <Filename Value="Utils.pas"/>
-        <Caret Line="486" Column="32" TopLine="463"/>
+        <Caret Line="2" Column="62" TopLine="1"/>
       </Position17>
       <Position18>
         <Filename Value="Utils.pas"/>
-        <Caret Line="5" Column="58" TopLine="1"/>
+        <Caret Line="50" Column="20" TopLine="18"/>
       </Position18>
       <Position19>
         <Filename Value="Utils.pas"/>
-        <Caret Line="48" Column="19" TopLine="25"/>
+        <Caret Line="627" Column="64" TopLine="595"/>
       </Position19>
       <Position20>
         <Filename Value="Utils.pas"/>
-        <Caret Line="359" Column="1" TopLine="335"/>
+        <Caret Line="643" Column="16" TopLine="611"/>
       </Position20>
       <Position21>
         <Filename Value="Utils.pas"/>
-        <Caret Line="361" Column="27" TopLine="338"/>
+        <Caret Line="671" Column="29" TopLine="643"/>
       </Position21>
       <Position22>
         <Filename Value="Utils.pas"/>
-        <Caret Line="174" Column="36" TopLine="166"/>
+        <Caret Line="2" Column="78" TopLine="1"/>
       </Position22>
       <Position23>
         <Filename Value="Utils.pas"/>
-        <Caret Line="3" Column="73" TopLine="1"/>
+        <Caret Line="50" Column="20" TopLine="18"/>
       </Position23>
       <Position24>
-        <Filename Value="Utils.pas"/>
-        <Caret Line="124" Column="8" TopLine="101"/>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="4" Column="64" TopLine="1"/>
       </Position24>
       <Position25>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="1308" Column="36" TopLine="1285"/>
+        <Caret Line="179" Column="23" TopLine="147"/>
       </Position25>
       <Position26>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="52" Column="20" TopLine="38"/>
+        <Caret Line="3" Column="72" TopLine="1"/>
       </Position26>
       <Position27>
         <Filename Value="MainUnit.pas"/>
-        <Caret Line="53" Column="24" TopLine="38"/>
+        <Caret Line="721" Column="19" TopLine="689"/>
       </Position27>
       <Position28>
-        <Filename Value="Utils.pas"/>
-        <Caret Line="3" Column="70" TopLine="1"/>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="5" Column="63" TopLine="1"/>
       </Position28>
       <Position29>
-        <Filename Value="Utils.pas"/>
-        <Caret Line="40" Column="18" TopLine="17"/>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="721" Column="19" TopLine="689"/>
       </Position29>
-      <Position30>
-        <Filename Value="Utils.pas"/>
-        <Caret Line="340" Column="17" TopLine="344"/>
-      </Position30>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
@@ -391,14 +387,8 @@
     </Other>
   </CompilerOptions>
   <Debugging>
-    <BreakPoints Count="1">
-      <Item1>
-        <Source Value="Utils.pas"/>
-        <Line Value="357"/>
-      </Item1>
-    </BreakPoints>
     <Watches Count="1"/>
-    <Exceptions Count="5">
+    <Exceptions Count="6">
       <Item1>
         <Name Value="EAbort"/>
       </Item1>
@@ -414,6 +404,9 @@
       <Item5>
         <Name Value="EListError"/>
       </Item5>
+      <Item6>
+        <Name Value="EIdDnsResolverError"/>
+      </Item6>
     </Exceptions>
   </Debugging>
 </CONFIG>

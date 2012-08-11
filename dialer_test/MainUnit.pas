@@ -410,17 +410,18 @@ begin
       ConnType := reg.ReadInteger('conntype');
     if (ConnType > MAX_CONN_TYPE) or (ConnType < MIN_CONN_TYPE) then
       ConnType := VPN;
-    case ConnType of
-      VPN: ConnSel.Text := 'VPN (default)';
-      PPPoE: ConnSel.Text := 'PPPoE';
-      VPN_POLI: ConnSel.Text := 'VPN (Политех)';
-    end;
 
     i:=CheckConnectType();
     if (i = 1) then
       ConnType := VPN;
     if (i = 4) then
       ConnType := PPPoE;
+
+    case ConnType of
+      VPN: ConnSel.Text := 'VPN (default)';
+      PPPoE: ConnSel.Text := 'PPPoE';
+      VPN_POLI: ConnSel.Text := 'VPN (Политех)';
+    end;
 
     case ConnType of
       VPN: ConnSelImg.Picture.LoadFromLazarusResource('vpn');
@@ -461,6 +462,7 @@ begin
   reg.CloseKey;
   reg.Destroy;
   PassChanged := False;
+
 end;
 
 function TConfigForm.connect(): DWORD;
@@ -509,6 +511,7 @@ begin
   else if (AnsiPOS('l2tp',DNSTC)>0) and (AnsiPOS('pptp',DNSTC)=1)
     then RE.dwVpnStrategy := VS_PptpFirst
   else RE.dwVpnStrategy := VS_L2tpOnly;
+
   {************************************
     конец работы с определением типа VPN
   *************************************}
@@ -1306,6 +1309,7 @@ begin
     PPPoE: ConnSelImg.Picture.LoadFromLazarusResource('pppoe');
   end;
   if Length(DNSTC)<2 then  CheckIP;
+
 end;
 
 procedure TConfigForm.ConnSelClick(Sender: TObject);
