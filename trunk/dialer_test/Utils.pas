@@ -26,7 +26,7 @@ const
 
   VPN_IP ='vpn.dianet.info';
   VPN_IP_POLI ='vpn.dianet.info';
-  VERSION = '1.3.2.4';
+  VERSION = '1.3.2.5';
   RETRAKER_URL = 'http://start.dianet.info';
 
   XML_URL='http://update.dianet.info/dialer/downloads/test/upd.xml';
@@ -473,6 +473,8 @@ begin
       3 = PPPoE or VPN
       4 = PPPoE
       ******************************************}
+   GetTCfromDNS(); //получим DNSTC
+
    if AnsiPOS('pppoe',DNSTC)>0 then result:= 4
    else if AnsiPOS('l2tp',DNSTC)>0 then result:= 1
    else if AnsiPOS('pptp',DNSTC)>0 then result:= 1
@@ -618,7 +620,7 @@ end;
 
 procedure GetTCfromDNS();
 var
-   TheDns: TIdDNSResolver;
+   TheDnsTXT: TIdDNSResolver;
    s,                     // строка запроса в DNS
      s1,                  //строка после парса, до первой точки DNSName
      s2,                   // строка, после первой точки (без влана)
@@ -627,10 +629,10 @@ var
    s4:Tstrings;
    i:integer;             // номер символа точки в строке
 begin
-     TheDns := TIdDNSResolver.Create;
-     TheDns.AllowRecursiveQueries := False;
-     TheDns.Host := '78.109.128.2';
-     TheDns.QueryType := [qtTXT];
+     TheDnsTXT := TIdDNSResolver.Create;
+     TheDnsTXT.AllowRecursiveQueries := False;
+     TheDnsTXT.Host := '78.109.128.2';
+     TheDnsTXT.QueryType := [qtTXT];
 
 if AnsiPOS('.',DNSname)>0  then
 begin
@@ -639,24 +641,20 @@ s1:=Copy(DNSname,0,i);     // копируем всё ДО знака перво
 s2:=Copy(DNSname,i,Length(DNSname)-i+1); // копируем всё ПОСЛЕ первой точки
 
 s3:= StringWork(s1);
-//ShowMessage('s1='+s1+' s2='+s2+' s3='+s3);
 
 s:='proto.'+s3+s2;
-//ShowMessage(s);
-//ShowMessage(s);
 try
-   TheDns.Resolve(s);
+   TheDnsTXT.Resolve(s);
 
-       s4 := TTextRecord(TheDns.QueryResult.Items[0]).text;
+       s4 := TTextRecord(TheDnsTXT.QueryResult.Items[0]).text;
 
        if Length(s4.GetText)>1 then DNSTC:=s4.GetText;
        s4.Clear;
-
 except
 end;
 
 end;
-TheDns.Destroy;
+TheDnsTXT.Destroy;
 end;
 
 
@@ -665,11 +663,7 @@ var i:integer;
 begin
      i:=AnsiPOS('-',s);          // номер знака "-", после номера влана
      s:=Copy(s,0,i-1);          // копируем всё что до знака "-"
-     while AnsiPOS('0',s)=1 do
-     begin
-       s:= Copy(s,2,Length(s)-1);  // урезаем нули перед вланом
-       result:=s;
-     end;
+     result:=s;
 end;
 
 end.

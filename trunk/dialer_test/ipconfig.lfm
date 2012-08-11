@@ -1,13 +1,13 @@
 object Form1: TForm1
-  Left = 344
+  Left = 876
   Height = 286
-  Top = 162
+  Top = 220
   Width = 627
   BorderStyle = bsDialog
   Caption = 'Диагностика'
   ClientHeight = 286
   ClientWidth = 627
-  LCLVersion = '0.9.30'
+  LCLVersion = '0.9.30.4'
   object GroupBox1: TGroupBox
     Left = 16
     Height = 251
