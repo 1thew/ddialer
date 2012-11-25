@@ -578,7 +578,7 @@ end;
 procedure TConfigForm.FormCreate(Sender: TObject);
 begin
   // проверяем параметры реестра для ХР + l2tp
-  if IsOldWindows = 5 then
+  if (IsOldWindows = 5) or (IsOldWindows = 6) then
     CheckRegForl2tp;
 
   // присваиваем что филиал не найден. Если найдётся - дальше исправим
@@ -1406,9 +1406,13 @@ begin
     if PassChanged then
     begin
       tmpstr := '';
-      if GetKeyboardLayout(GetWindowThreadProcessId(GetForegroundWindow, nil)) <>
-        67699721 then
+      // если клавиатура не аглийская - симафорим
+      if (GetKeyboardLayout(GetWindowThreadProcessId(GetForegroundWindow, nil)) <>
+        67699721)
+        and  (Focused =True)
+        then
       begin
+
         Configform.Tray.Hint := 'Ошибка';
         Configform.Tray.BalloonHint :=
           'Раскладка клавиатуры переключена на английскую';
