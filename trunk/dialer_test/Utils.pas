@@ -26,7 +26,7 @@ const
 
   VPN_IP ='vpn.dianet.info';
   VPN_IP_POLI ='vpn.dianet.info';
-  VERSION = '1.3.2.5';
+  VERSION = '1.3.2.6';
   RETRAKER_URL = 'http://start.dianet.info';
 
   XML_URL='http://update.dianet.info/dialer/downloads/test/upd.xml';
