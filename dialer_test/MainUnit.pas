@@ -62,6 +62,7 @@ type
     AboutBtn: TMenuItem;
     Image1: TImage;
     diagnos: TMenuItem;
+    MenuItem1: TMenuItem;
     SayProblem: TMenuItem;
     DoUpdateProgram: TMenuItem;
     LKab: TMenuItem;
@@ -140,6 +141,7 @@ type
     procedure DoUpdateProgramClick(Sender: TObject);
     procedure LKabClick(Sender: TObject);
     procedure diagnosClick(Sender: TObject);
+    procedure MenuItem1Click(Sender: TObject);
     procedure MenuItem4Click(Sender: TObject);
     procedure PogodaClick(Sender: TObject);
     procedure UpdateProgramClick(Sender: TObject);
@@ -740,6 +742,11 @@ begin
   Form1.Show;
 end;
 
+procedure TConfigForm.MenuItem1Click(Sender: TObject);
+begin
+  WinExec(PChar('CONTROL.EXE NCPA.CPL'), SW_NORMAL);
+end;
+
 procedure TConfigForm.MenuItem4Click(Sender: TObject);
 begin
   ShellExecute(Handle, 'open', DIANET_SITE, nil, nil, SW_SHOWMAXIMIZED);
@@ -1044,7 +1051,7 @@ begin
   MessageBoxW(Handle, PWideChar(
     UTF8Decode('    Dianet Dialer, Версия ' + VERSION + PERENOS +
     'Автор программы ' + AUTHOR + PERENOS +
-    '                           ©' + DIANETSTR + ',2011')),
+    '                           ©' + DIANETSTR + ',2013')),
     PWideChar(UTF8Decode('О программе Dianet Dialer')),
     MB_ICONQUESTION);
 end;

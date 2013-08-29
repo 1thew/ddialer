@@ -52,8 +52,8 @@ begin
      IdSSLIOHandlerSocketOpenSSL1.SSLOptions.Method:=sslvSSLv2;
      IdHTTP1.Request.ContentType := 'application/x-www-form-urlencoded';
      IdHTTP1.Request.AcceptCharSet:='windows-1251';
-     IdHTTP1.Post('https://billing.dianet.info:40000/cgi-bin/login.cgi?handler=/cgi-bin/main.cgi', DataStr);
-
+     IdHTTP1.Post('https://billing.dianet.info:40000/cgi-bin/login.cgi?handler=/cgi-bin/main.cgi', dataStr); //??? D->d
+     dataStr.Free;
 
      if IdHTTP1.ResponseCode=200 then
      begin

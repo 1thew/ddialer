@@ -244,6 +244,7 @@ begin
     Delete(TmpString, DelimPos, Length(TmpString));
   end;
   Tokenize := tmpStrList;
+  tmpStrList.Free;
 end;
 
 

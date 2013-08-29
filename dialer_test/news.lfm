@@ -1,7 +1,7 @@
 object NewsForm: TNewsForm
-  Left = 249
+  Left = 267
   Height = 270
-  Top = 211
+  Top = 365
   Width = 433
   BorderStyle = bsDialog
   Caption = 'Новости'
@@ -9,7 +9,7 @@ object NewsForm: TNewsForm
   ClientWidth = 433
   Color = clWhite
   FormStyle = fsStayOnTop
-  LCLVersion = '0.9.30'
+  LCLVersion = '0.9.30.4'
   object StaticText1: TStaticText
     Left = 32
     Height = 48
