@@ -1,7 +1,7 @@
 object ConfigForm: TConfigForm
-  Left = 745
+  Left = 439
   Height = 372
-  Top = 354
+  Top = 218
   Width = 430
   BorderIcons = []
   BorderStyle = bsNone
