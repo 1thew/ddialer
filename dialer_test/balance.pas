@@ -1,11 +1,11 @@
-unit balance;
+п»їunit balance;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, IdHTTP,IdSSLOpenSSL,StrUtils;
+  Classes, SysUtils, IdHTTP,IdSSLOpenSSL,StrUtils, Dialogs;
 
 type
   { TBalanceThread }
@@ -38,47 +38,54 @@ end;
 procedure TBalanceThread.GetBalance();
 var
   dataStr:TStringList;
-  i,i2,i3: AnsiString;
+  i: string;
+  i2,i3: AnsiString;
   p1,p2,p3,p4:integer;
+  IdHTTP_gb : TIdHTTP;
+  IdSSL1:TIdSSLIOHandlerSocketOpenSSL;
 begin
-  BalanceFound:=false;              // обнулим, потому что могут быть старые данные.
+  BalanceFound:=false;              // РѕР±РЅСѓР»РёРј, РїРѕС‚РѕРјСѓ С‡С‚Рѕ РјРѕРіСѓС‚ Р±С‹С‚СЊ СЃС‚Р°СЂС‹Рµ РґР°РЅРЅС‹Рµ.
   dataStr:=TStringList.Create();
   dataStr.Values['login'] := ConfigForm.Login.Caption;
   dataStr.Values['pass'] := ConfigForm.Pass.Caption;
   try
-     IdHTTP1 := TIdHTTP.Create(nil);
-     IdSSLIOHandlerSocketOpenSSL1:=TIdSSLIOHandlerSocketOpenSSL.Create(nil);
-     IdHTTP1.IOHandler := IdSSLIOHandlerSocketOpenSSL1;
-     IdSSLIOHandlerSocketOpenSSL1.SSLOptions.Method:=sslvSSLv2;
-     IdHTTP1.Request.ContentType := 'application/x-www-form-urlencoded';
-     IdHTTP1.Request.AcceptCharSet:='windows-1251';
-     IdHTTP1.Post('https://billing.dianet.info:40000/cgi-bin/login.cgi?handler=/cgi-bin/main.cgi', dataStr); //??? D->d
-     dataStr.Free;
+     IdHTTP_gb := TIdHTTP.Create;
+     IdSSL1:=TIdSSLIOHandlerSocketOpenSSL.Create;
+     IdHTTP_gb.IOHandler := IdSSL1;
+     IdSSL1.SSLOptions.Method:=sslvSSLv2;
+     IdHTTP_gb.Request.ContentType := 'text/html';
+     IdHTTP_gb.Request.AcceptCharSet:='windows-1251';
+     IdHTTP_gb.Request.Connection := 'keep-alive';
+     IdHTTP_gb.Post('https://billing.dianet.info:40000/cgi-bin/login.cgi?handler=/cgi-bin/main.cgi', dataStr); //??? D->d
 
-     if IdHTTP1.ResponseCode=200 then
+     if IdHTTP_gb.ResponseCode=200 then
      begin
-
-       i:=IdHTTP1.Get('https://billing.dianet.info:40000/cgi-bin/main.cgi');
-
+       i:=IdHTTP_gb.Get('https://billing.dianet.info:40000/cgi-bin/main.cgi');
      end;
-
-  finally idHTTP1.Free;
+     IdHTTP_gb.Disconnect;
+     idHTTP_gb.Free;
+     dataStr.Free;
+     except
+           on E : Exception do
+           begin
+                ShowMessage(E.ClassName+' РїРѕРґРЅСЏС‚Р° РѕС€РёР±РєР°, СЃ СЃРѕРѕР±С‰РµРЅРёРµРј : '+E.Message);
+           end;
   end;
 
-  p1:=Pos('<tr><td><b>Текущий баланс:</b></td><td><font color=red>',i);
+  p1:=Pos('<td id="acc_balance_sub">',i);
   if (p1>0) then
   begin
-       p2:= PosEx('</font>',i, p1);
-       p3:=p1+Length('<tr><td><b>Текущий баланс:</b></td><td><font color=red>');
+       p2:= PosEx('</td>',i, p1);
+       p3:=p1+Length('<td id="acc_balance_sub">');
        i2:=copy(i,p3,p2-p3);
-       // если число минусовое то:
+       // РµСЃР»Рё С‡РёСЃР»Рѕ РјРёРЅСѓСЃРѕРІРѕРµ С‚Рѕ:
        if Pos('-',i2)>0 then begin
           i2:=copy(i2,2,Length(i2)-1);
           BalanceStr:='-'+i2;
           BalanceMinus:=true;
           BalanceFound:=true;
-                 // конвертируем в int
-                 // p4 - позиция точки в i2
+                 // РєРѕРЅРІРµСЂС‚РёСЂСѓРµРј РІ int
+                 // p4 - РїРѕР·РёС†РёСЏ С‚РѕС‡РєРё РІ i2
                  p4:=Pos('.',i2);
                  i3:=copy(i2,1,p4-1);
                  BalanceIntg:=StrToInt(i3);
@@ -86,25 +93,26 @@ begin
   end
   else
   begin
-            p1:=Pos('<tr><td><b>Текущий баланс:</b></td><td>',i);
+            p1:=Pos('<td id="acc_balance">',i);
             if (p1>0) then
             begin
-                 p2:= PosEx('</td></tr><tr><td><b>',i, p1);
-                 p3:=p1+Length('<tr><td><b>Текущий баланс:</b></td><td>');
+                 p2:= PosEx('</td>',i, p1);
+                 p3:=p1+Length('<td id="acc_balance">');
                  i2:=copy(i,p3,p2-p3);
                  BalanceMinus:=false;
                  BalanceStr:= i2;
                  BalanceFound:=true;
-                 // конвертируем в int
-                 // p4 - позиция точки в i2
+                 // РєРѕРЅРІРµСЂС‚РёСЂСѓРµРј РІ int
+                 // p4 - РїРѕР·РёС†РёСЏ С‚РѕС‡РєРё РІ i2
                  p4:=Pos('.',i2);
                  i3:=copy(i2,1,p4-1);
-                 BalanceIntg:=StrToInt(i3);
             end;
+
   end;
 
-
 end;
+
+
 
 
 end.
