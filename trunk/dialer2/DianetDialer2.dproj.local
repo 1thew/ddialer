@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.138,=C:\Users\derwin\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.762,=C:\Users\derwin\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.372,=C:\Users\derwin\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.807,=C:\Users\derwin\Documents\RAD Studio\Projects\ItemDetail1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.610,=C:\Users\derwin\Documents\RAD Studio\Projects\GridPaneView1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.133,=C:\Users\derwin\Documents\RAD Studio\Projects\SplitItemDetail1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.680,=C:\Users\derwin\Documents\RAD Studio\Projects\GroupedItems1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.016,=C:\Users\derwin\Documents\RAD Studio\Projects\GroupedItems1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.826,=C:\Users\derwin\Documents\RAD Studio\Projects\SplitPaneView1.pas</Transaction>
+    <Transaction>2014.01.26 21:27:02.574,=C:\Users\derwin\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2014.01.26 21:45:32.304,D:\Ddialer\dialer2\MainUnit.pas=C:\Users\derwin\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2014.01.26 21:45:32.304,D:\Ddialer\dialer2\MainUnit.dfm=C:\Users\derwin\Documents\RAD Studio\Projects\Unit1.dfm</Transaction>
+    <Transaction>2014.01.26 21:45:45.120,D:\Ddialer\dialer2\DianetDialer2.dproj=C:\Users\derwin\Documents\RAD Studio\Projects\Project1.dproj</Transaction>
+  </Transactions>
+</BorlandProject>
