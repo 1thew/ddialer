@@ -2,9 +2,10 @@ program DianetDialer2;
 
 uses
   Vcl.Forms,
-  MainUnit in 'MainUnit.pas' {Form1},
+  MainUnit in 'MainUnit.pas' {MainForm},
   Vcl.Themes,
-  Vcl.Styles;
+  Vcl.Styles,
+  Utils in 'Utils.pas';
 
 {$R *.res}
 
@@ -12,6 +13,6 @@ begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
   TStyleManager.TrySetStyle('Metropolis UI Dianet');
-  Application.CreateForm(TForm1, Form1);
+  Application.CreateForm(TMainForm, MainForm);
   Application.Run;
 end.
