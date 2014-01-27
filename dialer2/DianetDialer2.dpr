@@ -11,7 +11,7 @@ uses
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-  TStyleManager.TrySetStyle('Metropolis UI Blue');
+  TStyleManager.TrySetStyle('Metropolis UI Dianet');
   Application.CreateForm(TForm1, Form1);
   Application.Run;
 end.
