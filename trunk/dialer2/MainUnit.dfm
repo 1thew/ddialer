@@ -3,7 +3,7 @@ object MainForm: TMainForm
   Top = 0
   BorderStyle = bsDialog
   Caption = 'Dianet Dialer 2'
-  ClientHeight = 348
+  ClientHeight = 361
   ClientWidth = 309
   Color = 4231935
   Font.Charset = DEFAULT_CHARSET
@@ -14,6 +14,9 @@ object MainForm: TMainForm
   OldCreateOrder = False
   Position = poDesktopCenter
   StyleElements = [seFont, seBorder]
+  OnClose = FormClose
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 25
   object Image1: TImage
@@ -2152,12 +2155,11 @@ object MainForm: TMainForm
     ParentFont = False
   end
   object Button1: TButton
-    Left = 56
-    Top = 288
+    Left = 8
+    Top = 280
     Width = 199
     Height = 52
     Caption = #1055#1086#1076#1082#1083#1102#1095#1080#1090#1100
-    Enabled = False
     TabOrder = 0
   end
   object LoginEdit: TEdit
@@ -2168,15 +2170,7 @@ object MainForm: TMainForm
     TabOrder = 1
     Text = #1051#1086#1075#1080#1085
   end
-  object PassEdit: TEdit
-    Left = 56
-    Top = 240
-    Width = 199
-    Height = 33
-    TabOrder = 2
-    Text = #1055#1072#1088#1086#1083#1100
-  end
-  object AutoLoad: TCheckBox
+  object AutoRun: TCheckBox
     Left = 151
     Top = 32
     Width = 130
@@ -2188,9 +2182,9 @@ object MainForm: TMainForm
     Font.Name = 'Segoe UI Light'
     Font.Style = []
     ParentFont = False
-    TabOrder = 3
+    TabOrder = 2
   end
-  object CheckBox2: TCheckBox
+  object SaveData: TCheckBox
     Left = 151
     Top = 87
     Width = 130
@@ -2202,8 +2196,32 @@ object MainForm: TMainForm
     Font.Name = 'Segoe UI Light'
     Font.Style = []
     ParentFont = False
-    TabOrder = 4
+    TabOrder = 3
     WordWrap = True
+  end
+  object PassEdit: TEdit
+    Left = 56
+    Top = 230
+    Width = 199
+    Height = 33
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clGray
+    Font.Height = -19
+    Font.Name = 'Segoe UI Light'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 4
+    Text = #1055#1072#1088#1086#1083#1100
+    StyleElements = []
+  end
+  object Test: TButton
+    Left = 237
+    Top = 280
+    Width = 75
+    Height = 52
+    Caption = 'Test'
+    TabOrder = 5
+    OnClick = TestClick
   end
   object TrayIcon: TTrayIcon
     Icon.Data = {
@@ -4323,6 +4341,7 @@ object MainForm: TMainForm
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
     PopupMenu = PopupMenu
     Visible = True
+    OnClick = TrayIconClick
     Left = 280
     Top = 152
   end
@@ -4495,7 +4514,7 @@ object MainForm: TMainForm
       Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077
       OnClick = AboutBtnClick
     end
-    object N1: TMenuItem
+    object N1String: TMenuItem
       Caption = '-'
     end
     object CloseBtn: TMenuItem
